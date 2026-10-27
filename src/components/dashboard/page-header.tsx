@@ -24,7 +24,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
 /** Breadcrumbs, light display title, optional centre nav (middle) and status chip (right). */
 export function PageHeader({ crumbs, title, aside, children }: { crumbs: Crumb[]; title: string; aside?: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <header className="animate-enter mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="min-w-0">
         <Breadcrumbs items={crumbs} />
         <h1 className="mt-2 text-[1.875rem] leading-tight font-normal tracking-[-0.025em] sm:text-display">{title}</h1>

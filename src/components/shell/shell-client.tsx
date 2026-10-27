@@ -35,7 +35,7 @@ export function TopNav({ entries, maxVisible = 6 }: { entries: NavEntry[]; maxVi
       <PillGroup variant="nav" ariaLabel="Primary" items={items} activeKey={active?.key} />
       {overflow.length > 0 && (
         <Menu>
-          <MenuTrigger className="grid size-10 place-items-center rounded-full bg-surface/80 text-ink-2 shadow-card ring-1 ring-line/70 backdrop-blur-xl hover:text-ink" aria-label="More sections"><MoreHorizontal className="size-4" /></MenuTrigger>
+          <MenuTrigger className="grid size-10 place-items-center rounded-full bg-surface/80 text-ink-2 shadow-card ring-1 ring-line/70 backdrop-blur-xl transition-[color,transform] duration-200 hover:text-ink active:scale-95" aria-label="More sections"><MoreHorizontal className="size-4" /></MenuTrigger>
           <MenuContent>
             {overflow.map((e) => (
               <MenuItem key={e.key} asChild><Link href={e.href} className="justify-between">{e.label}{e.badge ? <CountBadge count={e.badge} /> : null}</Link></MenuItem>
@@ -54,7 +54,7 @@ export function MobileNav({ entries }: { entries: NavEntry[] }) {
   useEffect(() => setOpen(false), [pathname]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <D.Trigger className="grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line lg:hidden" aria-label="Open navigation"><MenuIcon className="size-4.5" /></D.Trigger>
+      <D.Trigger className="grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-95 lg:hidden" aria-label="Open navigation"><MenuIcon className="size-4.5" /></D.Trigger>
       <DrawerContent title="Navigate">
         <nav aria-label="Primary (mobile)">
           <ul className="grid gap-1">
@@ -187,7 +187,7 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
     <>
       <aside
         aria-label="Utilities"
-        className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full bg-toolbar p-1.5 shadow-pop ring-1 ring-white/5 lg:top-1/2 lg:bottom-auto lg:left-6 lg:translate-x-0 lg:-translate-y-1/2 lg:flex-col"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full bg-toolbar p-1.5 shadow-pop ring-1 ring-white/5 lg:top-1/2 lg:bottom-auto lg:left-6 lg:translate-x-0 lg:-translate-y-1/2 lg:flex-col"
       >
         <button className={btn} onClick={() => setCmdOpen(true)} aria-label="Search (Ctrl K)"><Search />{tip("Search  ⌘K")}</button>
         <Menu>
@@ -236,7 +236,7 @@ export function NotificationsMenu({ items }: { items: ShellNotification[] }) {
   const unread = items.filter((n) => !n.read).length;
   return (
     <Menu>
-      <MenuTrigger className="relative grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-transform hover:scale-105" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
+      <MenuTrigger className="relative grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-95" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
         <Bell className="size-4" strokeWidth={1.75} />
         {unread > 0 && <span className="absolute top-2 right-2.5 size-2 rounded-full bg-orange ring-2 ring-surface" aria-hidden />}
       </MenuTrigger>
@@ -266,7 +266,7 @@ export function ProfileMenu({ name, email, initials, role, roles }: { name: stri
   const [pending, start] = useTransition();
   return (
     <Menu>
-      <MenuTrigger className="grid size-10 place-items-center rounded-full bg-[#cfe6e4] text-[12px] font-semibold text-[#1f4b48] ring-2 ring-surface transition-transform hover:scale-105 dark:bg-[#1f3b39] dark:text-[#bfe3df]" aria-label={`Account: ${name}`}>
+      <MenuTrigger className="grid size-10 place-items-center rounded-full bg-[#cfe6e4] text-[12px] font-semibold text-[#1f4b48] ring-2 ring-surface transition-transform duration-200 active:scale-95 dark:bg-[#1f3b39] dark:text-[#bfe3df]" aria-label={`Account: ${name}`}>
         {initials}
       </MenuTrigger>
       <MenuContent className="w-72">
@@ -302,7 +302,7 @@ export function CentreSelect({ centres }: { centres: { id: string; name: string 
   };
   return (
     <Menu>
-      <MenuTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-surface px-3.5 text-label font-medium shadow-card ring-1 ring-line/70 hover:bg-surface-2">
+      <MenuTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-surface px-3.5 text-label font-medium shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-[0.97]">
         <Building2 className="size-4 text-ink-3" />
         <span className="max-w-32 truncate">{label}</span>
         <ChevronDown className="size-3.5 text-ink-3" />

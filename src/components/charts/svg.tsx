@@ -1,4 +1,5 @@
-// Server-renderable, dependency-free chart primitives. Animate on mount via CSS only.
+// Server-renderable, dependency-free chart primitives. Animate on mount via CSS only; draw-ins wait for
+// --enter-delay (set by .stagger) so they start with their card instead of finishing while it is still hidden.
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { Tone } from "@/components/ui/badge";
@@ -38,14 +39,15 @@ export function Sparkline({ data, tone, className, label }: { data: number[]; to
         strokeLinecap="round"
         pathLength={1}
         strokeDasharray={1}
-        className="[animation:spark-draw_1.2s_var(--ease-out-3)_both]"
+        className="spark-draw"
       />
     </svg>
   );
 }
 
 /** Speedometer-style gauge from the reference "On-time delivery" card. value/target are 0..1. */
-export function Gauge({ value, target, label, caption }: { value: number; target?: number; label: string; caption?: string }) {
+/** `note` sits under the value ("November so far"); `caption` below the dial ("Target 92% · 12-month average 91.3%"). */
+export function Gauge({ value, target, label, caption, note }: { value: number; target?: number; label: string; caption?: string; note?: string }) {
   const r = 70, cx = 90, cy = 88, sweep = 240, start = 150;
   const polar = (deg: number, rad = r) => [cx + rad * Math.cos((deg * Math.PI) / 180), cy + rad * Math.sin((deg * Math.PI) / 180)] as const;
   const arc = (from: number, to: number) => {
@@ -55,24 +57,27 @@ export function Gauge({ value, target, label, caption }: { value: number; target
   const v = Math.max(0, Math.min(1, value));
   const needle = start + sweep * v;
   const tone = target === undefined || v >= target ? "var(--green)" : v >= target - 0.08 ? "var(--amber)" : "var(--red)";
-  const ticks = Array.from({ length: 13 }, (_, i) => start + (sweep * i) / 12);
+  const ticks = Array.from({ length: 7 }, (_, i) => start + (sweep * i) / 6);
   return (
     <figure className="flex flex-col items-center">
       <svg viewBox="0 0 180 150" className="w-full max-w-[220px]" role="img" aria-label={`${label}: ${Math.round(v * 100)}%`}>
         <path d={arc(start, start + sweep)} stroke="var(--surface-3)" strokeWidth={14} fill="none" strokeLinecap="round" />
-        <path d={arc(start, start + sweep)} stroke={tone} strokeWidth={14} fill="none" strokeLinecap="round" pathLength={1} strokeDasharray={`${v} 1`} className="[animation:gauge-fill_1.3s_var(--ease-out-3)_both]" />
+        <path d={arc(start, start + sweep)} stroke={tone} strokeWidth={14} fill="none" strokeLinecap="round" pathLength={1} strokeDasharray={`${v} 1`} className="gauge-fill" />
         {ticks.map((t) => {
-          const [x1, y1] = polar(t, 52), [x2, y2] = polar(t, 47);
-          return <line key={t} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--line-strong)" strokeWidth={1.5} strokeLinecap="round" />;
+          const [x1, y1] = polar(t, 54), [x2, y2] = polar(t, 47);
+          return <line key={t} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--ink-3)" strokeOpacity={0.6} strokeWidth={1.5} strokeLinecap="round" />;
         })}
         {target !== undefined && (() => { const [x1, y1] = polar(start + sweep * target, 60), [x2, y2] = polar(start + sweep * target, 80); return <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--ink)" strokeWidth={2} strokeLinecap="round" />; })()}
-        <g style={{ transformOrigin: `${cx}px ${cy}px`, ["--needle" as string]: `${needle - 360}deg` }} className="[animation:needle-swing_1.4s_var(--ease-spring)_both] [transform:rotate(var(--needle))]">
-          <line x1={cx} y1={cy} x2={cx + 44} y2={cy} stroke="var(--ink)" strokeWidth={3} strokeLinecap="round" />
+        <g style={{ transformOrigin: `${cx}px ${cy}px`, ["--needle" as string]: `${needle - 360}deg` }} className="needle-swing [transform:rotate(var(--needle))]">
+          {/* Tapered needle, as in the reference dial */}
+          <path d={`M${cx} ${cy - 3} L${cx + 46} ${cy - 0.75} Q${cx + 47.5} ${cy} ${cx + 46} ${cy + 0.75} L${cx} ${cy + 3} Z`} fill="var(--ink)" />
         </g>
-        <circle cx={cx} cy={cy} r={7} fill="var(--surface)" stroke="var(--ink)" strokeWidth={3} />
-        <text x={cx} y={cy + 32} textAnchor="middle" className="fill-ink text-[22px] font-medium tabular">{Math.round(v * 100)}%</text>
+        <circle cx={cx} cy={cy} r={7.5} fill="var(--ink)" />
+        <circle cx={cx} cy={cy} r={3} fill="var(--surface)" />
+        <text x={cx} y={cy + (note ? 30 : 34)} textAnchor="middle" className="fill-ink text-[22px] font-medium tracking-[-0.02em] tabular">{Math.round(v * 100)}%</text>
+        {note && <text x={cx} y={cy + 47} textAnchor="middle" className="fill-ink-3 text-[11px]">{note}</text>}
       </svg>
-      {caption && <figcaption className="-mt-3 text-center text-label text-ink-3">{caption}</figcaption>}
+      {caption && <figcaption className="-mt-2 text-center text-label text-ink-2">{caption}</figcaption>}
     </figure>
   );
 }
@@ -114,7 +119,7 @@ export function CategoryDistribution({ segments, label }: { segments: Segment[];
     <div>
       <div className="flex h-3 w-full gap-[3px] overflow-hidden rounded-full" role="img" aria-label={label}>
         {segments.map((s, i) => (
-          <div key={s.label} className={cn("bar-grow h-full first:rounded-l-full last:rounded-r-full", toneBg[s.tone])} style={{ width: `${(s.value / total) * 100}%`, animationDelay: `${i * 60}ms` }} />
+          <div key={s.label} className={cn("bar-grow h-full first:rounded-l-full last:rounded-r-full", toneBg[s.tone])} style={{ width: `${(s.value / total) * 100}%`, animationDelay: `calc(var(--enter-delay, 0ms) + ${i * 60}ms)` }} />
         ))}
       </div>
       <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2.5 sm:grid-cols-2">
@@ -143,7 +148,7 @@ export function ComparisonBars({ rows, label }: { rows: { label: string; sub?: s
             {r.sub && <p className="truncate text-[11.5px] text-ink-3">{r.sub}</p>}
           </div>
           <div className="relative h-2.5 rounded-full bg-surface-3">
-            <div className={cn("bar-grow h-full rounded-full", toneBg[r.tone ?? "slate"])} style={{ width: `${(r.value / max) * 100}%`, animationDelay: `${i * 70}ms` }} />
+            <div className={cn("bar-grow h-full rounded-full", toneBg[r.tone ?? "slate"])} style={{ width: `${(r.value / max) * 100}%`, animationDelay: `calc(var(--enter-delay, 0ms) + ${i * 70}ms)` }} />
             {r.marker !== undefined && <span className="absolute top-1/2 h-4 w-0.5 -translate-y-1/2 rounded bg-ink" style={{ left: `${(r.marker / max) * 100}%` }} title="Budget" />}
           </div>
           <span className="text-label font-medium tabular">{r.display}</span>

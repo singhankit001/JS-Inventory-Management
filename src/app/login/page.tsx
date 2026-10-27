@@ -24,7 +24,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <p className="mt-4 max-w-sm text-body text-ink-2">Stock, requests, purchasing, receiving and finance for every Jumpstart International Preschool centre.</p>
         <p className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-amber-soft px-3 py-1.5 text-[12px] font-medium text-amber"><FlaskConical className="size-3.5" />Demo mode — choose a seeded account. No real data.</p>
       </section>
-      <section className="card stagger animate-enter p-3" aria-labelledby="pick">
+      <section className="card stagger p-3" aria-labelledby="pick">
         <h2 id="pick" className="px-3 pt-3 pb-2 text-title">Sign in as</h2>
         {error && <p role="alert" className="mx-3 mb-2 rounded-[12px] bg-red-soft px-3 py-2 text-label text-red">That account can&apos;t sign in. Pick another.</p>}
         {users.map((u) => (

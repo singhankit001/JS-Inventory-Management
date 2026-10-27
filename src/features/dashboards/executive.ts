@@ -74,12 +74,14 @@ export async function loadExecutive(repo: Repository) {
     },
     valuation: {
       total: money(totalValue),
+      totalValue, // paise, for AnimatedNumber
       units: count(balances.reduce((s, b) => s + b.onHand, 0)),
       variance: periods.map((p, i) => ({ label: monthLabel(p), value: (allocByPeriod[i] ?? 0) - (spendByPeriod[i] ?? 0) })),
       underBudget: (allocByPeriod.at(-1) ?? 0) - monthSpend,
     },
     kpis: {
       spend: moneyCompact(monthSpend),
+      spendValue: monthSpend, // paise, for AnimatedNumber
       spendSpark: spendByPeriod,
       spendChange: prevSpend ? monthSpend / prevSpend - 1 : 0,
       critical: critical.length,
