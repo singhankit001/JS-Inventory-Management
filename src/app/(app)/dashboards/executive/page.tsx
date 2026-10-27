@@ -110,7 +110,7 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
           </ul>
         </Card>
         <Card aria-label="Critical stock alerts">
-          <CardHeader icon={PackageSearch} title="Critical stock" subtitle={`${d.alertsTotal} items at or below half their reorder point`} />
+          <CardHeader icon={PackageSearch} title="Critical stock" subtitle={`${d.alertsTotal} item${d.alertsTotal === 1 ? "" : "s"} at or below half their reorder point`} />
           <DataList rows={d.alerts} empty="No critical stock" label="Critical stock alerts" />
         </Card>
         <Card aria-label="Procurement cycle performance" className="md:col-span-2 xl:col-span-1">
