@@ -1,0 +1,315 @@
+@import "tailwindcss";
+@import "@fontsource-variable/outfit";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ───────────────────────── Design tokens ─────────────────────────
+   Sampled from the reference ERP video (light frame 0.3s, dark frame 6.0s).
+   Components reference these only through the Tailwind theme below. */
+:root {
+  color-scheme: light;
+  /* Surfaces */
+  --canvas: #f1f3f0;            /* page background, warm off-white */
+  --canvas-glow: #f8f9f6;       /* centre of the radial wash behind content */
+  --surface: #fafbf9;           /* card */
+  --surface-2: #f2f4f1;         /* inset tile inside a card */
+  --surface-3: #e9ece8;         /* hover / segmented track */
+  --line: #e3e6e1;
+  --line-strong: #d3d7d1;
+  /* Ink */
+  --ink: #0e1010;
+  --ink-2: #565b58;
+  --ink-3: #8d928e;
+  /* Emphasis cards — black primary, pale-blue secondary (inverted in dark) */
+  --primary-card: #0e1010;
+  --primary-card-ink: #f4f5f3;
+  --primary-card-ink-2: #a5aaa6;
+  --secondary-card: #bfd5f0;
+  --secondary-card-ink: #0e1010;
+  --secondary-card-ink-2: #4b5d73;
+  /* Navigation */
+  --pill: #0e1010;
+  --pill-ink: #ffffff;
+  --toolbar: #0e1010;
+  --toolbar-ink: #c9ccca;
+  /* Data colours (charts, heatmaps, category bars) */
+  --blue: #3e6db4;
+  --blue-soft: #dbe6f5;
+  --orange: #d6603a;
+  --orange-soft: #f7e1d8;
+  --green: #3d8b5a;
+  --green-soft: #dcefe2;
+  --amber: #c08b22;
+  --amber-soft: #f6ecd2;
+  --violet: #7464c0;
+  --violet-soft: #e6e2f6;
+  --slate: #67768a;
+  --slate-soft: #e3e7ec;
+  --red: #c7364a;
+  --red-soft: #f7dde1;
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgb(20 28 22 / 0.04), 0 12px 32px -18px rgb(20 28 22 / 0.18);
+  --shadow-float: 0 1px 2px rgb(20 28 22 / 0.05), 0 18px 40px -16px rgb(20 28 22 / 0.22);
+  --shadow-pop: 0 24px 60px -20px rgb(20 28 22 / 0.35);
+  --focus: #3e6db4;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0a0c0c;
+  --canvas-glow: #121515;
+  --surface: #141717;
+  --surface-2: #1b1f1e;
+  --surface-3: #232827;
+  --line: #232827;
+  --line-strong: #303634;
+  --ink: #f1f3f0;
+  --ink-2: #a4a9a5;
+  --ink-3: #6f7571;
+  --primary-card: #f1f3f0;
+  --primary-card-ink: #0e1010;
+  --primary-card-ink-2: #5b605d;
+  --secondary-card: #21466c;
+  --secondary-card-ink: #eef4fb;
+  --secondary-card-ink-2: #a9bfd9;
+  --pill: #f4f5f3;
+  --pill-ink: #0e1010;
+  --toolbar: #161919;
+  --toolbar-ink: #a4a9a5;
+  --blue: #6e9be0;
+  --blue-soft: #1c2a3d;
+  --orange: #ec7a52;
+  --orange-soft: #3a221a;
+  --green: #5fb37f;
+  --green-soft: #18301f;
+  --amber: #dcac48;
+  --amber-soft: #352b15;
+  --violet: #9d8fe6;
+  --violet-soft: #262141;
+  --slate: #93a3b8;
+  --slate-soft: #222a33;
+  --red: #ec6476;
+  --red-soft: #3a1b20;
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 12px 32px -18px rgb(0 0 0 / 0.7);
+  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 18px 40px -16px rgb(0 0 0 / 0.8);
+  --shadow-pop: 0 24px 60px -20px rgb(0 0 0 / 0.9);
+  --focus: #6e9be0;
+}
+
+@theme inline {
+  --font-sans: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-primary-card: var(--primary-card);
+  --color-primary-card-ink: var(--primary-card-ink);
+  --color-primary-card-ink-2: var(--primary-card-ink-2);
+  --color-secondary-card: var(--secondary-card);
+  --color-secondary-card-ink: var(--secondary-card-ink);
+  --color-secondary-card-ink-2: var(--secondary-card-ink-2);
+  --color-pill: var(--pill);
+  --color-pill-ink: var(--pill-ink);
+  --color-toolbar: var(--toolbar);
+  --color-toolbar-ink: var(--toolbar-ink);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+  --color-orange: var(--orange);
+  --color-orange-soft: var(--orange-soft);
+  --color-green: var(--green);
+  --color-green-soft: var(--green-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-slate: var(--slate);
+  --color-slate-soft: var(--slate-soft);
+  --color-red: var(--red);
+  --color-red-soft: var(--red-soft);
+  --color-focus: var(--focus);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --shadow-pop: var(--shadow-pop);
+
+  /* Radius scale — card 22px, tile 14px, control 12px, pills fully round */
+  --radius-card: 22px;
+  --radius-tile: 14px;
+  --radius-control: 12px;
+
+  /* Type scale (size / line-height) */
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1rem;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.125rem;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.375rem;
+  --text-metric: 1.75rem;
+  --text-metric--line-height: 2rem;
+  --text-metric-lg: 2.375rem;
+  --text-metric-lg--line-height: 2.625rem;
+  --text-title: 1.0625rem;
+  --text-title--line-height: 1.5rem;
+  --text-display: 2.25rem;
+  --text-display--line-height: 2.5rem;
+
+  /* Motion — power3 curves from the reference's GSAP pill animation */
+  --ease-out-3: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-in-out-3: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --ease-spring: cubic-bezier(0.22, 1.2, 0.36, 1);
+
+  --breakpoint-xs: 26rem;
+  --breakpoint-3xl: 112rem;
+}
+
+/* ───────────── Motion tokens (used outside Tailwind utilities) ───────────── */
+:root {
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-lead: 360ms;   /* pill leading edge */
+  --dur-trail: 550ms;  /* pill trailing edge */
+  --dur-page: 520ms;
+}
+
+@layer base {
+  html {
+    background: var(--canvas);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100dvh;
+    background:
+      radial-gradient(1200px 600px at 55% -10%, var(--canvas-glow), transparent 70%),
+      var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    transition: background-color var(--dur-base) var(--ease-out-3), color var(--dur-base) var(--ease-out-3);
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+  ::selection {
+    background: var(--blue-soft);
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+}
+
+/* ───────────── Sliding pill (frame-accurate port of the reference slidePill) ─────────────
+   The pill is a full-size layer clipped to the active tab. --pl/--pr are animated as separate
+   registered properties so the leading edge (0.36s power3.out) outruns the trailing edge
+   (0.55s power3.inOut), giving the stretch-then-settle feel from the video. */
+@property --pl { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --pr { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --pt { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --pb { syntax: "<length>"; inherits: false; initial-value: 0px; }
+
+.slide-pill {
+  clip-path: inset(var(--pt) var(--pr) var(--pb) var(--pl) round 999px);
+}
+.slide-pill[data-dir="fwd"] {
+  transition:
+    --pr var(--dur-lead) var(--ease-out-3),
+    --pl var(--dur-trail) var(--ease-in-out-3),
+    --pt var(--dur-lead) var(--ease-out-3),
+    --pb var(--dur-lead) var(--ease-out-3);
+}
+.slide-pill[data-dir="back"] {
+  transition:
+    --pl var(--dur-lead) var(--ease-out-3),
+    --pr var(--dur-trail) var(--ease-in-out-3),
+    --pt var(--dur-lead) var(--ease-out-3),
+    --pb var(--dur-lead) var(--ease-out-3);
+}
+
+/* ───────────── Page / panel enter: blur-fade, as seen when switching tabs in the video ───────────── */
+@keyframes enter {
+  from { opacity: 0; filter: blur(10px); transform: translateY(6px) scale(0.995); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+.animate-enter {
+  animation: enter var(--dur-page) var(--ease-out-3) both;
+}
+.stagger > * {
+  animation: enter var(--dur-page) var(--ease-out-3) both;
+}
+.stagger > *:nth-child(2) { animation-delay: 40ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
+.stagger > *:nth-child(n + 7) { animation-delay: 240ms; }
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--radius-tile);
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.animate-pop { animation: pop-in var(--dur-base) var(--ease-out-3) both; }
+
+@keyframes ring-draw {
+  from { stroke-dashoffset: var(--ring-len); }
+}
+.ring-draw { animation: ring-draw 1100ms var(--ease-out-3) both; }
+
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+}
+.bar-grow { transform-origin: left; animation: bar-grow 900ms var(--ease-out-3) both; }
+
+@keyframes cell-in {
+  from { opacity: 0; transform: scale(0.6); }
+}
+.cell-in { animation: cell-in 420ms var(--ease-spring) both; }
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--green) 45%, transparent); }
+  50% { box-shadow: 0 0 0 5px transparent; }
+}
+.pulse-dot { animation: pulse-dot 2s var(--ease-in-out-3) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@keyframes drawer-in { from { opacity: 0; transform: translateX(24px); } }
+@keyframes drawer-up { from { opacity: 0; transform: translateY(32px); } }
+
+@keyframes spark-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes gauge-fill { from { stroke-dasharray: 0 1; } }
+@keyframes needle-swing { from { transform: rotate(-210deg); } }
