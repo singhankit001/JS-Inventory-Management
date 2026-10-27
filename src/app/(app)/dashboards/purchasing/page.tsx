@@ -153,7 +153,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
         </div>
         <Card>
           <DataTable
-            label="Best price per product" exportName="best-prices" pageSize={10}
+            label="Best price per product" exportName="best-prices" pageSize={10} filters={[{ key: "supplier", label: "best supplier" }, { key: "quotes", label: "quotes" }]}
             emptyTitle="No priced quotations yet"
             columns={[
               { key: "product", header: "Product" },
