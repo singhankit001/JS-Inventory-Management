@@ -5,6 +5,7 @@ import type {
   StockMovement, Supplier, SupplierQuotation, UnitOfMeasure, User,
 } from "@/domain/types";
 import { buildSeed, type SeedData } from "./seed";
+import { orderedUnits, receiptOutcome } from "@/features/dashboards/receiving";
 
 /** Which centres a caller may read. "all" only for organisation-scoped roles. */
 export type CentreScope = "all" | readonly ID[];
@@ -105,4 +106,31 @@ export function listDemoUsers(): User[] {
 }
 export function allCentres(): Centre[] {
   return getSeed().centres;
+}
+
+// ---- Receiving writes (append-only section) ----
+
+export interface ReceiptInput { purchaseOrderId: ID; receivedQty: number; damagedQty: number; actorId: ID }
+
+/**
+ * Records a goods receipt against an issued PO in the caller's scope, updates the PO status and writes an audit event.
+ * shortcut: mutates the in-memory demo seed, which resets daily (and on server restart); Phase 2 writes to Postgres in one transaction.
+ */
+export function recordReceipt(scope: CentreScope, input: ReceiptInput): { ok: true; receipt: GoodsReceipt; po: PurchaseOrder } | { ok: false; error: string } {
+  const s = getSeed();
+  const po = s.purchaseOrders.find((p) => p.id === input.purchaseOrderId && (scope === "all" || scope.includes(p.centreId)));
+  if (!po) return { ok: false, error: "That purchase order is not in your centres." };
+  if (po.status !== "issued") return { ok: false, error: `${po.number} is not awaiting delivery.` };
+  const ordered = orderedUnits(po);
+  const outcome = receiptOutcome(ordered, input.receivedQty, input.damagedQty);
+  const now = new Date().toISOString();
+  const receipt: GoodsReceipt = {
+    id: `gr-${s.receipts.length + 1}`, purchaseOrderId: po.id, centreId: po.centreId, receivedAt: now, receivedBy: input.actorId,
+    status: outcome.status, orderedQty: ordered, receivedQty: input.receivedQty, damagedQty: input.damagedQty,
+  };
+  s.receipts.push(receipt);
+  po.status = outcome.poStatus;
+  const notes = [outcome.short && `${outcome.short} short`, outcome.over && `${outcome.over} over`, input.damagedQty && `${input.damagedQty} damaged`].filter(Boolean).join(", ");
+  s.audit.unshift({ id: `ae-${receipt.id}`, actorId: input.actorId, action: "recorded receipt", subject: `GR for ${po.number}${notes ? ` · ${notes}` : ""}`, centreId: po.centreId, occurredAt: now });
+  return { ok: true, receipt, po };
 }
