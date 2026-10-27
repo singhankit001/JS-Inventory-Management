@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </section>
       <section className="card stagger animate-enter p-3" aria-labelledby="pick">
         <h2 id="pick" className="px-3 pt-3 pb-2 text-title">Sign in as</h2>
-        {error && <p role="alert" className="mx-3 mb-2 rounded-[12px] bg-red-soft px-3 py-2 text-label text-red">That account can't sign in. Pick another.</p>}
+        {error && <p role="alert" className="mx-3 mb-2 rounded-[12px] bg-red-soft px-3 py-2 text-label text-red">That account can&apos;t sign in. Pick another.</p>}
         {users.map((u) => (
           <form key={u.id} action={signIn}>
             <input type="hidden" name="userId" value={u.id} />

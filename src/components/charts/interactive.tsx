@@ -2,7 +2,7 @@
 
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
-  type TooltipContentProps,
+  type TooltipContentProps, type TooltipValueType,
 } from "recharts";
 import { moneyCompact, money, count } from "@/lib/format";
 
@@ -12,7 +12,7 @@ const fmtAxis = (f: ValueFormat, v: number) => (f === "money" ? moneyCompact(v) 
 
 const axis = { stroke: "var(--ink-3)", fontSize: 11, tickLine: false, axisLine: false } as const;
 
-function TooltipCard({ active, payload, label, format, names }: Partial<TooltipContentProps<number, string>> & { format: ValueFormat; names: Record<string, string> }) {
+function TooltipCard({ active, payload, label, format, names }: Partial<TooltipContentProps<TooltipValueType, string | number>> & { format: ValueFormat; names: Record<string, string> }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="animate-pop rounded-[14px] border border-line bg-surface px-3 py-2.5 shadow-pop">
