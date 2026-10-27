@@ -44,7 +44,7 @@ export function InventoryHeatmap({ cells, tone, label }: { cells: HeatCell[]; to
             tabIndex={0}
             aria-label={`${c.name}: ${c.onHand} on hand, ${c.state}`}
             className={cn("cell-in block size-full rounded-[5px] transition-transform duration-200 group-hover:scale-110 focus-visible:scale-110", c.state === "healthy" ? toneFill[tone] : cellClass[c.state])}
-            style={{ animationDelay: `${Math.min(i * 12, 500)}ms` }}
+            style={{ animationDelay: `calc(var(--enter-delay, 0ms) + ${Math.min(i * 12, 500)}ms)` }}
           />
           <span role="tooltip" className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 w-max max-w-48 -translate-x-1/2 rounded-[10px] bg-pill px-2.5 py-1.5 text-[11.5px] text-pill-ink opacity-0 shadow-pop transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100">
             {c.name} · {c.onHand} on hand
@@ -59,7 +59,7 @@ export function CentreSummaryCard({ centre }: { centre: CentreSummary }) {
   const healthy = centre.cells.filter((c) => c.state === "healthy").length;
   const ratio = centre.cells.length ? healthy / centre.cells.length : 0;
   return (
-    <article className={cn("card relative overflow-hidden p-5 before:absolute before:inset-x-6 before:top-0 before:h-[3px] before:rounded-b-full", toneTop[centre.tone])}>
+    <article className={cn("card relative overflow-hidden p-5 sm:p-6 before:absolute before:inset-x-6 before:top-0 before:h-[3px] before:rounded-b-full", toneTop[centre.tone])}>
       <header className="flex items-center gap-3">
         <span className={cn("grid size-11 place-items-center rounded-[12px] text-[11px] font-semibold tracking-wide", toneCode[centre.tone])}>{centre.code}</span>
         <div className="min-w-0">

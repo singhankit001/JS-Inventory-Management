@@ -16,6 +16,7 @@ import { StatusBadge, toneDot } from "@/components/ui/badge";
 import { ComparisonBars, Gauge, ProgressRing, TrendIndicator } from "@/components/charts/svg";
 import { FlowBars } from "@/components/charts/lazy";
 import { TrendCard } from "@/components/charts/trend-card";
+import { AnimatedNumber } from "@/components/charts/animated-number";
 import { WidgetBoundary } from "@/components/feedback/error-boundary";
 import { percent } from "@/lib/format";
 import { cn } from "@/lib/cn";
@@ -55,7 +56,7 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
         <Card aria-label="Total inventory valuation">
           <CardHeader icon={Boxes} title="Inventory valuation" action={<Link href="/modules/inventory" className={buttonClass("secondary", "sm")}>Stock ›</Link>} />
           <div className="flex flex-wrap items-baseline gap-2.5">
-            <span className="text-metric-lg font-medium tracking-[-0.03em] tabular">{d.valuation.total}</span>
+            <span className="text-metric-lg font-medium tracking-[-0.03em]"><AnimatedNumber value={d.valuation.totalValue} format="money" /></span>
             <StatusBadge tone="green">{d.valuation.units} units</StatusBadge>
           </div>
           <p className="mt-1 mb-3 text-label text-ink-3">Budget headroom per month, last 6 months</p>
@@ -68,13 +69,13 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
       </div>
 
       <MetricGrid className="mt-4">
-        <KpiCard variant="primary" icon={Wallet} label="Procurement spend this month" value={d.kpis.spend} spark={d.kpis.spendSpark}
+        <KpiCard variant="primary" icon={Wallet} label="Procurement spend this month" value={<AnimatedNumber value={d.kpis.spendValue} format="moneyCompact" />} spark={d.kpis.spendSpark}
           footnote={<TrendIndicator direction={d.kpis.spendChange >= 0 ? "up" : "down"}>{percent(Math.abs(d.kpis.spendChange))} vs last month (month to date)</TrendIndicator>} />
-        <KpiCard variant="secondary" icon={Siren} label="Pending critical approvals" value={d.kpis.critical} href="/modules/approvals"
+        <KpiCard variant="secondary" icon={Siren} label="Pending critical approvals" value={<AnimatedNumber value={d.kpis.critical} />} href="/modules/approvals"
           footnote={<span>{d.kpis.pending} approvals pending in total</span>} />
-        <KpiCard icon={GaugeIcon} label="Budget utilisation" value={percent(d.kpis.utilisation)} spark={d.kpis.utilSpark} sparkTone="green"
+        <KpiCard icon={GaugeIcon} label="Budget utilisation" value={<AnimatedNumber value={d.kpis.utilisation} format="percent" />} spark={d.kpis.utilSpark} sparkTone="green"
           footnote={<TrendIndicator direction="flat" good={d.kpis.utilisation <= 0.9}>Month to date</TrendIndicator>} />
-        <KpiCard icon={Truck} label="Open purchase orders" value={d.kpis.openPOs} spark={d.kpis.poSpark} sparkTone="orange"
+        <KpiCard icon={Truck} label="Open purchase orders" value={<AnimatedNumber value={d.kpis.openPOs} />} spark={d.kpis.poSpark} sparkTone="orange"
           footnote={<span>{d.kpis.openPOValue} committed</span>} />
       </MetricGrid>
 

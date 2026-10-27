@@ -175,6 +175,8 @@
   --dur-lead: 360ms;   /* pill leading edge */
   --dur-trail: 550ms;  /* pill trailing edge */
   --dur-page: 520ms;
+  --dur-draw: 1100ms;  /* line / ring / gauge draw-ins (recharts areas use the same) */
+  --dur-grow: 900ms;   /* bar grow-ins (recharts bars use the same) */
 }
 
 @layer base {
@@ -244,23 +246,49 @@
     --pb var(--dur-lead) var(--ease-out-3);
 }
 
-/* ───────────── Page / panel enter: blur-fade, as seen when switching tabs in the video ───────────── */
+/* ───────────── Page / panel enter: blur-fade, as seen when switching tabs in the video ─────────────
+   Fill mode is `backwards`, not `both`: once finished, nothing is left on the element, so hover transforms
+   (card lift) work and no lingering filter/transform turns cards into containing blocks for fixed children. */
 @keyframes enter {
   from { opacity: 0; filter: blur(10px); transform: translateY(6px) scale(0.995); }
   to { opacity: 1; filter: blur(0); transform: none; }
 }
 .animate-enter {
-  animation: enter var(--dur-page) var(--ease-out-3) both;
+  animation: enter var(--dur-page) var(--ease-out-3) backwards;
 }
+
+/* Stagger: each child waits --stagger-base (set on the grid, e.g. style={{ "--stagger-base": "200ms" }})
+   plus 40ms per position. --stagger-base does not inherit, so nested/re-keyed staggers (table pages,
+   filters) start immediately instead of waiting for their row's page-load delay.
+   --enter-delay is exposed to descendants so chart draw-ins start with their card, not before it. */
+@property --stagger-base { syntax: "<time>"; inherits: false; initial-value: 0ms; }
 .stagger > * {
-  animation: enter var(--dur-page) var(--ease-out-3) both;
+  --stagger-base: inherit;
+  --i: 0;
+  --enter-delay: calc(var(--stagger-base) + var(--i) * 40ms);
+  animation: enter var(--dur-page) var(--ease-out-3) var(--enter-delay) backwards;
 }
-.stagger > *:nth-child(2) { animation-delay: 40ms; }
-.stagger > *:nth-child(3) { animation-delay: 80ms; }
-.stagger > *:nth-child(4) { animation-delay: 120ms; }
-.stagger > *:nth-child(5) { animation-delay: 160ms; }
-.stagger > *:nth-child(6) { animation-delay: 200ms; }
-.stagger > *:nth-child(n + 7) { animation-delay: 240ms; }
+.stagger > :nth-child(2) { --i: 1; }
+.stagger > :nth-child(3) { --i: 2; }
+.stagger > :nth-child(4) { --i: 3; }
+.stagger > :nth-child(5) { --i: 4; }
+.stagger > :nth-child(6) { --i: 5; }
+.stagger > :nth-child(n + 7) { --i: 6; }
+
+/* Page sequence: (app)/template.tsx wraps every route in .page-enter and remounts per navigation.
+   Rows cascade top-to-bottom; plain blocks (PageHeader, notes) blur-fade themselves, stagger grids
+   hand the delay to their cards, and blocks that contain a stagger grid leave the motion to it
+   (one owner per element, no nested blur). */
+.page-enter > :nth-child(2) { --stagger-base: 60ms; }
+.page-enter > :nth-child(3) { --stagger-base: 140ms; }
+.page-enter > :nth-child(4) { --stagger-base: 220ms; }
+.page-enter > :nth-child(5) { --stagger-base: 300ms; }
+.page-enter > :nth-child(6) { --stagger-base: 360ms; }
+.page-enter > :nth-child(n + 7) { --stagger-base: 420ms; }
+.page-enter > :not(.stagger):not(:has(.stagger)) {
+  --enter-delay: var(--stagger-base);
+  animation: enter var(--dur-page) var(--ease-out-3) var(--enter-delay) backwards;
+}
 
 @keyframes shimmer {
   to { background-position: -200% 0; }
@@ -281,17 +309,17 @@
 @keyframes ring-draw {
   from { stroke-dashoffset: var(--ring-len); }
 }
-.ring-draw { animation: ring-draw 1100ms var(--ease-out-3) both; }
+.ring-draw { animation: ring-draw var(--dur-draw) var(--ease-out-3) var(--enter-delay, 0ms) both; }
 
 @keyframes bar-grow {
   from { transform: scaleX(0); }
 }
-.bar-grow { transform-origin: left; animation: bar-grow 900ms var(--ease-out-3) both; }
+.bar-grow { transform-origin: left; animation: bar-grow var(--dur-grow) var(--ease-out-3) var(--enter-delay, 0ms) both; }
 
 @keyframes cell-in {
   from { opacity: 0; transform: scale(0.6); }
 }
-.cell-in { animation: cell-in 420ms var(--ease-spring) both; }
+.cell-in { animation: cell-in 420ms var(--ease-spring) var(--enter-delay, 0ms) both; }
 
 @keyframes pulse-dot {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--green) 45%, transparent); }
@@ -313,3 +341,13 @@
 @keyframes spark-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes gauge-fill { from { stroke-dasharray: 0 1; } }
 @keyframes needle-swing { from { transform: rotate(-210deg); } }
+.spark-draw { animation: spark-draw var(--dur-draw) var(--ease-out-3) var(--enter-delay, 0ms) both; }
+.gauge-fill { animation: gauge-fill var(--dur-draw) var(--ease-out-3) var(--enter-delay, 0ms) both; }
+.needle-swing { animation: needle-swing var(--dur-draw) var(--ease-spring) var(--enter-delay, 0ms) both; }
+
+/* Theme toggle cross-fade (View Transitions API; skipped entirely under reduced motion in JS). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-base);
+  animation-timing-function: var(--ease-out-3);
+}
