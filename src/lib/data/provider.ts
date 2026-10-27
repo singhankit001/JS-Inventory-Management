@@ -1,7 +1,7 @@
 import "server-only";
 import type {
   AIProcessingJob, Approval, AuditEvent, Budget, Centre, GoodsReceipt, ID, Integration, Invoice, MonthlyRequest,
-  Notification, Payment, Product, ProductCategory, PurchaseOrder, RequestItem, StockBalance, StockCount,
+  GoodsReceiptLine, Notification, Payment, Product, ProductCategory, PurchaseOrder, PurchaseOrderLine, RequestItem, StockBalance, StockCount,
   StockMovement, Supplier, SupplierQuotation, UnitOfMeasure, User,
 } from "@/domain/types";
 import { buildSeed, type SeedData } from "./seed";
@@ -32,7 +32,9 @@ export interface Repository {
   requestItems(): Promise<RequestItem[]>;
   approvals(): Promise<Approval[]>;
   purchaseOrders(): Promise<PurchaseOrder[]>;
+  purchaseOrderLines(): Promise<PurchaseOrderLine[]>;
   receipts(): Promise<GoodsReceipt[]>;
+  receiptLines(): Promise<GoodsReceiptLine[]>;
   invoices(): Promise<Invoice[]>;
   payments(): Promise<Payment[]>;
   budgets(): Promise<Budget[]>;
@@ -81,11 +83,13 @@ export function seedRepository(scope: CentreScope): Repository {
     // Organisation-wide approvals (supplier prices) have no centre and are only visible to "all" scope.
     approvals: () => by(s.approvals),
     purchaseOrders: () => by(s.purchaseOrders),
+    purchaseOrderLines: () => { const ids = scopedPoIds(); return Promise.resolve(s.purchaseOrderLines.filter((l) => ids.has(l.purchaseOrderId))); },
     receipts: () => by(s.receipts),
+    receiptLines: () => { const ids = new Set(s.receipts.filter((r) => inScope(r.centreId)).map((r) => r.id)); return Promise.resolve(s.receiptLines.filter((l) => ids.has(l.receiptId))); },
     invoices: () => by(s.invoices),
     payments: () => { const ids = scopedPoIds(); const inv = new Set(s.invoices.filter((i) => ids.has(i.purchaseOrderId)).map((i) => i.id)); return Promise.resolve(s.payments.filter((p) => inv.has(p.invoiceId))); },
     budgets: () => by(s.budgets),
-    notifications: (userId) => Promise.resolve(s.notifications.filter((n) => n.userId === "*" || n.userId === userId)),
+    notifications: (userId) => Promise.resolve(s.notifications.filter((n) => n.userId === "*" || n.userId === userId).map((n) => ({ ...n, read: n.readBy.includes(userId) }))),
     audit: () => Promise.resolve(s.audit.filter((a) => scope === "all" || inScope(a.centreId))),
     aiJobs: () => by(s.aiJobs),
     integrations: () => all(s.integrations),
@@ -133,4 +137,18 @@ export function recordReceipt(scope: CentreScope, input: ReceiptInput): { ok: tr
   const notes = [outcome.short && `${outcome.short} short`, outcome.over && `${outcome.over} over`, input.damagedQty && `${input.damagedQty} damaged`].filter(Boolean).join(", ");
   s.audit.unshift({ id: `ae-${receipt.id}`, actorId: input.actorId, action: "recorded receipt", subject: `GR for ${po.number}${notes ? ` · ${notes}` : ""}`, centreId: po.centreId, occurredAt: now });
   return { ok: true, receipt, po };
+}
+
+/**
+ * Marks notifications read for one user (all of theirs when ids is omitted). Returns how many changed.
+ * shortcut: in-memory demo store, resets daily; Phase 2 writes notification_reads rows.
+ */
+export function markNotificationsRead(userId: ID, ids?: ID[]): number {
+  let changed = 0;
+  for (const n of getSeed().notifications) {
+    if ((n.userId !== "*" && n.userId !== userId) || (ids && !ids.includes(n.id)) || n.readBy.includes(userId)) continue;
+    n.readBy.push(userId);
+    changed++;
+  }
+  return changed;
 }
