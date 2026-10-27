@@ -4,15 +4,17 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as D from "@radix-ui/react-dialog";
 import {
-  Bell, Building2, ChevronDown, CornerDownLeft, LayoutGrid, LogOut, Menu as MenuIcon, Moon, MoreHorizontal, Plus, Search, Sparkles, Sun,
+  Bell, Building2, CheckCheck, ChevronDown, CornerDownLeft, LayoutGrid, LogOut, Menu as MenuIcon, Moon, MoreHorizontal, Plus, Search, Sparkles, Sun,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useOptimistic, useState, useTransition } from "react";
 import { cn } from "@/lib/cn";
 import { PillGroup, type PillItem } from "@/components/ui/pill-group";
 import { CountBadge, StatusBadge } from "@/components/ui/badge";
 import { Menu, MenuContent, MenuItem, MenuLabel, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { Dialog, DrawerContent } from "@/components/ui/dialog";
 import { signOut, switchWorkspace } from "@/app/actions/session";
+import { markRead } from "@/app/actions/notifications";
+import { useToast } from "@/components/feedback/toast";
 
 export interface NavEntry { key: string; label: string; href: string; badge?: number; match: string[] }
 export interface CommandEntry { label: string; href: string; group: string; planned?: boolean }
@@ -232,30 +234,54 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
 /* ───────────── Notifications ───────────── */
 const sevTone = { info: "blue", warning: "amber", critical: "red" } as const;
 
-export function NotificationsMenu({ items }: { items: ShellNotification[] }) {
-  const unread = items.filter((n) => !n.read).length;
+export function NotificationsMenu({ items, demo = false }: { items: ShellNotification[]; demo?: boolean }) {
+  const toast = useToast();
+  const [, start] = useTransition();
+  // Read ids flip instantly; the server action's revalidation then delivers the persisted state as new props.
+  const [readIds, addRead] = useOptimistic<string[], string[]>([], (s, ids) => [...s, ...ids]);
+  const list = items.map((n) => (n.read || readIds.includes(n.id) ? { ...n, read: true } : n));
+  const unread = list.filter((n) => !n.read).length;
+  const mark = (ids?: string[]) => start(async () => {
+    addRead(ids ?? list.map((n) => n.id));
+    const res = await markRead(ids).catch(() => ({ ok: false }));
+    if (!res.ok) toast({ tone: "error", title: "Couldn't update notifications", body: "Your read state wasn't saved. Try again." });
+  });
   return (
     <Menu>
       <MenuTrigger className="relative grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-95" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
         <Bell className="size-4" strokeWidth={1.75} />
-        {unread > 0 && <span className="absolute top-2 right-2.5 size-2 rounded-full bg-orange ring-2 ring-surface" aria-hidden />}
+        {unread > 0 && <span className="absolute -top-1 -right-1 flex rounded-full ring-2 ring-canvas" aria-hidden><CountBadge count={unread} /></span>}
       </MenuTrigger>
       <MenuContent className="w-[min(92vw,360px)]">
-        <MenuLabel>Notifications</MenuLabel>
-        {items.length === 0 && <p className="px-2.5 py-4 text-label text-ink-3">You&apos;re all caught up.</p>}
-        {items.map((n) => {
+        <div className="flex items-baseline justify-between gap-3 pr-2.5">
+          <MenuLabel>Notifications</MenuLabel>
+          {unread > 0 && <span className="text-[11.5px] text-ink-3 tabular">{unread} unread</span>}
+        </div>
+        {list.length === 0 && <p className="px-2.5 py-4 text-label text-ink-3">You&apos;re all caught up.</p>}
+        {list.map((n) => {
           const body = (
             <div className="flex gap-3">
               <span className={cn("mt-1.5 size-2 shrink-0 rounded-full", n.read ? "bg-line-strong" : { info: "bg-blue", warning: "bg-amber", critical: "bg-red" }[n.severity])} aria-hidden />
               <div className="min-w-0">
-                <p className="text-body font-medium">{n.title}</p>
+                <p className={cn("text-body", n.read ? "text-ink-2" : "font-medium text-ink")}>{!n.read && <span className="sr-only">Unread: </span>}{n.title}</p>
                 <p className="text-label text-ink-3">{n.body}</p>
                 <p className="mt-0.5 text-[11px] text-ink-3">{n.when} {n.severity !== "info" && <StatusBadge tone={sevTone[n.severity]} className="ml-1">{n.severity}</StatusBadge>}</p>
               </div>
             </div>
           );
-          return n.href ? <MenuItem key={n.id} asChild><Link href={n.href} className="!items-start">{body}</Link></MenuItem> : <MenuItem key={n.id} className="!items-start">{body}</MenuItem>;
+          const onRead = () => { if (!n.read) mark([n.id]); };
+          return n.href
+            ? <MenuItem key={n.id} asChild onSelect={onRead}><Link href={n.href} className="!items-start">{body}</Link></MenuItem>
+            // No destination: stay open so the item visibly turns read.
+            : <MenuItem key={n.id} className="!items-start" onSelect={(e) => { e.preventDefault(); onRead(); }}>{body}</MenuItem>;
         })}
+        {list.length > 0 && (
+          <>
+            <MenuSeparator />
+            <MenuItem disabled={unread === 0} onSelect={() => mark()}><CheckCheck />Mark all as read</MenuItem>
+            {demo && <p className="px-2.5 pt-0.5 pb-1 text-[11px] text-ink-3">Demo: read state resets daily</p>}
+          </>
+        )}
       </MenuContent>
     </Menu>
   );
