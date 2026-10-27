@@ -1,8 +1,8 @@
 import type { MonthlyRequest, StockCount } from "@/domain/types";
 import type { Repository } from "@/lib/data/provider";
 import type { Tone } from "@/components/ui/badge";
-import { centreSummaries, consumptionSeries, hourOf, indexBy, lastPeriods, lowStock, REQUEST_STATUS, valuation } from "./shared";
-import { RECEIPT_STATUS, dayOffset, deliveryBadge } from "./receiving";
+import { centreSummaries, consumptionSeries, dayOffset, hourOf, indexBy, lastPeriods, lowStock, poOutstanding, REQUEST_STATUS, valuation } from "./shared";
+import { RECEIPT_STATUS, deliveryBadge, receiptIssues } from "./receiving";
 import { count, moneyCompact, shortDate, time } from "@/lib/format";
 import { period } from "@/lib/data/seed";
 
@@ -37,8 +37,9 @@ const NEEDS_ACTION: MonthlyRequest["status"][] = ["draft", "revision_requested"]
 
 export async function loadCentre(repo: Repository) {
   const today = repo.today();
-  const [centres, products, balances, movements, counts, requests, requestItems, budgets, pos, receipts, suppliers, audit, users] = await Promise.all([
+  const [centres, products, balances, movements, counts, requests, requestItems, budgets, pos, receipts, suppliers, audit, users, poLines, receiptLines] = await Promise.all([
     repo.centres(), repo.products(), repo.balances(), repo.movements(), repo.counts(), repo.requests(), repo.requestItems(), repo.budgets(), repo.purchaseOrders(), repo.receipts(), repo.suppliers(), repo.audit(), repo.users(),
+    repo.purchaseOrderLines(), repo.receiptLines(),
   ]);
   const pmap = indexBy(products, "id");
   const smap = indexBy(suppliers, "id");
@@ -72,7 +73,8 @@ export async function loadCentre(repo: Repository) {
   const periods = lastPeriods(today, 6);
 
   // Deliveries
-  const incoming = pos.filter((p) => p.status === "issued" || p.status === "awaiting_authorisation").sort((a, b) => a.expectedAt.localeCompare(b.expectedAt));
+  const { byPo } = poOutstanding(poLines, receiptLines);
+  const incoming = pos.filter((p) => p.status === "issued" || p.status === "awaiting_authorisation" || p.status === "partially_received").sort((a, b) => a.expectedAt.localeCompare(b.expectedAt));
   const off = (iso: string) => dayOffset(iso, today);
   const weekDeliveries = incoming.filter((p) => p.status === "issued" && off(p.expectedAt) >= 0 && off(p.expectedAt) <= 6);
   const overdue = incoming.filter((p) => p.status === "issued" && off(p.expectedAt) < 0);
@@ -135,8 +137,8 @@ export async function loadCentre(repo: Repository) {
     restockTotal: attention.length,
     deliveries: incoming.slice(0, 6).map((p) => ({
       id: p.id, title: `${p.number} · ${smap.get(p.supplierId)?.name ?? "Supplier"}`,
-      sub: `${where(p.centreId)}${p.status === "issued" ? `Expected ${shortDate(p.expectedAt)}, ${time(p.expectedAt)}` : `Raised ${shortDate(p.createdAt)} · not yet issued`} · ${moneyCompact(p.total)}`,
-      badge: p.status === "issued" ? deliveryBadge(off(p.expectedAt)) : { label: "Awaiting authorisation", tone: "amber" as Tone },
+      sub: `${where(p.centreId)}${p.status === "issued" ? `Expected ${shortDate(p.expectedAt)}, ${time(p.expectedAt)}` : p.status === "partially_received" ? "Balance of a part delivery" : `Raised ${shortDate(p.createdAt)} · not yet issued`} · ${count(byPo(p).units)} units · ${moneyCompact(byPo(p).value)}`,
+      badge: p.status === "issued" ? deliveryBadge(off(p.expectedAt)) : p.status === "partially_received" ? { label: "Part received", tone: "violet" as Tone } : { label: "Awaiting authorisation", tone: "amber" as Tone },
     })),
     counts: counts.filter((c) => c.period === thisPeriod).sort((a, b) => a.centreId.localeCompare(b.centreId) || b.kind.localeCompare(a.kind)).map((c) => ({
       id: c.id, label: `${c.kind === "opening" ? "Opening" : "Closing"} count`, status: COUNT_STATUS[c.status].label, tone: COUNT_STATUS[c.status].tone,
@@ -145,7 +147,8 @@ export async function loadCentre(repo: Repository) {
     closingDueIn: Math.round((closingDue.getTime() - today.getTime()) / 86_400_000),
     receipts: [...receipts].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt)).slice(0, 5).map((r) => {
       const po = pomap.get(r.purchaseOrderId);
-      const issues = [r.orderedQty > r.receivedQty && `${r.orderedQty - r.receivedQty} short`, r.damagedQty && `${r.damagedQty} damaged`].filter(Boolean).join(", ");
+      const x = receiptIssues(receiptLines.filter((l) => l.receiptId === r.id));
+      const issues = [x.short && `${x.short} short`, x.damaged && `${x.damaged} damaged`].filter(Boolean).join(", ");
       return {
         id: r.id, title: `${po?.number ?? r.purchaseOrderId} · ${po ? smap.get(po.supplierId)?.name : "Supplier"}`,
         sub: `${where(r.centreId)}${shortDate(r.receivedAt)} · ${count(r.receivedQty)} of ${count(r.orderedQty)} units${issues ? ` · ${issues}` : ""}`,

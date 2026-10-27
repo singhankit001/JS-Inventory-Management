@@ -135,11 +135,11 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
           {d.pipeline.length ? <CategoryDistribution segments={d.pipeline} label="Purchase orders by stage" /> : <p className="text-label text-ink-3">No purchase orders.</p>}
           <div className="mt-4 grid grid-cols-2 gap-2">
             <StatTile label="Open orders" value={d.poTotals.open} />
-            <StatTile label="Paid above quote" value={d.poTotals.variance} />
+            <StatTile label="Paid above quote · 30d" value={d.poTotals.variance} />
           </div>
         </Card>
         <Card aria-label="Receiving and invoice exceptions" className="md:col-span-2 xl:col-span-1">
-          <CardHeader icon={FileWarning} title="Exceptions" subtitle="Receiving discrepancies and invoice mismatches" action={<Link href="/modules/finance#reconciliation" className={buttonClass("ghost", "sm")}>Reconcile ›</Link>} />
+          <CardHeader icon={FileWarning} title="Exceptions" subtitle="Receiving discrepancies (30 days) and open invoice mismatches" action={<Link href="/modules/finance#reconciliation" className={buttonClass("ghost", "sm")}>Reconcile ›</Link>} />
           <DataList rows={d.exceptions.slice(0, 6).map((e) => ({ ...e, icon: e.kind === "receipt" ? PackageX : FileWarning }))} empty="No open exceptions" label="Receiving and invoice exceptions" />
         </Card>
       </div>

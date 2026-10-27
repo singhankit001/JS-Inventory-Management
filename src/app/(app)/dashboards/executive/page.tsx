@@ -76,7 +76,7 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
         <KpiCard icon={GaugeIcon} label="Budget utilisation" value={<AnimatedNumber value={d.kpis.utilisation} format="percent" />} spark={d.kpis.utilSpark} sparkTone="green"
           footnote={<TrendIndicator direction="flat" good={d.kpis.utilisation <= 0.9}>Month to date</TrendIndicator>} />
         <KpiCard icon={Truck} label="Open purchase orders" value={<AnimatedNumber value={d.kpis.openPOs} />} spark={d.kpis.poSpark} sparkTone="orange"
-          footnote={<span>{d.kpis.openPOValue} committed</span>} />
+          footnote={<span>{d.kpis.openPOValue} still to deliver</span>} />
       </MetricGrid>
 
       <div className="stagger mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -114,7 +114,7 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
           <DataList rows={d.alerts} empty="No critical stock" label="Critical stock alerts" />
         </Card>
         <Card aria-label="Procurement cycle performance" className="md:col-span-2 xl:col-span-1">
-          <CardHeader icon={CalendarClock} title="Procurement cycle" subtitle="Orders delivered on time" />
+          <CardHeader icon={CalendarClock} title="Procurement cycle" subtitle="Orders delivered on time · last 90 days" />
           <Gauge value={d.cycle.onTime} target={0.92} label="On-time delivery" caption="Target 92%" />
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-tile bg-surface-2 py-2.5"><p className="text-body font-medium tabular">{d.cycle.cycleDays.toFixed(1)}d</p><p className="text-[11px] text-ink-3">PO → receipt</p></div>

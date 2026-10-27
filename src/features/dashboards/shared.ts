@@ -1,4 +1,4 @@
-import type { Centre, MonthlyRequest, Product, StockBalance, StockMovement } from "@/domain/types";
+import type { Centre, GoodsReceiptLine, MonthlyRequest, Product, PurchaseOrder, PurchaseOrderLine, StockBalance, StockMovement } from "@/domain/types";
 import type { Repository } from "@/lib/data/provider";
 import type { CellState, CentreSummary } from "@/components/dashboard/inventory";
 import type { Tone } from "@/components/ui/badge";
@@ -94,3 +94,26 @@ export const dateEyebrow = (d: Date) => d.toLocaleDateString("en-IN", { weekday:
 
 /** Fractional hour of an ISO time, in the server's locale time. */
 export const hourOf = (iso: string) => { const d = new Date(iso); return d.getHours() + d.getMinutes() / 60; };
+
+/** Units still owed per PO line: ordered minus good units received. Damaged units stay owed until replaced. */
+export function outstandingByLine(lines: PurchaseOrderLine[], receiptLines: GoodsReceiptLine[]) {
+  const good = new Map<string, number>();
+  for (const r of receiptLines) good.set(r.purchaseOrderLineId, (good.get(r.purchaseOrderLineId) ?? 0) + r.receivedQty - r.damagedQty);
+  return new Map(lines.map((l) => [l.id, Math.max(0, l.quantity - (good.get(l.id) ?? 0))]));
+}
+
+/** Per PO: units and value still to be delivered, from its lines. */
+export function poOutstanding(lines: PurchaseOrderLine[], receiptLines: GoodsReceiptLine[]) {
+  const owed = outstandingByLine(lines, receiptLines);
+  const out = new Map<string, { units: number; value: number }>();
+  for (const l of lines) {
+    const row = out.get(l.purchaseOrderId) ?? { units: 0, value: 0 };
+    row.units += owed.get(l.id)!;
+    row.value += owed.get(l.id)! * l.unitPrice;
+    out.set(l.purchaseOrderId, row);
+  }
+  return { owed, byPo: (po: Pick<PurchaseOrder, "id">) => out.get(po.id) ?? { units: 0, value: 0 } };
+}
+
+/** Whole days from `today` (local midnight) to the calendar day of `iso`. Negative = past. */
+export const dayOffset = (iso: string, today: Date) => Math.round((new Date(new Date(iso).toDateString()).getTime() - today.getTime()) / 86_400_000);

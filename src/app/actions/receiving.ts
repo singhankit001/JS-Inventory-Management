@@ -6,11 +6,16 @@ import { requirePermission } from "@/lib/auth/session";
 import { recordReceipt } from "@/lib/data/provider";
 import { RECEIPT_STATUS } from "@/features/dashboards/receiving";
 
-const receiptSchema = z.object({
-  purchaseOrderId: z.string().min(1, "Choose a purchase order"),
+const lineSchema = z.object({
+  purchaseOrderLineId: z.string().min(1),
   receivedQty: z.number().int().min(0).max(99_999),
   damagedQty: z.number().int().min(0).max(99_999),
 }).refine((d) => d.damagedQty <= d.receivedQty, { message: "Damaged units cannot exceed units received", path: ["damagedQty"] });
+
+const receiptSchema = z.object({
+  purchaseOrderId: z.string().min(1, "Choose a purchase order"),
+  lines: z.array(lineSchema).min(1, "Count at least one line").max(50),
+});
 
 export type ReceiptResult = { ok: true; title: string; body: string } | { ok: false; error: string };
 
@@ -18,14 +23,16 @@ export async function recordGoodsReceipt(input: z.input<typeof receiptSchema>): 
   const session = await requirePermission("receiving.record");
   const parsed = receiptSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Check the quantities and try again." };
-  // Scope comes from the signed session, never from the client.
+  // Scope comes from the signed session, never from the client. Line ownership, outstanding and over-delivery are checked by the provider.
   const res = recordReceipt(session.scope, { ...parsed.data, actorId: session.user.id });
   if (!res.ok) return res;
   revalidatePath("/", "layout");
-  const { receipt, po } = res;
+  const { receipt, lines, po } = res;
+  const short = lines.reduce((s, l) => s + Math.max(0, l.orderedQty - l.receivedQty), 0);
+  const issues = [short && `${short} short`, receipt.damagedQty && `${receipt.damagedQty} damaged`].filter(Boolean).join(", ");
   return {
     ok: true,
     title: `${po.number} recorded · ${RECEIPT_STATUS[receipt.status].label}`,
-    body: `${receipt.receivedQty} of ${receipt.orderedQty} units received${receipt.damagedQty ? `, ${receipt.damagedQty} damaged` : ""}. Saved to demo data, which resets daily.`,
+    body: `${receipt.receivedQty} of ${receipt.orderedQty} units received across ${lines.length} line${lines.length === 1 ? "" : "s"}${issues ? ` (${issues})` : ""}; PO ${po.status === "received" ? "closed" : "still part-received"}. Saved to demo data, which resets daily.`,
   };
 }

@@ -55,7 +55,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
         </WelcomeCard>
 
         <Card aria-label="Price variance against quotations">
-          <CardHeader icon={Scale} title="Price variance" subtitle="Paid against quoted, all committed POs" />
+          <CardHeader icon={Scale} title="Price variance" subtitle="Paid against quoted · POs raised in the last 30 days" />
           <div className="flex flex-wrap items-baseline gap-2.5">
             <span className="text-metric-lg font-medium tracking-[-0.03em]"><AnimatedNumber value={Math.abs(d.variance.net)} format="moneyCompact" /></span>
             <StatusBadge tone={d.variance.net > 0 ? "orange" : "green"}>{d.variance.net > 0 ? "over quote" : "under quote"}</StatusBadge>
