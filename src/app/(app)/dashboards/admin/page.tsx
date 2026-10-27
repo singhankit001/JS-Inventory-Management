@@ -145,7 +145,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         </div>
         <Card>
           <DataTable
-            label="Users" exportName="users" filter={{ key: "status", label: "status" }}
+            label="Users" exportName="users" filters={[{ key: "roles", label: "role", split: "," }, { key: "status", label: "status" }]}
             emptyTitle="No users in scope"
             columns={[
               { key: "name", header: "Name" },

@@ -127,7 +127,7 @@ export default async function FinanceDashboard({ searchParams }: { searchParams:
       <Card className="mt-4" aria-labelledby="invoices-h">
         <CardHeader id="invoices-h" icon={CalendarRange} title="Invoices" subtitle="Earliest due first · filter by status, search by supplier, centre or PO"
           action={canManage ? <PlannedAction label="Approve invoice" /> : undefined} />
-        <DataTable columns={invoiceColumns} rows={d.invoices} label="Invoices" filter={{ key: "status", label: "status" }} exportName="invoices" emptyTitle="No invoices" />
+        <DataTable columns={invoiceColumns} rows={d.invoices} label="Invoices" filters={[{ key: "status", label: "status" }, { key: "match", label: "3-way match" }, { key: "ageing", label: "ageing" }]} exportName="invoices" emptyTitle="No invoices" />
       </Card>
     </>
   );

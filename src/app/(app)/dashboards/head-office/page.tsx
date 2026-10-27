@@ -147,7 +147,7 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
       <Card className="mt-4" aria-labelledby="queue-h">
         <CardHeader id="queue-h" icon={ClipboardCheck} title="Approval queue" subtitle={`${d.kpis.queueCount} awaiting a decision · urgent items first · filter by status or use the centre pills above`}
           action={canApprove ? <PlannedAction label="Approve / return" /> : undefined} />
-        <DataTable columns={queueColumns} rows={d.queue} label="Approval queue" filter={{ key: "status", label: "status" }} exportName="approval-queue" emptyTitle="Nothing awaiting approval" />
+        <DataTable columns={queueColumns} rows={d.queue} label="Approval queue" filters={[{ key: "status", label: "status" }, { key: "centre", label: "centre" }, { key: "type", label: "type" }]} exportName="approval-queue" emptyBody="Requests and purchase orders waiting on Head Office appear here." emptyTitle="Nothing awaiting approval" />
       </Card>
     </>
   );

@@ -45,7 +45,7 @@ async function authorisePO(ctx: CommandContext<AuthoriseTx>, input: CommandInput
 
 const po: PurchaseOrder = {
   id: "po-1", number: "PO-1", supplierId: "s-1", centreId: "c-1", status: "awaiting_authorisation", total: 100, expectedAt: "2026-11-01",
-  createdAt: "2026-10-20", priceVariance: 0,
+  createdAt: "2026-10-20", raisedBy: "u-po", priceVariance: 0,
 };
 const setup = () => memoryUnitOfWork<State, AuthoriseTx>({ orders: [{ ...po }], makers: { "po-1": "u-pur" }, audit: [], keys: [] }, bind);
 const ctx = (uow: ReturnType<typeof setup>, userId = "u-ceo", key = "k-1"): CommandContext<AuthoriseTx> =>
