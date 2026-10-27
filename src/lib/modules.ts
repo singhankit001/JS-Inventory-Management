@@ -32,7 +32,7 @@ export const MODULES: ModuleGroup[] = [
     description: "Organisation-wide and centre-level command views.",
     pages: [
       { slug: "executive", title: "Executive dashboard", summary: "Consolidated valuation, spend, approvals and AI insights.", permission: "dashboard.executive", status: "implemented", phase: 1, href: "/dashboards/executive", reads: ["balances", "budgets", "approvals", "purchaseOrders", "suppliers", "movements", "audit"] },
-      { slug: "head-office", title: "Head Office dashboard", summary: "Request reviews, budgets, POs, discrepancies and invoices.", permission: "dashboard.head_office", status: "implemented", phase: 1, href: "/dashboards/head-office", reads: ["requests", "requestItems", "approvals", "budgets", "purchaseOrders", "receipts", "invoices"] },
+      { slug: "head-office", title: "Head Office dashboard", summary: "Request reviews, budgets, POs, discrepancies and invoices.", permission: "dashboard.head_office", status: "implemented", phase: 1, href: "/dashboards/head-office", reads: ["requests", "requestItems", "approvals", "budgets", "purchaseOrders", "receipts", "invoices", "suppliers", "quotations", "products"] },
       { slug: "centre", title: "Centre dashboard", summary: "One centre's stock, request deadline, deliveries and alerts.", permission: "dashboard.centre", status: "implemented", phase: 1, href: "/dashboards/centre", reads: ["balances", "counts", "requests", "purchaseOrders", "receipts", "movements"] },
       { slug: "centres", title: "Centre directory", summary: "All centres with leaders, budgets and operational status.", permission: "inventory.read", status: "planned", phase: 2, reads: ["centres", "users", "budgets"] },
     ],
@@ -92,7 +92,7 @@ export const MODULES: ModuleGroup[] = [
     id: "finance", label: "Finance & Invoices", short: "Finance",
     description: "Invoices, matching, payments and reconciliation.",
     pages: [
-      { slug: "dashboard", title: "Finance dashboard", summary: "Payables, matching, variance and payments.", permission: "dashboard.finance", status: "implemented", phase: 1, href: "/dashboards/finance", reads: ["invoices", "payments", "budgets"] },
+      { slug: "dashboard", title: "Finance dashboard", summary: "Payables, matching, variance and payments.", permission: "dashboard.finance", status: "implemented", phase: 1, href: "/dashboards/finance", reads: ["invoices", "payments", "budgets", "suppliers", "purchaseOrders"] },
       { slug: "invoices", title: "Invoices", summary: "Three-way match against PO and goods receipt.", permission: "finance.read", status: "planned", phase: 2, reads: ["invoices", "purchaseOrders", "receipts"], writes: ["queryInvoice", "approveInvoice"] },
       { slug: "payments", title: "Payments", summary: "Payment runs and remittance history.", permission: "finance.read", status: "planned", phase: 2, reads: ["payments"], writes: ["recordPayment"] },
       { slug: "reconciliation", title: "Reconciliation", summary: "Exceptions between invoices, receipts and payments.", permission: "finance.read", status: "planned", phase: 2, reads: ["invoices", "receipts", "payments"] },
