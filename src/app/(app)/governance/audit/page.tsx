@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { Card, CardHeader } from "@/components/ui/card";
 import { AnimatedNumber } from "@/components/charts/animated-number";
-import { DataTable, type Column, type Row } from "@/components/data/data-table";
+import { DataTable, type Column, type FilterDef, type Row } from "@/components/data/data-table";
 
 export const metadata: Metadata = { title: "Audit log" };
 
@@ -19,6 +19,7 @@ const columns: Column[] = [
   { key: "subject", header: "Subject", hideBelow: "md" },
   { key: "centre", header: "Centre", hideBelow: "lg" },
 ];
+const filters: FilterDef[] = [{ key: "action", label: "action" }, { key: "centre", label: "centre" }, { key: "actor", label: "actor" }];
 
 export default async function AuditPage({ searchParams }: { searchParams: Promise<{ centre?: string }> }) {
   const session = await requirePermission("audit.read");
@@ -51,7 +52,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
 
       <Card className="mt-4" aria-label="Audit events">
         <CardHeader icon={ScrollText} title="Events" subtitle="Every recorded state change, newest first" />
-        <DataTable columns={columns} rows={rows} label="Audit events" filter={{ key: "action", label: "action" }} pageSize={12} exportName="audit-log" emptyTitle="No audit events in scope" />
+        <DataTable columns={columns} rows={rows} label="Audit events" filters={filters} pageSize={12} exportName="audit-log" emptyTitle="No audit events in scope" emptyBody="State changes in your centres appear here as they happen." />
       </Card>
     </>
   );

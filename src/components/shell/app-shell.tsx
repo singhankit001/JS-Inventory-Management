@@ -84,7 +84,7 @@ export async function AppShell({ session, children }: { session: Session; childr
                 <Suspense><CentreSelect centres={session.centres.map((c) => ({ id: c.id, name: c.name }))} /></Suspense>
               </span>
             )}
-            <NotificationsMenu items={notifications.map((n) => ({ id: n.id, title: n.title, body: n.body, read: n.read, severity: n.severity, href: n.href, when: relative(n.createdAt) }))} />
+            <NotificationsMenu items={notifications.map((n) => ({ id: n.id, title: n.title, body: n.body, read: n.read, severity: n.severity, href: n.href, when: relative(n.createdAt) }))} demo={repo.mode === "seed"} />
             <ProfileMenu
               name={session.user.name}
               email={session.user.email}
