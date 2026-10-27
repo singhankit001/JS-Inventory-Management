@@ -242,7 +242,7 @@ export function NotificationsMenu({ items }: { items: ShellNotification[] }) {
       </MenuTrigger>
       <MenuContent className="w-[min(92vw,360px)]">
         <MenuLabel>Notifications</MenuLabel>
-        {items.length === 0 && <p className="px-2.5 py-4 text-label text-ink-3">You're all caught up.</p>}
+        {items.length === 0 && <p className="px-2.5 py-4 text-label text-ink-3">You&apos;re all caught up.</p>}
         {items.map((n) => {
           const body = (
             <div className="flex gap-3">
