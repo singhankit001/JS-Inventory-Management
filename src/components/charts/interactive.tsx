@@ -37,7 +37,7 @@ function TooltipCard({ active, payload, label, format, names }: Partial<TooltipC
 export interface TrendPoint { label: string; a: number; b?: number }
 
 /** Area (primary series) + dashed line (comparison series) — "Revenue vs cost of goods" in the reference. */
-export function TrendChart({ data, aName, bName, format = "money", height = 240 }: { data: TrendPoint[]; aName: string; bName?: string; format?: ValueFormat; height?: number }) {
+export function TrendChart({ data, aName, bName, format = "money", height = 240 }: { data: TrendPoint[]; aName: string; bName?: string; format?: ValueFormat; height?: number | `${number}%` }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
@@ -74,7 +74,7 @@ export function FlowBars({ data, height = 120, format = "money" }: { data: { lab
   );
 }
 
-export function ColumnChart({ data, name, format = "money", height = 220, highlight }: { data: { label: string; value: number }[]; name: string; format?: ValueFormat; height?: number; highlight?: string }) {
+export function ColumnChart({ data, name, format = "money", height = 220, highlight }: { data: { label: string; value: number }[]; name: string; format?: ValueFormat; height?: number | `${number}%`; highlight?: string }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 0 }} barCategoryGap="28%">

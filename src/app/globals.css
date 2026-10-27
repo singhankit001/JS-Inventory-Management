@@ -216,6 +216,7 @@
     border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
+    min-width: 0; /* grid items default to min-content width, which pushed cards past the viewport on phones */
   }
 }
 

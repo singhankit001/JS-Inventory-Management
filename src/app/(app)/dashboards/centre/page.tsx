@@ -103,7 +103,7 @@ export default async function CentreDashboard({ searchParams }: { searchParams: 
 
       <div className="stagger mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Card aria-label="Items to restock">
-          <CardHeader icon={PackageSearch} title="Restock list" subtitle={`${d.restockTotal} items at or below reorder point`} />
+          <CardHeader icon={PackageSearch} title="Restock list" subtitle={`${d.restockTotal} item${d.restockTotal === 1 ? "" : "s"} at or below reorder point`} />
           <DataList rows={d.restock} empty="All stock is above reorder point" label="Low and critical items" />
         </Card>
         <Card aria-label="Upcoming deliveries">

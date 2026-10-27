@@ -6,7 +6,7 @@ export function WelcomeCard({ dateLabel, greeting, children, actions, footer, cl
   dateLabel: string; greeting: string; children: React.ReactNode; actions?: React.ReactNode; footer?: React.ReactNode; className?: string;
 }) {
   return (
-    <section className={cn("card relative overflow-hidden p-5 sm:p-6", className)}>
+    <section className={cn("card relative flex flex-col overflow-hidden p-5 sm:p-6", className)}>
       {/* Faint cool wash in the top-right, as in the reference hero card. */}
       <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-blue-soft opacity-60 blur-3xl" />
       <div className="relative flex flex-wrap items-start justify-between gap-4">
@@ -17,7 +17,8 @@ export function WelcomeCard({ dateLabel, greeting, children, actions, footer, cl
         </div>
         {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
       </div>
-      {footer && <div className="relative mt-6">{footer}</div>}
+      {/* mt-auto pins the timeline to the bottom when a taller neighbour stretches the row, as in the reference. */}
+      {footer && <div className="relative mt-auto pt-6">{footer}</div>}
     </section>
   );
 }
