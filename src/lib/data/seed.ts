@@ -1,8 +1,8 @@
 // DEVELOPMENT SEED DATA — fictional records for demo mode only. Never presented as live business data:
 // the shell shows a "Demo data" badge whenever this provider is active.
 import type {
-  AIProcessingJob, Approval, AuditEvent, Budget, Centre, GoodsReceipt, Integration, Invoice, MonthlyRequest,
-  Notification, Payment, Product, ProductCategory, PurchaseOrder, RequestItem, StockBalance, StockCount,
+  AIProcessingJob, Approval, AuditEvent, Budget, Centre, GoodsReceipt, GoodsReceiptLine, Integration, Invoice, MonthlyRequest,
+  Notification, Payment, Product, ProductCategory, PurchaseOrder, PurchaseOrderLine, RequestItem, StockBalance, StockCount,
   StockMovement, Supplier, SupplierQuotation, UnitOfMeasure, User,
 } from "@/domain/types";
 
@@ -32,7 +32,9 @@ export interface SeedData {
   suppliers: Supplier[];
   quotations: SupplierQuotation[];
   purchaseOrders: PurchaseOrder[];
+  purchaseOrderLines: PurchaseOrderLine[];
   receipts: GoodsReceipt[];
+  receiptLines: GoodsReceiptLine[];
   invoices: Invoice[];
   payments: Payment[];
   budgets: Budget[];
@@ -253,9 +255,9 @@ export function buildSeed(now = new Date()): SeedData {
   ];
 
   const notifications: Notification[] = [
-    { id: "n1", userId: "*", title: "Emergency request from Andheri West", body: "Hand wash and first-aid refills — video request awaiting review.", href: "/dashboards/head-office", createdAt: day(0, 9), read: false, severity: "critical" },
-    { id: "n2", userId: "*", title: "Closing count due", body: "Monthly closing stock counts are due on the last working day.", createdAt: day(-1, 16), read: false, severity: "warning" },
-    { id: "n3", userId: "*", title: "PO-2402 awaiting authorisation", body: "Final authorisation needed before it can be issued.", createdAt: day(-1, 11), read: true, severity: "info" },
+    { id: "n1", userId: "*", title: "Emergency request from Andheri West", body: "Hand wash and first-aid refills — video request awaiting review.", href: "/dashboards/head-office", createdAt: day(0, 9), read: false, readBy: [], severity: "critical" },
+    { id: "n2", userId: "*", title: "Closing count due", body: "Monthly closing stock counts are due on the last working day.", createdAt: day(-1, 16), read: false, readBy: [], severity: "warning" },
+    { id: "n3", userId: "*", title: "PO-2402 awaiting authorisation", body: "Final authorisation needed before it can be issued.", createdAt: day(-1, 11), read: false, readBy: users.map((u) => u.id), severity: "info" },
   ];
 
   const actions: [string, string, string][] = [
@@ -289,6 +291,6 @@ export function buildSeed(now = new Date()): SeedData {
 
   return {
     today, centres, users, categories, uoms, products, balances, movements, counts, requests, requestItems, approvals,
-    suppliers, quotations, purchaseOrders, receipts, invoices, payments, budgets, notifications, audit, aiJobs, integrations,
+    suppliers, quotations, purchaseOrders, purchaseOrderLines: [], receipts, receiptLines: [], invoices, payments, budgets, notifications, audit, aiJobs, integrations,
   };
 }
