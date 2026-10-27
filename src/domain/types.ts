@@ -172,6 +172,8 @@ export interface PurchaseOrder {
   total: Paise;
   expectedAt: ISODate;
   createdAt: ISODate;
+  /** User who raised the PO — separation of duties: they cannot also authorise it. */
+  raisedBy: ID;
   /** Positive = paid more than quoted. */
   priceVariance: Paise;
 }

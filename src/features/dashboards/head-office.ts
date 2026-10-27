@@ -1,6 +1,7 @@
 import type { Repository } from "@/lib/data/provider";
 import type { PurchaseOrder } from "@/domain/types";
-import { REQUEST_STATUS, hourOf, indexBy, lastPeriods } from "./shared";
+import { REQUEST_STATUS, dayOffset, hourOf, indexBy, lastPeriods, poOutstanding } from "./shared";
+import { receiptIssues } from "./receiving";
 import { count, money, moneyCompact, monthLabel, percent, shortDate } from "@/lib/format";
 import { period } from "@/lib/data/seed";
 import type { Tone } from "@/components/ui/badge";
@@ -12,15 +13,16 @@ const PO_STAGES: { key: string; label: string; tone: Tone; match: (p: PurchaseOr
   { key: "issued", label: "Issued · on track", tone: "blue", match: (p, t) => p.status === "issued" && new Date(p.expectedAt) >= t },
   { key: "late", label: "Issued · overdue", tone: "red", match: (p, t) => p.status === "issued" && new Date(p.expectedAt) < t },
   { key: "partial", label: "Partially received", tone: "violet", match: (p) => p.status === "partially_received" },
-  { key: "received", label: "Received", tone: "green", match: (p) => p.status === "received" },
+  { key: "received", label: "Received · last 30 days", tone: "green", match: (p) => p.status === "received" },
 ];
 
 const MATCH_LABEL = { matched: "Matched", price_mismatch: "Price mismatch", quantity_mismatch: "Quantity mismatch", unmatched: "Unmatched" } as const;
 
 export async function loadHeadOffice(repo: Repository) {
   const today = repo.today();
-  const [centres, requests, items, approvals, budgets, pos, receipts, invoices, suppliers, quotations, products] = await Promise.all([
+  const [centres, requests, items, approvals, budgets, pos, receipts, invoices, suppliers, quotations, products, poLines, receiptLines] = await Promise.all([
     repo.centres(), repo.requests(), repo.requestItems(), repo.approvals(), repo.budgets(), repo.purchaseOrders(), repo.receipts(), repo.invoices(), repo.suppliers(), repo.quotations(), repo.products(),
+    repo.purchaseOrderLines(), repo.receiptLines(),
   ]);
   const cmap = indexBy(centres, "id");
   const smap = indexBy(suppliers, "id");
@@ -63,7 +65,13 @@ export async function loadHeadOffice(repo: Repository) {
   const totUsed = budgetRows.reduce((s, b) => s + b.spent + b.committed, 0);
 
   const openPOs = pos.filter((p) => ["awaiting_authorisation", "issued", "partially_received"].includes(p.status));
-  const discrepancies = receipts.filter((r) => r.status === "discrepancy");
+  const { byPo } = poOutstanding(poLines, receiptLines);
+  const linesOf = (receiptId: string) => receiptLines.filter((l) => l.receiptId === receiptId);
+  const lastReceipt = new Map<string, string>();
+  for (const r of receipts) if ((lastReceipt.get(r.purchaseOrderId) ?? "") < r.receivedAt) lastReceipt.set(r.purchaseOrderId, r.receivedAt);
+  // Closed orders only stay on the pipeline for 30 days; a year of history would drown the open stages.
+  const pipelinePOs = pos.filter((p) => p.status !== "received" || dayOffset(lastReceipt.get(p.id) ?? p.expectedAt, today) >= -30);
+  const discrepancies = receipts.filter((r) => r.status === "discrepancy" && dayOffset(r.receivedAt, today) >= -30).sort((a, b) => b.receivedAt.localeCompare(a.receivedAt));
   const invoiceExceptions = invoices.filter((i) => i.status !== "paid" && (i.match !== "matched" || i.status === "query"));
 
   const queue = [
@@ -95,7 +103,7 @@ export async function loadHeadOffice(repo: Repository) {
   const todays = (iso?: string) => !!iso && new Date(iso).toDateString() === today.toDateString();
   const events = [
     ...requests.filter((r) => todays(r.submittedAt)).map((r) => ({ id: r.id, hour: hourOf(r.submittedAt!), label: `${r.priority === "emergency" ? "Emergency request" : "Request"} · ${cmap.get(r.centreId)?.name}`, tone: (r.priority === "emergency" ? "red" : "orange") as Tone })),
-    ...pos.filter((p) => todays(p.expectedAt)).map((p) => ({ id: p.id, hour: hourOf(p.expectedAt), label: `${p.number} delivery · ${cmap.get(p.centreId)?.name}`, tone: "blue" as Tone })),
+    ...pos.filter((p) => p.status === "issued" && todays(p.expectedAt)).map((p) => ({ id: p.id, hour: hourOf(p.expectedAt), label: `${p.number} delivery · ${cmap.get(p.centreId)?.name}`, tone: "blue" as Tone })),
     ...priceApprovals.filter((a) => todays(a.requestedAt)).map((a) => ({ id: a.id, hour: hourOf(a.requestedAt), label: "Supplier price submitted", tone: "violet" as Tone })),
   ];
 
@@ -117,7 +125,7 @@ export async function loadHeadOffice(repo: Repository) {
       queueCount: queue.length, critical: queue.filter((q) => q.priority.tone === "red").length,
       utilisation: totAlloc ? totUsed / totAlloc : 0, headroom: moneyCompact(totAlloc - totUsed),
       utilSpark: periods.map((p) => { const bs = budgets.filter((b) => b.period === p); const a = bs.reduce((s, b) => s + b.allocated, 0); return a ? bs.reduce((s, b) => s + b.spent + b.committed, 0) / a : 0; }),
-      openPOs: openPOs.length, openPOValue: moneyCompact(openPOs.reduce((s, p) => s + p.total, 0)), overduePOs: pos.filter((p) => p.status === "issued" && new Date(p.expectedAt) < today).length,
+      openPOs: openPOs.length, openPOValue: moneyCompact(openPOs.reduce((s, p) => s + byPo(p).value, 0)), overduePOs: pos.filter((p) => p.status === "issued" && new Date(p.expectedAt) < today).length,
       exceptions: discrepancies.length + invoiceExceptions.length, discrepancies: discrepancies.length, invoiceExceptions: invoiceExceptions.length,
     },
     spendTrend: periods.map((p) => {
@@ -134,18 +142,18 @@ export async function loadHeadOffice(repo: Repository) {
       ...suppliers.filter((s) => s.status === "pending").map((s) => ({ id: s.id, title: s.name, sub: `New supplier · on-time ${percent(s.onTimeRate)} · quality ${percent(s.qualityScore)}`, badge: { label: "Onboarding", tone: "amber" as Tone } })),
     ],
     pipeline: PO_STAGES.map((st) => {
-      const rows = pos.filter((p) => st.match(p, today));
+      const rows = pipelinePOs.filter((p) => st.match(p, today));
       return { label: st.label, tone: st.tone, value: rows.length, display: `${rows.length} · ${moneyCompact(rows.reduce((s, p) => s + p.total, 0))}` };
     }).filter((s) => s.value > 0),
-    poTotals: { open: openPOs.length, variance: moneyCompact(pos.reduce((s, p) => s + Math.max(0, p.priceVariance), 0)) },
+    poTotals: { open: openPOs.length, variance: moneyCompact(pos.filter((p) => dayOffset(p.createdAt, today) >= -30).reduce((s, p) => s + Math.max(0, p.priceVariance), 0)) },
     exceptions: [
       ...discrepancies.map((r) => {
         const po = pomap.get(r.purchaseOrderId);
-        const short = r.orderedQty - r.receivedQty;
+        const { short, damaged } = receiptIssues(linesOf(r.id));
         return {
           id: r.id, kind: "receipt" as const, title: `${po?.number ?? r.purchaseOrderId} · ${cmap.get(r.centreId)?.name ?? ""}`,
-          sub: [short && `${count(short)} short`, r.damagedQty && `${count(r.damagedQty)} damaged`, shortDate(r.receivedAt)].filter(Boolean).join(" · "),
-          badge: { label: short ? "Shortage" : "Damage", tone: "amber" as Tone },
+          sub: [short && `${count(short)} short`, damaged && `${count(damaged)} damaged`, r.receivedQty > r.orderedQty && `${count(r.receivedQty - r.orderedQty)} over`, shortDate(r.receivedAt)].filter(Boolean).join(" · "),
+          badge: { label: short ? "Shortage" : damaged ? "Damage" : "Over-delivery", tone: "amber" as Tone },
         };
       }),
       ...invoiceExceptions.map((i) => ({

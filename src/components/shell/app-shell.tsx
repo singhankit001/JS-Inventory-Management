@@ -4,7 +4,7 @@ import { FlaskConical } from "lucide-react";
 import type { Session } from "@/lib/auth/session";
 import { getRepository } from "@/lib/data/provider";
 import { can, DASHBOARD_PATH, ROLE_DEFINITIONS } from "@/lib/auth/permissions";
-import { MODULES, visibleModules, visiblePages } from "@/lib/modules";
+import { MODULES, navPages, visibleModules, visiblePages } from "@/lib/modules";
 import { initials, relative } from "@/lib/format";
 import { ToastProvider } from "@/components/feedback/toast";
 import { CentreSelect, MobileNav, NotificationsMenu, ProfileMenu, Toolbar, TopNav, type CommandEntry, type NavEntry, type QuickAction } from "./shell-client";
@@ -26,10 +26,10 @@ function quickActions(session: Session): QuickAction[] {
   const r = session.role;
   const out: QuickAction[] = [];
   if (can(r, "receiving.record")) out.push({ label: "Record goods receipt", href: "/dashboards/receiving#receive" });
-  if (can(r, "requests.create")) out.push({ label: "New monthly request", phase: 2 }, { label: "Record audio/video request", phase: 3 });
-  if (can(r, "procurement.manage")) out.push({ label: "Request quotation", phase: 2 }, { label: "Raise purchase order", phase: 2 });
-  if (can(r, "finance.manage")) out.push({ label: "Record payment", phase: 2 });
-  if (can(r, "admin.users")) out.push({ label: "Invite user", phase: 2 });
+  if (can(r, "requests.create")) out.push({ label: "New monthly request", href: "/requests/new" }, { label: "Record audio/video request", href: "/requests/intake" });
+  if (can(r, "procurement.manage")) out.push({ label: "Request quotation", href: "/procurement/compare" }, { label: "Raise purchase order", href: "/procurement/orders?new=1" });
+  if (can(r, "finance.manage")) out.push({ label: "Record payment", href: "/finance/payments?new=1" });
+  if (can(r, "admin.users")) out.push({ label: "Invite user", href: "/admin/users?invite=1" });
   return out;
 }
 
@@ -40,19 +40,21 @@ export async function AppShell({ session, children }: { session: Session; childr
 
   const entries: NavEntry[] = [
     { key: "dashboard", label: "Dashboard", href: dash, match: [dash] },
-    ...visibleModules(session.role).map((g) => ({
+    // Operations only ever holds the role's own dashboard, which the Dashboard tab already covers.
+    ...visibleModules(session.role).filter((g) => g.id !== "operations").map((g) => ({
       key: g.id,
       label: g.short,
-      href: `/modules/${g.id}`,
+      // Opens the module's first page this role can see; /modules/<id> remains the module index.
+      href: navPages(session.role, g)[0]?.href ?? `/modules/${g.id}`,
       badge: badges[g.id],
-      match: [`/modules/${g.id}`, ...visiblePages(session.role, g).filter((p) => p.href && p.href !== dash).map((p) => p.href!)],
+      match: [`/modules/${g.id}`, ...visiblePages(session.role, g).filter((p) => p.href && p.href !== dash).map((p) => p.href!.replace("/[id]", ""))],
     })),
   ];
 
   const commands: CommandEntry[] = [
     { label: "My dashboard", href: dash, group: ROLE_DEFINITIONS[session.role].label },
     ...MODULES.flatMap((g) =>
-      visiblePages(session.role, g).map((p) => ({ label: p.title, href: p.href ?? `/modules/${g.id}#${p.slug}`, group: g.short, planned: p.status === "planned" })),
+      navPages(session.role, g).map((p) => ({ label: p.title, href: p.href!, group: g.short, planned: p.status === "planned" })),
     ),
   ];
 

@@ -1,13 +1,14 @@
 import type { Repository } from "@/lib/data/provider";
-import { centreSummaries, consumptionSeries, hourOf, indexBy, lastPeriods, lowStock, valuation } from "./shared";
+import { centreSummaries, consumptionSeries, dayOffset, hourOf, indexBy, lastPeriods, lowStock, poOutstanding, valuation } from "./shared";
 import { count, money, moneyCompact, monthLabel, percent, relative } from "@/lib/format";
 import { period } from "@/lib/data/seed";
 import type { Tone } from "@/components/ui/badge";
 
 export async function loadExecutive(repo: Repository) {
   const today = repo.today();
-  const [centres, products, balances, budgets, approvals, pos, suppliers, movements, audit, users, receipts] = await Promise.all([
+  const [centres, products, balances, budgets, approvals, pos, suppliers, movements, audit, users, receipts, poLines, receiptLines] = await Promise.all([
     repo.centres(), repo.products(), repo.balances(), repo.budgets(), repo.approvals(), repo.purchaseOrders(), repo.suppliers(), repo.movements(), repo.audit(), repo.users(), repo.receipts(),
+    repo.purchaseOrderLines(), repo.receiptLines(),
   ]);
   const pmap = indexBy(products, "id");
   const cmap = indexBy(centres, "id");
@@ -25,19 +26,26 @@ export async function loadExecutive(repo: Repository) {
   const monthAlloc = allocByPeriod.at(-1) ?? 0;
   const prevSpend = spendByPeriod.at(-2) ?? 0;
 
-  const delivered = pos.filter((p) => p.status === "received" || p.status === "partially_received");
-  const lateOrOpen = pos.filter((p) => p.status === "issued" && new Date(p.expectedAt) < today);
-  const onTime = delivered.length + lateOrOpen.length ? delivered.length / (delivered.length + lateOrOpen.length) : 1;
-  const openPOs = pos.filter((p) => ["issued", "awaiting_authorisation", "partially_received"].includes(p.status));
+  // Procurement cycle over the last 90 days, from actual receipts: first delivery on or before the expected day counts as on time;
+  // issued orders already past their date count as late.
+  const firstReceipt = new Map<string, string>();
+  for (const r of [...receipts].sort((a, b) => a.receivedAt.localeCompare(b.receivedAt))) if (!firstReceipt.has(r.purchaseOrderId)) firstReceipt.set(r.purchaseOrderId, r.receivedAt);
+  const delivered = pos.filter((p) => firstReceipt.has(p.id) && dayOffset(firstReceipt.get(p.id)!, today) >= -90);
+  const lateOpen = pos.filter((p) => p.status === "issued" && dayOffset(p.expectedAt, today) < 0).length;
+  const onTimeCount = delivered.filter((p) => dayOffset(firstReceipt.get(p.id)!, today) <= dayOffset(p.expectedAt, today)).length;
+  const onTime = delivered.length + lateOpen ? onTimeCount / (delivered.length + lateOpen) : 1;
   const cycleDays = delivered.length
-    ? delivered.reduce((s, p) => s + (new Date(p.expectedAt).getTime() - new Date(p.createdAt).getTime()) / 86_400_000, 0) / delivered.length
+    ? delivered.reduce((s, p) => s + dayOffset(firstReceipt.get(p.id)!, today) - dayOffset(p.createdAt, today), 0) / delivered.length
     : 0;
+  const recentReceipts = receipts.filter((r) => dayOffset(r.receivedAt, today) >= -90);
+  const openPOs = pos.filter((p) => ["issued", "awaiting_authorisation", "partially_received"].includes(p.status));
+  const { byPo } = poOutstanding(poLines, receiptLines);
 
   const consumption = consumptionSeries(movements, pmap, today, 12);
   const alerts = lowStock(balances, pmap).filter((x) => x.state === "critical");
 
   const todaysEvents = [
-    ...pos.filter((p) => new Date(p.expectedAt).toDateString() === today.toDateString()).map((p) => ({ id: p.id, hour: hourOf(p.expectedAt), label: `${p.number} delivery · ${cmap.get(p.centreId)?.name}`, tone: "blue" as Tone })),
+    ...pos.filter((p) => p.status === "issued" && dayOffset(p.expectedAt, today) === 0).map((p) => ({ id: p.id, hour: hourOf(p.expectedAt), label: `${p.number} delivery · ${cmap.get(p.centreId)?.name}`, tone: "blue" as Tone })),
     ...pendingApprovals.filter((a) => new Date(a.requestedAt).toDateString() === today.toDateString()).map((a) => ({ id: a.id, hour: hourOf(a.requestedAt), label: `${a.critical ? "Critical approval" : "Approval"} requested`, tone: (a.critical ? "red" : "orange") as Tone })),
     ...audit.filter((e) => new Date(e.occurredAt).toDateString() === today.toDateString()).map((e) => ({ id: e.id, hour: hourOf(e.occurredAt), label: `${umap.get(e.actorId)?.name ?? "Someone"} ${e.action}`, tone: "green" as Tone })),
   ];
@@ -89,7 +97,7 @@ export async function loadExecutive(repo: Repository) {
       utilisation: monthAlloc ? monthSpend / monthAlloc : 0,
       utilSpark: periods.map((_, i) => (allocByPeriod[i] ? (spendByPeriod[i] ?? 0) / allocByPeriod[i]! : 0)),
       openPOs: openPOs.length,
-      openPOValue: moneyCompact(openPOs.reduce((s, p) => s + p.total, 0)),
+      openPOValue: moneyCompact(openPOs.reduce((s, p) => s + byPo(p).value, 0)),
       poSpark: periods.map((p) => pos.filter((x) => x.createdAt.slice(0, 7) === p).length),
     },
     consumption: consumption.map((c, i) => ({ label: c.label, a: c.value, b: i > 0 ? consumption[i - 1]!.value : undefined })),
@@ -102,7 +110,7 @@ export async function loadExecutive(repo: Repository) {
     suppliers: [...suppliers].sort((a, b) => b.onTimeRate - a.onTimeRate).map((s) => ({ id: s.id, name: s.name, onTime: s.onTimeRate, quality: s.qualityScore, lead: s.avgLeadDays, status: s.status })),
     alerts: alerts.slice(0, 6).map((a) => ({ id: `${a.balance.centreId}-${a.product.id}`, title: a.product.name, sub: `${cmap.get(a.balance.centreId)?.name} · ${a.balance.onHand} left, reorder at ${a.product.reorderPoint}`, badge: { label: "Critical", tone: "red" as Tone } })),
     alertsTotal: alerts.length,
-    cycle: { onTime, cycleDays, receipts: receipts.length, discrepancies: receipts.filter((r) => r.status === "discrepancy").length },
+    cycle: { onTime, cycleDays, receipts: recentReceipts.length, discrepancies: recentReceipts.filter((r) => r.status === "discrepancy").length },
     insights,
     activity: audit.slice(0, 6).map((e) => ({ id: e.id, actor: umap.get(e.actorId)?.name ?? "Unknown", action: e.action, subject: e.subject, at: relative(e.occurredAt, today) })),
   };

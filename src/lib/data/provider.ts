@@ -4,8 +4,9 @@ import type {
   GoodsReceiptLine, Notification, Payment, Product, ProductCategory, PurchaseOrder, PurchaseOrderLine, RequestItem, StockBalance, StockCount,
   StockMovement, Supplier, SupplierQuotation, UnitOfMeasure, User,
 } from "@/domain/types";
-import { buildSeed, type SeedData } from "./seed";
-import { orderedUnits, receiptOutcome } from "@/features/dashboards/receiving";
+import { buildSeed, DEMO_LOGIN_IDS, period, type SeedData } from "./seed";
+import { lineError, receiptOutcome } from "@/features/dashboards/receiving";
+import { outstandingByLine } from "@/features/dashboards/shared";
 
 /** Which centres a caller may read. "all" only for organisation-scoped roles. */
 export type CentreScope = "all" | readonly ID[];
@@ -106,7 +107,8 @@ export function findUser(id: ID): User | undefined {
   return getSeed().users.find((u) => u.id === id);
 }
 export function listDemoUsers(): User[] {
-  return getSeed().users.filter((u) => u.status === "active");
+  // Seeded centre leaders for the other centres exist for realism but are not offered as sign-in accounts.
+  return getSeed().users.filter((u) => u.status === "active" && DEMO_LOGIN_IDS.includes(u.id));
 }
 export function allCentres(): Centre[] {
   return getSeed().centres;
@@ -114,29 +116,75 @@ export function allCentres(): Centre[] {
 
 // ---- Receiving writes (append-only section) ----
 
-export interface ReceiptInput { purchaseOrderId: ID; receivedQty: number; damagedQty: number; actorId: ID }
+export interface ReceiptLineInput { purchaseOrderLineId: ID; receivedQty: number; damagedQty: number }
+export interface ReceiptInput { purchaseOrderId: ID; lines: ReceiptLineInput[]; actorId: ID }
 
 /**
- * Records a goods receipt against an issued PO in the caller's scope, updates the PO status and writes an audit event.
+ * Records an item-level goods receipt against an issued or part-received PO in the caller's scope. Every line that still
+ * owes units must be counted (0 if it did not arrive); quantities are whole numbers, damaged ≤ received, and received may
+ * exceed what is outstanding by the 10% over-delivery tolerance only. Writes the receipt and its lines, a receipt stock
+ * movement and balance update per line with good units, moves the value from committed to spent on this month's budget,
+ * sets the PO to received / partially_received from what is still owed, and writes an audit event. Nothing is written
+ * unless every check passes.
  * shortcut: mutates the in-memory demo seed, which resets daily (and on server restart); Phase 2 writes to Postgres in one transaction.
  */
-export function recordReceipt(scope: CentreScope, input: ReceiptInput): { ok: true; receipt: GoodsReceipt; po: PurchaseOrder } | { ok: false; error: string } {
+export function recordReceipt(scope: CentreScope, input: ReceiptInput):
+  { ok: true; receipt: GoodsReceipt; lines: GoodsReceiptLine[]; po: PurchaseOrder } | { ok: false; error: string } {
   const s = getSeed();
   const po = s.purchaseOrders.find((p) => p.id === input.purchaseOrderId && (scope === "all" || scope.includes(p.centreId)));
   if (!po) return { ok: false, error: "That purchase order is not in your centres." };
-  if (po.status !== "issued") return { ok: false, error: `${po.number} is not awaiting delivery.` };
-  const ordered = orderedUnits(po);
-  const outcome = receiptOutcome(ordered, input.receivedQty, input.damagedQty);
+  if (po.status !== "issued" && po.status !== "partially_received") return { ok: false, error: `${po.number} is not awaiting delivery.` };
+  const poLines = s.purchaseOrderLines.filter((l) => l.purchaseOrderId === po.id);
+  const owed = outstandingByLine(poLines, s.receiptLines);
+  const name = (productId: ID) => s.products.find((p) => p.id === productId)?.name ?? productId;
+
+  const counted = new Map(input.lines.map((l) => [l.purchaseOrderLineId, l]));
+  if (counted.size !== input.lines.length) return { ok: false, error: "Each line can only be counted once." };
+  for (const l of input.lines) {
+    const line = poLines.find((x) => x.id === l.purchaseOrderLineId);
+    if (!line) return { ok: false, error: `A counted line is not on ${po.number}.` };
+    if (!owed.get(line.id)) return { ok: false, error: `${name(line.productId)} is already fully received.` };
+  }
+  const open = poLines.filter((l) => owed.get(l.id)! > 0);
+  if (open.some((l) => !counted.has(l.id))) return { ok: false, error: "Count every outstanding line — enter 0 for items that did not arrive." };
+  const counts = open.map((line) => ({ line, outstanding: owed.get(line.id)!, receivedQty: counted.get(line.id)!.receivedQty, damagedQty: counted.get(line.id)!.damagedQty }));
+  for (const c of counts) {
+    const err = lineError(c);
+    if (err) return { ok: false, error: `${name(c.line.productId)}: ${err}` };
+  }
+  if (counts.every((c) => c.receivedQty === 0)) return { ok: false, error: "Nothing was received — enter the quantities that arrived." };
+
+  const outcome = receiptOutcome(counts);
   const now = new Date().toISOString();
   const receipt: GoodsReceipt = {
     id: `gr-${s.receipts.length + 1}`, purchaseOrderId: po.id, centreId: po.centreId, receivedAt: now, receivedBy: input.actorId,
-    status: outcome.status, orderedQty: ordered, receivedQty: input.receivedQty, damagedQty: input.damagedQty,
+    status: outcome.status, orderedQty: outcome.ordered, receivedQty: outcome.received, damagedQty: outcome.damaged,
   };
+  const lines: GoodsReceiptLine[] = counts.map((c, i) => ({
+    id: `${receipt.id}-l${i + 1}`, receiptId: receipt.id, purchaseOrderLineId: c.line.id, productId: c.line.productId,
+    orderedQty: c.outstanding, receivedQty: c.receivedQty, damagedQty: c.damagedQty,
+  }));
   s.receipts.push(receipt);
+  s.receiptLines.push(...lines);
+
+  let spent = 0, released = 0;
+  for (const c of counts) {
+    const good = c.receivedQty - c.damagedQty;
+    spent += good * c.line.unitPrice;
+    released += Math.min(good, c.outstanding) * c.line.unitPrice;
+    if (good <= 0) continue;
+    s.movements.push({ id: `mv-${s.movements.length + 1}`, centreId: po.centreId, productId: c.line.productId, type: "receipt", quantity: good, occurredAt: now, reference: receipt.id });
+    const balance = s.balances.find((b) => b.centreId === po.centreId && b.productId === c.line.productId);
+    if (balance) { balance.onHand += good; balance.updatedAt = now; }
+    else s.balances.push({ centreId: po.centreId, productId: c.line.productId, onHand: good, updatedAt: now });
+  }
+  const budget = s.budgets.find((b) => b.centreId === po.centreId && b.period === period(new Date()));
+  if (budget) { budget.spent += spent; budget.committed = Math.max(0, budget.committed - released); }
   po.status = outcome.poStatus;
-  const notes = [outcome.short && `${outcome.short} short`, outcome.over && `${outcome.over} over`, input.damagedQty && `${input.damagedQty} damaged`].filter(Boolean).join(", ");
+
+  const notes = [outcome.short && `${outcome.short} short`, outcome.over && `${outcome.over} over`, outcome.damaged && `${outcome.damaged} damaged`].filter(Boolean).join(", ");
   s.audit.unshift({ id: `ae-${receipt.id}`, actorId: input.actorId, action: "recorded receipt", subject: `GR for ${po.number}${notes ? ` · ${notes}` : ""}`, centreId: po.centreId, occurredAt: now });
-  return { ok: true, receipt, po };
+  return { ok: true, receipt, lines, po };
 }
 
 /**
@@ -152,3 +200,6 @@ export function markNotificationsRead(userId: ID, ids?: ID[]): number {
   }
   return changed;
 }
+
+/** The mutable in-memory demo store, for lib/demo/command.ts only. Reads go through the scoped Repository. */
+export const demoStore = () => getSeed();
