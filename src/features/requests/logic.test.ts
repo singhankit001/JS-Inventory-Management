@@ -85,3 +85,22 @@ describe("approval queue on the seed", async () => {
     expect(q.rows.slice(firstStandard).some((r) => r.priority.label === "Critical")).toBe(false);
   });
 });
+
+describe("approval detail on the seed", async () => {
+  const { seedRepository } = await import("@/lib/data/provider");
+  const { loadApprovalDetail } = await import("@/features/approvals/detail");
+  const repo = seedRepository("all");
+  const ho = { userId: "u-ho", role: "head_office" as const, scope: "all" as const };
+  it("loads every approval and gates decisions by workflow and policy", async () => {
+    for (const a of await repo.approvals()) {
+      const d = (await loadApprovalDetail(repo, a.id, ho))!;
+      expect(d).not.toBeNull();
+      if (a.status !== "pending") expect(d.decisions.every((x) => !x.allowed)).toBe(true);
+      if (a.status === "pending" && a.subjectType === "monthly_request") expect(d.decisions.every((x) => x.allowed)).toBe(true);
+      if (a.subjectType === "purchase_order") expect(d.decisions[0]!.reason).toMatch(/Purchase orders/);
+    }
+    const pending = (await repo.approvals()).find((a) => a.status === "pending" && a.subjectType === "monthly_request")!;
+    const asPurchasing = await loadApprovalDetail(repo, pending.id, { userId: "u-po", role: "purchasing", scope: "all" });
+    expect(asPurchasing!.decisions.every((x) => !x.allowed && /Purchasing cannot approve/.test(x.reason!))).toBe(true);
+  });
+});
