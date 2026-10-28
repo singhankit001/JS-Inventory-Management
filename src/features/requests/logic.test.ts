@@ -128,3 +128,14 @@ describe("create request loader", async () => {
     expect(d.kind === "form" && Object.keys(d.initial).length).toBeGreaterThan(0);
   });
 });
+
+describe("emergency loader", async () => {
+  const { seedRepository } = await import("@/lib/data/provider");
+  const { loadEmergencies } = await import("./emergency");
+  it("orders breached emergencies first and stops the SLA clock once decided", async () => {
+    const d = await loadEmergencies(seedRepository("all"), new Date(Date.now() + 3 * 86_400_000));
+    expect(d.open.length).toBeGreaterThan(0);
+    expect(d.open[0]!.breached).toBe(true);
+    expect(d.open.filter((o) => !o.waitingDecision).every((o) => !o.breached)).toBe(true);
+  });
+});
