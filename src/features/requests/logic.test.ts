@@ -1,0 +1,75 @@
+import { describe, expect, it, vi } from "vitest";
+import { avgMonthlyUse, budgetImpact, requestSteps, suggestedQty, variance } from "./logic";
+
+vi.mock("server-only", () => ({}));
+
+const mv = (productId: string, quantity: number, occurredAt: string, type: "consumption" | "receipt" = "consumption") =>
+  ({ id: `${productId}-${occurredAt}-${type}`, centreId: "c-1", productId, type, quantity, occurredAt });
+
+describe("suggested quantity", () => {
+  it("averages consumption over the three complete months before today, ignoring this month and receipts", () => {
+    const today = new Date(2026, 9, 28); // Oct 2026
+    const use = avgMonthlyUse([
+      mv("p", 30, "2026-07-10T10:00:00Z"), mv("p", 60, "2026-08-10T10:00:00Z"), mv("p", 90, "2026-09-10T10:00:00Z"),
+      mv("p", 500, "2026-10-02T10:00:00Z"), mv("p", 500, "2026-06-10T10:00:00Z"), mv("p", 999, "2026-09-12T10:00:00Z", "receipt"),
+    ], today);
+    expect(use.get("c-1:p")).toBe(60);
+  });
+  it("covers a month of use plus the reorder point, net of stock and open orders, never negative", () => {
+    expect(suggestedQty(60, 20, 0, 30)).toBe(70);
+    expect(suggestedQty(60, 20, 15, 30)).toBe(55);
+    expect(suggestedQty(10.2, 0, 0, 0)).toBe(11);
+    expect(suggestedQty(10, 200, 0, 30)).toBe(0);
+  });
+});
+
+describe("budgetImpact", () => {
+  it("reports headroom left after the request", () => {
+    const i = budgetImpact({ allocated: 100_000, spent: 40_000, committed: 20_000 }, 30_000);
+    expect(i).toMatchObject({ headroom: 40_000, after: 10_000, over: false, utilisation: 0.9 });
+    expect(i.share).toEqual({ spent: 0.4, committed: 0.2, request: 0.3, allocation: 1 });
+  });
+  it("scales to total demand when the request overshoots, keeping the allocation mark inside the bar", () => {
+    const i = budgetImpact({ allocated: 100_000, spent: 60_000, committed: 20_000 }, 45_000);
+    expect(i).toMatchObject({ after: -25_000, over: true });
+    expect(i.share.allocation).toBeCloseTo(0.8);
+    expect(i.share.spent + i.share.committed + i.share.request).toBeCloseTo(1);
+  });
+  it("survives an empty budget", () => {
+    expect(budgetImpact({ allocated: 0, spent: 0, committed: 0 }, 0)).toMatchObject({ utilisation: 0, over: false });
+  });
+});
+
+describe("variance and steps", () => {
+  it("flags lines beyond ±25% of history and treats no history as new", () => {
+    expect(variance(130, 100)).toMatchObject({ flagged: true, tone: "orange", label: "+30%" });
+    expect(variance(110, 100).flagged).toBe(false);
+    expect(variance(5, 0)).toMatchObject({ ratio: null, flagged: false });
+  });
+  it("shows the revision loop and a blocked review when rejected", () => {
+    const back = requestSteps("revision_requested", 1);
+    expect(back.map((s) => s.state)).toEqual(["done", "current", "upcoming", "upcoming", "upcoming"]);
+    expect(back[1]!.detail).toMatch(/resubmit/);
+    expect(requestSteps("submitted", 2)[1]!.detail).toBe("2 revision rounds");
+    expect(requestSteps("rejected", 0)[2]!.state).toBe("blocked");
+    expect(requestSteps("fulfilled", 0).every((s) => s.state === "done")).toBe(true);
+  });
+});
+
+describe("loaders on the seed", async () => {
+  const { seedRepository } = await import("@/lib/data/provider");
+  const { loadMonthlyRequests } = await import("./monthly");
+  const { loadRequestDetail } = await import("./detail");
+  it("lists this month's request for every centre and loads each detail", async () => {
+    const repo = seedRepository("all");
+    const list = await loadMonthlyRequests(repo);
+    expect(list.rows.length).toBeGreaterThanOrEqual(15);
+    for (const row of list.rows) expect(await loadRequestDetail(repo, row.id)).not.toBeNull();
+  });
+  it("hides other centres' requests from a centre-scoped repository", async () => {
+    const repo = seedRepository(["c-and"]);
+    expect((await loadMonthlyRequests(repo, "all")).rows.every((r) => r.centre === "Andheri West")).toBe(true);
+    expect(await loadRequestDetail(seedRepository("all"), "rq-HSR-em1")).not.toBeNull();
+    expect(await loadRequestDetail(repo, "rq-HSR-em1")).toBeNull();
+  });
+});

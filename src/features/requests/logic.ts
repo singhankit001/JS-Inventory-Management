@@ -1,5 +1,5 @@
 // Pure request/approval maths shared by loaders, client forms and server actions (no server-only imports).
-import type { Approval, MonthlyRequest, StockMovement } from "@/domain/types";
+import type { Approval, AuditEvent, Budget, Centre, MonthlyRequest, StockMovement } from "@/domain/types";
 import type { Step } from "@/components/ui/stepper";
 import type { Tone } from "@/components/ui/badge";
 import { percent } from "@/lib/format";
@@ -54,6 +54,29 @@ export function budgetImpact(b: BudgetFigures, request: number) {
   };
 }
 export type BudgetImpact = ReturnType<typeof budgetImpact>;
+
+/** A centre's budget for a period; months without a record (e.g. next month) default to the centre's standing allocation. */
+export function budgetFor(budgets: Budget[], centre: Pick<Centre, "id" | "monthlyBudget"> | undefined, period: string): BudgetFigures {
+  const b = budgets.find((x) => x.centreId === centre?.id && x.period === period);
+  return b ? { allocated: b.allocated, spent: b.spent, committed: b.committed } : { allocated: centre?.monthlyBudget ?? 0, spent: 0, committed: 0 };
+}
+
+export const requestKind = (r: Pick<MonthlyRequest, "priority">) => (r.priority === "emergency" ? "Emergency request" : "Monthly request");
+
+/**
+ * Audit events about one request, newest first. Demo writes name the request id in the subject; seeded events only name
+ * the kind and centre, so those match on centre + kind within the request's period.
+ * shortcut: subject matching until audit events carry a subject id (Phase 2 audit table has subject_type/subject_id).
+ */
+export function requestEvents(audit: AuditEvent[], r: Pick<MonthlyRequest, "id" | "centreId" | "period" | "priority">, centreName: string) {
+  const seeded = `${requestKind(r)} · ${centreName}`;
+  return audit
+    .filter((e) => e.subject.includes(`(${r.id})`) || (e.centreId === r.centreId && e.subject === seeded && e.occurredAt.slice(0, 7) === r.period))
+    .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+}
+
+/** Text after " — " in a demo audit subject: the comment or emergency reason. */
+export const auditNote = (subject: string) => subject.split(" — ").slice(1).join(" — ") || undefined;
 
 /** Proposed vs historical average quantity. No history = "new" (emergencies, first orders). */
 export function variance(proposed: number, historical: number): { ratio: number | null; label: string; tone: Tone; flagged: boolean } {
