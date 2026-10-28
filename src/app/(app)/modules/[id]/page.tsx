@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { forbidden, notFound } from "next/navigation";
-import { ArrowUpRight, Database, KeyRound, PenLine } from "lucide-react";
+import { ArrowUpRight, CornerDownRight, Database, KeyRound, PenLine } from "lucide-react";
 import { requireSession, scopedRepository } from "@/lib/auth/session";
 import { findModule, visiblePages } from "@/lib/modules";
 import { count } from "@/lib/format";
@@ -43,14 +43,17 @@ export default async function ModulePage({ params, searchParams }: Params) {
 
       <div className="stagger grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {pages.map((p) => {
-          const implemented = p.status === "implemented" && p.href;
+          // Detail routes (`nav: false`, href with `[id]`) are opened from a record on their parent list, never directly.
+          const detail = p.nav === false;
+          const parent = detail ? group.pages.find((x) => x.href === p.href?.replace(/\/\[id\]$/, "")) : undefined;
+          const implemented = p.status === "implemented" && p.href && !detail;
           return (
             <Card key={p.slug} as="article" id={p.slug} aria-labelledby={`${p.slug}-h`} className="flex scroll-mt-28 flex-col target:ring-2 target:ring-focus">
               <header className="mb-3 flex items-start justify-between gap-3">
                 <h2 id={`${p.slug}-h`} className="text-title font-normal tracking-[-0.01em]">
                   {implemented ? <Link href={p.href!} className="underline-offset-4 hover:underline">{p.title}</Link> : p.title}
                 </h2>
-                {implemented ? <StatusBadge tone="green" dot>Live</StatusBadge> : <StatusBadge>Phase {p.phase}</StatusBadge>}
+                {p.status !== "implemented" ? <StatusBadge>Phase {p.phase}</StatusBadge> : <StatusBadge tone="green" dot>{detail ? "Detail" : "Live"}</StatusBadge>}
               </header>
               <p className="text-body text-ink-2">{p.summary}</p>
 
@@ -73,6 +76,11 @@ export default async function ModulePage({ params, searchParams }: Params) {
                 )}
               </dl>
 
+              {detail && p.status === "implemented" && (
+                <p className="mt-auto flex items-center gap-1.5 pt-5 text-label text-ink-3">
+                  <CornerDownRight className="size-3.5" aria-hidden />Opened from {parent?.href ? <Link href={parent.href} className="font-medium text-ink underline-offset-4 hover:underline">{parent.title}</Link> : "its list"}
+                </p>
+              )}
               {implemented && <div className="mt-auto pt-5"><Link href={p.href!} className={buttonClass("primary", "sm")} aria-label={`Open ${p.title}`}>Open<ArrowUpRight /></Link></div>}
             </Card>
           );
