@@ -19,7 +19,7 @@ export async function loadPayments(repo: Repository) {
   const value = byPeriod.map((ps) => ps.reduce((s, x) => s + x.amount, 0));
   const year = payments.filter((p) => p.paidAt.slice(0, 7) >= periods[0]!);
   const queue = invoices.filter((i) => i.status === "approved").sort((a, b) => a.dueAt.localeCompare(b.dueAt));
-  const exceptions = reconciliationExceptions(invoices, payments);
+  const exceptions = reconciliationExceptions(invoices, payments).reverse(); // newest invoices first
 
   return {
     kpis: {
