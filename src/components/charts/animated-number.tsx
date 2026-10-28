@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { count, money, moneyCompact, percent } from "@/lib/format";
 
 const formats = { money, moneyCompact, count, percent, decimal: (n: number) => n.toFixed(1) } as const;
@@ -20,16 +20,20 @@ function visibility(el: HTMLElement): "seen" | "fading" | "offscreen" {
  * Server-renders the final value (no layout shift, correct without JS). It only resets to 0 where nobody has
  * seen the final value yet: while its card is still fading in, or just before it scrolls into view.
  * Reduced motion: shows the value, never animates.
+ * Frames write the text node directly: a React state update per frame re-rendered every KPI on the page 60×/s.
  */
 export function AnimatedNumber({ value, format = "count", duration = 900, suffix }: { value: number; format?: NumberFormat; duration?: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [shown, setShown] = useState(value);
+  const out = useRef<HTMLSpanElement>(null);
   const current = useRef(value);
+  const f = formats[format];
+  // Whole numbers stay whole while counting; ratios and decimals interpolate smoothly.
+  const text = (n: number) => `${format === "count" || format === "money" || format === "moneyCompact" ? f(Math.round(n)) : f(n)}${suffix ?? ""}`;
   const mounted = useRef(false);
   // Layout effect: the reset to 0 lands before the browser paints the client commit.
   useLayoutEffect(() => {
     const el = ref.current;
-    const set = (n: number) => { current.current = n; setShown(n); };
+    const set = (n: number) => { current.current = n; if (out.current) out.current.textContent = text(n); };
     if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) { set(value); mounted.current = true; return; }
     let raf = 0;
     let io: IntersectionObserver | undefined;
@@ -58,14 +62,12 @@ export function AnimatedNumber({ value, format = "count", duration = 900, suffix
       // Still waiting to be seen: re-run the first-sight path (value change, or Strict Mode's re-mount).
       if (io) { io.disconnect(); mounted.current = false; }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `text` derives from format/suffix, which never change per instance
   }, [value, duration]);
-  const f = formats[format];
-  // Whole numbers stay whole while counting; ratios and decimals interpolate smoothly.
-  const display = format === "count" || format === "money" || format === "moneyCompact" ? f(Math.round(shown)) : f(shown);
   return (
     <span ref={ref} className="tabular">
       <span className="sr-only">{f(value)}{suffix}</span>
-      <span aria-hidden>{display}{suffix}</span>
+      <span ref={out} aria-hidden>{text(value)}</span>
     </span>
   );
 }

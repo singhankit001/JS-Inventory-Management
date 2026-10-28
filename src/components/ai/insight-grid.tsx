@@ -27,7 +27,7 @@ export function InsightGrid({ capabilities }: { capabilities: { id: AICapability
           return (
             <li key={c.id}>
               <button type="button" onClick={() => setOpen(c.id)} aria-haspopup="dialog"
-                className="flex h-full w-full flex-col items-start gap-3 rounded-tile border border-line bg-surface p-4 text-left shadow-card transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-float">
+                className="flex h-full w-full flex-col items-start gap-3 rounded-tile border border-line bg-surface p-4 text-left shadow-card transition-[transform,translate,scale,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-float">
                 <span className="flex w-full items-center justify-between gap-2">
                   <span className="grid size-8 place-items-center rounded-full bg-surface-2 text-ink-2 ring-1 ring-line" aria-hidden><Icon className="size-4" strokeWidth={1.75} /></span>
                   <StatusBadge tone="neutral" dot>Not connected</StatusBadge>

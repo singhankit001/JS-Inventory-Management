@@ -65,13 +65,17 @@ export async function loadCounts(repo: Repository, canCount: boolean) {
   const cost = (productId: string) => pmap.get(productId)?.unitCost ?? 0;
   const leaderOf = (centreId: string) => users.find((u) => u.roles.includes("centre_leader") && u.centreIds.includes(centreId))?.name ?? null;
   const reconPeriods = lastPeriods(today, 3);
+  // Parse each timestamp once and bucket by centre: the ledger holds tens of thousands of movements.
+  const time = new Map(movements.map((m) => [m.id, new Date(m.occurredAt).getTime()]));
+  const byCentre = new Map<string, typeof movements>();
+  for (const m of movements) (byCentre.get(m.centreId) ?? byCentre.set(m.centreId, []).get(m.centreId)!).push(m);
   const reconRows: Row[] = centres.flatMap((c) => {
-    const moves = movements.filter((m) => m.centreId === c.id);
+    const moves = byCentre.get(c.id) ?? [];
     const nowValue = balances.filter((b) => b.centreId === c.id).reduce((s, b) => s + b.onHand * cost(b.productId), 0);
     return reconPeriods.map((per) => {
       const [y, mo] = per.split("-").map(Number);
       const start = new Date(y!, mo! - 1, 1).getTime(), end = new Date(y!, mo!, 1).getTime();
-      const at = (m: { occurredAt: string }) => new Date(m.occurredAt).getTime();
+      const at = (m: { id: string }) => time.get(m.id)!;
       const value = (m: (typeof moves)[number]) => signedQty(m) * cost(m.productId);
       const inP = moves.filter((m) => at(m) >= start && at(m) < end);
       const opening = nowValue - moves.filter((m) => at(m) >= start).reduce((s, m) => s + value(m), 0);

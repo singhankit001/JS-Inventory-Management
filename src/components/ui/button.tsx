@@ -5,12 +5,12 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap select-none transition-[background-color,color,box-shadow,transform] duration-200 ease-[var(--ease-out-3)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0";
+  "inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap select-none transition-[background-color,color,box-shadow,transform,translate,scale] duration-200 ease-[var(--ease-out-3)] active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0";
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-pill text-pill-ink shadow-float hover:shadow-pop hover:-translate-y-px",
+  primary: "bg-pill text-pill-ink shadow-float hover:bg-pill/90 hover:shadow-pop hover:-translate-y-px",
   secondary: "bg-surface text-ink border border-line-strong/70 shadow-card hover:bg-surface-2",
   ghost: "text-ink-2 hover:text-ink hover:bg-surface-3/70",
-  danger: "bg-red text-white hover:brightness-110",
+  danger: "bg-red text-white hover:bg-red/90",
 };
 const sizes: Record<ButtonSize, string> = {
   sm: "h-8 px-3.5 text-label",

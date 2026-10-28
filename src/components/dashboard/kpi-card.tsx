@@ -34,7 +34,7 @@ export function KpiCard({ variant = "plain", icon: Icon, label, value, spark, sp
     </>
   );
   const cls = cn(
-    "group block rounded-card border border-line/70 p-5 shadow-card transition-[transform,box-shadow] duration-300 ease-[var(--ease-out-3)]",
+    "group block rounded-card border border-line/70 p-5 shadow-card transition-[transform,translate,scale,box-shadow] duration-300 ease-[var(--ease-out-3)]",
     href && "hover:-translate-y-0.5 hover:shadow-float",
     v.card,
     className,
