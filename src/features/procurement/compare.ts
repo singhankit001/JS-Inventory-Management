@@ -27,6 +27,9 @@ export function bestValue(prices: { supplierId: string; price?: number; current:
   return { best: best?.supplierId, bestPrice: best?.price, currentPrice: current?.price, perUnit, ratio: current?.price ? perUnit / current.price : 0, annual: perUnit * volume };
 }
 
+/** "+4%" / "−3%" against a reference, or "At list" when within half a percent. */
+const vsRef = (ratio: number) => (Math.abs(ratio - 1) < 0.005 ? "At list" : `${ratio < 1 ? "−" : "+"}${percent(Math.abs(ratio - 1))}`);
+
 const scoreCells = (ss: Supplier[]) => [
   { label: "Lead time", cells: ss.map((s) => ({ text: `${s.avgLeadDays} days` })) },
   { label: "On time", cells: ss.map((s) => ({ text: percent(s.onTimeRate) })) },
@@ -61,7 +64,7 @@ export async function loadCompare(repo: Repository, opts: { product?: string; ca
         suppliers: head(ss, bv.best, (s) => live.find((x) => x.s.id === s.id)?.quote?.status === "accepted"),
         rows: [
           { label: "Unit price", cells: live.map((x) => (x.price !== undefined ? { text: money(x.price), sub: x.price === bv.bestPrice ? "Lowest" : bv.bestPrice ? `+${percent(x.price / bv.bestPrice - 1)}` : undefined } : { text: "—", sub: x.quote ? (x.expired ? "Quote expired" : QUOTE_STATUS[x.quote.status].label) : "Not quoted" })) },
-          { label: "vs list price", cells: live.map((x) => ({ text: x.price !== undefined ? `${x.price <= product.unitCost ? "−" : "+"}${percent(Math.abs(x.price / product.unitCost - 1))}` : "—" })) },
+          { label: "vs list price", cells: live.map((x) => ({ text: x.price !== undefined ? vsRef(x.price / product.unitCost) : "—" })) },
           { label: "Quote", cells: live.map((x) => (x.quote ? { text: QUOTE_STATUS[x.quote.status].label, tone: QUOTE_STATUS[x.quote.status].tone } : { text: "None" })) },
           { label: "Valid until", cells: live.map((x) => ({ text: x.quote && x.quote.status !== "declined" ? shortDate(x.quote.validUntil) : "—", sub: x.expired ? "Expired" : undefined, tone: x.expired ? "red" as const : undefined })) },
           ...scoreCells(ss),
@@ -91,8 +94,8 @@ export async function loadCompare(repo: Repository, opts: { product?: string; ca
         suppliers: head(ss, best, (s) => quotes.some((q) => q.supplierId === s.id && q.status === "accepted" && items.some((p) => p.id === q.productId))),
         rows: [
           { label: "Products priced", cells: perSupplier.map((x) => ({ text: `${x.priced.length} of ${items.length}` })) },
-          { label: "Cheapest on", cells: perSupplier.map((x) => ({ text: `${cheapest.get(x.s.id) ?? 0} products` })) },
-          { label: "Price vs list", cells: perSupplier.map((x) => ({ text: x.index === undefined ? "—" : `${x.index <= 1 ? "−" : "+"}${percent(Math.abs(x.index - 1))}`, sub: "average" })) },
+          { label: "Cheapest on", cells: perSupplier.map((x) => ({ text: `${cheapest.get(x.s.id) ?? 0} product${cheapest.get(x.s.id) === 1 ? "" : "s"}` })) },
+          { label: "Price vs list", cells: perSupplier.map((x) => ({ text: x.index === undefined ? "—" : vsRef(x.index), sub: "average" })) },
           ...scoreCells(ss),
         ],
       },
