@@ -1,6 +1,7 @@
 import { cn } from "@/lib/cn";
 import type { Tone } from "@/components/ui/badge";
 import { toneDot } from "@/components/ui/badge";
+import { TipGroup } from "@/components/ui/float-tip";
 
 export function WelcomeCard({ dateLabel, greeting, children, actions, footer, className }: {
   dateLabel: string; greeting: string; children: React.ReactNode; actions?: React.ReactNode; footer?: React.ReactNode; className?: string;
@@ -40,7 +41,7 @@ export function DayTimeline({ events, nowHour, startHour = 7, endHour = 19, labe
   }
   return (
     <div role="group" aria-label={label}>
-      <div className="relative h-8">
+      <TipGroup className="relative h-8">
         <div className="absolute top-1/2 right-0 left-0 -translate-y-1/2 border-t-2 border-dotted border-line-strong" />
         {spans.map(([a, b], i) => {
           const from = pct(a - 0.5), to = pct(Math.min(nowHour, b + 0.5));
@@ -48,13 +49,12 @@ export function DayTimeline({ events, nowHour, startHour = 7, endHour = 19, labe
         })}
         <span className="absolute inset-y-0 w-px -translate-x-1/2 bg-line-strong" style={{ left: pos(nowHour) }} aria-hidden />
         {events.map((e, i) => (
-          <span key={e.id} className="group absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: pos(e.hour) }}>
-            <span tabIndex={0} aria-label={`${fmt(Math.floor(e.hour))}: ${e.label}`} className={cn("cell-in block size-3 rounded-full ring-2 ring-surface transition-transform duration-200 group-hover:scale-125 focus-visible:scale-125", toneDot[e.tone])} style={{ animationDelay: `calc(var(--enter-delay, 0ms) + ${300 + i * 50}ms)` }} />
-            <span role="tooltip" className="pointer-events-none absolute bottom-5 left-1/2 z-10 w-max max-w-56 -translate-x-1/2 translate-y-1 rounded-[10px] bg-pill px-2.5 py-1.5 text-[11.5px] text-pill-ink opacity-0 shadow-pop transition-all duration-200 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">{e.label}</span>
+          <span key={e.id} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: pos(e.hour) }}>
+            <span tabIndex={0} data-tip={`${fmt(Math.floor(e.hour))} · ${e.label}`} aria-label={`${fmt(Math.floor(e.hour))}: ${e.label}`} className={cn("heat-cell cell-in block size-3 rounded-full ring-2 ring-surface", toneDot[e.tone])} style={{ animationDelay: `calc(var(--enter-delay, 0ms) + ${300 + i * 50}ms)` }} />
           </span>
         ))}
         <span className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-ink-2 bg-surface" style={{ left: pos(nowHour) }} aria-label="Now" role="img" />
-      </div>
+      </TipGroup>
       <div className="relative mt-2 h-4 text-[11px] text-ink-3">
         {hours.map((h) => <span key={h} className="absolute -translate-x-1/2" style={{ left: pos(h) }}>{fmt(h)}</span>)}
       </div>

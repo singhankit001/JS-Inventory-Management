@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { PillGroup } from "@/components/ui/pill-group";
 import { StatTile, Eyebrow } from "@/components/ui/card";
 import { DataList, type ListRow } from "./lists";
+import { useFloatTip } from "@/components/ui/float-tip";
 import type { Tone } from "@/components/ui/badge";
 
 export type CellState = "healthy" | "low" | "critical" | "incoming";
@@ -34,24 +35,26 @@ const toneFill: Record<Tone, string> = { neutral: "bg-ink-3", blue: "bg-blue", g
 const toneTop: Record<Tone, string> = { neutral: "before:bg-ink-3", blue: "before:bg-blue", green: "before:bg-green", orange: "before:bg-orange", amber: "before:bg-amber", red: "before:bg-red", violet: "before:bg-violet", slate: "before:bg-slate" };
 const toneCode: Record<Tone, string> = { neutral: "bg-surface-2 text-ink-2", blue: "bg-blue-soft text-blue", green: "bg-green-soft text-green", orange: "bg-orange-soft text-orange", amber: "bg-amber-soft text-amber", red: "bg-red-soft text-red", violet: "bg-violet-soft text-violet", slate: "bg-slate-soft text-slate" };
 
-/** SKU health grid: one cell per SKU, coloured by stock state. */
+/** SKU health grid: one cell per SKU, coloured by stock state. One shared tooltip serves every cell. */
 export function InventoryHeatmap({ cells, tone, label }: { cells: HeatCell[]; tone: Tone; label: string }) {
+  const { handlers, node } = useFloatTip();
   return (
-    <ul className="grid grid-cols-[repeat(auto-fill,minmax(18px,1fr))] gap-[5px]" aria-label={label}>
-      {cells.map((c, i) => (
-        <li key={c.productId} className="group relative aspect-square">
-          <span
-            tabIndex={0}
-            aria-label={`${c.name}: ${c.onHand} on hand, ${c.state}`}
-            className={cn("cell-in block size-full rounded-[5px] transition-transform duration-200 group-hover:scale-110 focus-visible:scale-110", c.state === "healthy" ? toneFill[tone] : cellClass[c.state])}
-            style={{ animationDelay: `calc(var(--enter-delay, 0ms) + ${Math.min(i * 12, 500)}ms)` }}
-          />
-          <span role="tooltip" className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 w-max max-w-48 -translate-x-1/2 rounded-[10px] bg-pill px-2.5 py-1.5 text-[11.5px] text-pill-ink opacity-0 shadow-pop transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100">
-            {c.name} · {c.onHand} on hand
-          </span>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className="grid grid-cols-[repeat(auto-fill,minmax(18px,1fr))] gap-[5px]" aria-label={label} {...handlers}>
+        {cells.map((c, i) => (
+          <li key={c.productId} className="aspect-square">
+            <span
+              tabIndex={0}
+              data-tip={`${c.name} · ${c.onHand} on hand`}
+              aria-label={`${c.name}: ${c.onHand} on hand, ${c.state}`}
+              className={cn("heat-cell cell-in block size-full rounded-[5px]", c.state === "healthy" ? toneFill[tone] : cellClass[c.state])}
+              style={{ animationDelay: `calc(var(--enter-delay, 0ms) + ${Math.min(i * 12, 500)}ms)` }}
+            />
+          </li>
+        ))}
+      </ul>
+      {node}
+    </>
   );
 }
 
@@ -59,7 +62,7 @@ export function CentreSummaryCard({ centre }: { centre: CentreSummary }) {
   const healthy = centre.cells.filter((c) => c.state === "healthy").length;
   const ratio = centre.cells.length ? healthy / centre.cells.length : 0;
   return (
-    <article className={cn("card relative overflow-hidden p-5 sm:p-6 before:absolute before:inset-x-6 before:top-0 before:h-[3px] before:rounded-b-full", toneTop[centre.tone])}>
+    <article className={cn("card relative p-5 sm:p-6 before:absolute before:inset-x-6 before:top-0 before:h-[3px] before:rounded-b-full", toneTop[centre.tone])}>
       <header className="flex items-center gap-3">
         <span className={cn("grid size-11 place-items-center rounded-[12px] text-[11px] font-semibold tracking-wide", toneCode[centre.tone])}>{centre.code}</span>
         <div className="min-w-0">

@@ -14,9 +14,10 @@ const axis = { stroke: "var(--ink-3)", fontSize: 11, tickLine: false, axisLine: 
 // Same timing as the CSS tokens (--dur-draw / --dur-grow, --ease-out-3). Recharts' default
 // isAnimationActive="auto" already skips these under prefers-reduced-motion.
 const ease = "cubic-bezier(0.215,0.61,0.355,1)" as const;
-const draw = { animationDuration: 1100, animationEasing: ease } as const;
-const grow = { animationDuration: 900, animationEasing: ease } as const;
-const tip = { animationDuration: 240, animationEasing: ease } as const;
+const draw = { animationDuration: 700, animationEasing: ease } as const;
+const grow = { animationDuration: 600, animationEasing: ease } as const;
+// Tooltips may leave the plot area (cards never clip them) and sit above neighbouring cards.
+const tip = { animationDuration: 160, animationEasing: ease, allowEscapeViewBox: { x: false, y: true }, wrapperStyle: { zIndex: 40, outline: "none" } } as const;
 
 function TooltipCard({ active, payload, label, format, names }: Partial<TooltipContentProps<TooltipValueType, string | number>> & { format: ValueFormat; names: Record<string, string> }) {
   if (!active || !payload?.length) return null;
