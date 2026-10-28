@@ -13,7 +13,7 @@ export function LiveStatus({ title, detail, progress }: { title: string; detail:
   }, []);
   const p = Math.max(0, Math.min(1, progress));
   return (
-    <div className="animate-enter flex items-center gap-4 rounded-full bg-surface/80 py-2 pr-5 pl-3 shadow-card ring-1 ring-line/70 backdrop-blur-xl">
+    <div className="flex items-center gap-4 rounded-full bg-surface/80 py-2 pr-5 pl-3 shadow-card ring-1 ring-line/70 backdrop-blur-xl">
       <span className="flex items-center gap-2 text-label font-medium tabular">
         <span className="pulse-dot size-2 rounded-full bg-green" aria-hidden />
         <span suppressHydrationWarning className="min-w-14">{now ?? "—"}</span>

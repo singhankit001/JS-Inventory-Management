@@ -18,11 +18,15 @@ export function IconBubble({ icon: Icon, className }: { icon: LucideIcon; classN
 }
 
 /** Card title row: icon bubble, title, optional subtitle and trailing action (e.g. "Payments ›"). */
-export function CardHeader({ icon, title, subtitle, action, className, id }: { icon?: LucideIcon; title: string; subtitle?: React.ReactNode; action?: React.ReactNode; className?: string; id?: string }) {
+export function CardHeader({ icon, leading, title, subtitle, action, className, id }: {
+  icon?: LucideIcon; /** Pre-rendered leading visual, for client components that cannot receive an icon component. */ leading?: React.ReactNode;
+  title: string; subtitle?: React.ReactNode; action?: React.ReactNode; className?: string; id?: string;
+}) {
   return (
-    <header className={cn("mb-4 flex items-start gap-3", className)}>
-      {icon && <IconBubble icon={icon} />}
-      <div className="min-w-0 flex-1">
+    <header className={cn("mb-4 flex flex-wrap items-center gap-x-3 gap-y-2", className)}>
+      {leading ?? (icon && <IconBubble icon={icon} />)}
+      {/* basis keeps the title readable on phones: a wide action (segmented control) wraps below instead */}
+      <div className="min-w-0 flex-1 basis-40">
         <h2 id={id} className="text-title font-normal tracking-[-0.01em] text-ink">{title}</h2>
         {subtitle && <p className="text-label text-ink-3">{subtitle}</p>}
       </div>

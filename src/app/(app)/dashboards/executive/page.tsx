@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, Boxes, CalendarClock, ChartLine, ClipboardCheck, Gauge as GaugeIcon, Landmark, Lightbulb, PackageSearch, Siren, Truck, Users, Wallet } from "lucide-react";
+import { BadgeCheck, Boxes, Inbox, CalendarClock, ChartLine, ClipboardCheck, Gauge as GaugeIcon, Landmark, Lightbulb, PackageSearch, Siren, Truck, Users, Wallet } from "lucide-react";
 import { requirePermission, scopedRepository } from "@/lib/auth/session";
 import { loadExecutive } from "@/features/dashboards/executive";
 import { dateEyebrow, firstName, greeting } from "@/features/dashboards/shared";
@@ -16,6 +16,7 @@ import { StatusBadge, toneDot } from "@/components/ui/badge";
 import { ComparisonBars, Gauge, ProgressRing, TrendIndicator } from "@/components/charts/svg";
 import { FlowBars } from "@/components/charts/lazy";
 import { TrendCard } from "@/components/charts/trend-card";
+import { AnimatedNumber } from "@/components/charts/animated-number";
 import { WidgetBoundary } from "@/components/feedback/error-boundary";
 import { percent } from "@/lib/format";
 import { cn } from "@/lib/cn";
@@ -27,6 +28,8 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
   const { repo, centre } = scopedRepository(session, (await searchParams).centre);
   const d = await loadExecutive(repo);
   const today = repo.today();
+  // The six centres closest to (or over) budget; the full list lives on Budgets & allocations.
+  const topSpend = [...d.centreSpend].sort((a, b) => b.value / (b.marker || 1) - a.value / (a.marker || 1)).slice(0, 6);
 
   return (
     <>
@@ -41,8 +44,8 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
           dateLabel={dateEyebrow(today)}
           greeting={`${greeting()}, ${firstName(session.user.name)}.`}
           actions={<>
-            <Link href="/modules/approvals" className={buttonClass("primary", "sm")}><ClipboardCheck />Approvals</Link>
-            <Link href="/modules/operations" className={buttonClass("secondary", "sm")}><Landmark />Centres</Link>
+            <Link href="/approvals" className={buttonClass("primary", "sm")}><ClipboardCheck />Approvals</Link>
+            <Link href="/inventory/centres" className={buttonClass("secondary", "sm")}><Landmark />Centres</Link>
           </>}
           footer={<DayTimeline events={d.welcome.events} nowHour={d.welcome.nowHour} label="Today's operational timeline" />}
         >
@@ -55,7 +58,7 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
         <Card aria-label="Total inventory valuation">
           <CardHeader icon={Boxes} title="Inventory valuation" action={<Link href="/modules/inventory" className={buttonClass("secondary", "sm")}>Stock ›</Link>} />
           <div className="flex flex-wrap items-baseline gap-2.5">
-            <span className="text-metric-lg font-medium tracking-[-0.03em] tabular">{d.valuation.total}</span>
+            <span className="text-metric-lg font-medium tracking-[-0.03em]"><AnimatedNumber value={d.valuation.totalValue} format="money" /></span>
             <StatusBadge tone="green">{d.valuation.units} units</StatusBadge>
           </div>
           <p className="mt-1 mb-3 text-label text-ink-3">Budget headroom per month, last 6 months</p>
@@ -68,14 +71,14 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
       </div>
 
       <MetricGrid className="mt-4">
-        <KpiCard variant="primary" icon={Wallet} label="Procurement spend this month" value={d.kpis.spend} spark={d.kpis.spendSpark}
+        <KpiCard variant="primary" icon={Wallet} label="Procurement spend this month" value={<AnimatedNumber value={d.kpis.spendValue} format="moneyCompact" />} spark={d.kpis.spendSpark}
           footnote={<TrendIndicator direction={d.kpis.spendChange >= 0 ? "up" : "down"}>{percent(Math.abs(d.kpis.spendChange))} vs last month (month to date)</TrendIndicator>} />
-        <KpiCard variant="secondary" icon={Siren} label="Pending critical approvals" value={d.kpis.critical} href="/modules/approvals"
+        <KpiCard variant="secondary" icon={Siren} label="Pending critical approvals" value={<AnimatedNumber value={d.kpis.critical} />} href="/modules/approvals"
           footnote={<span>{d.kpis.pending} approvals pending in total</span>} />
-        <KpiCard icon={GaugeIcon} label="Budget utilisation" value={percent(d.kpis.utilisation)} spark={d.kpis.utilSpark} sparkTone="green"
+        <KpiCard icon={GaugeIcon} label="Budget utilisation" value={<AnimatedNumber value={d.kpis.utilisation} format="percent" />} spark={d.kpis.utilSpark} sparkTone="green"
           footnote={<TrendIndicator direction="flat" good={d.kpis.utilisation <= 0.9}>Month to date</TrendIndicator>} />
-        <KpiCard icon={Truck} label="Open purchase orders" value={d.kpis.openPOs} spark={d.kpis.poSpark} sparkTone="orange"
-          footnote={<span>{d.kpis.openPOValue} committed</span>} />
+        <KpiCard icon={Truck} label="Open purchase orders" value={<AnimatedNumber value={d.kpis.openPOs} />} spark={d.kpis.poSpark} sparkTone="orange"
+          footnote={<span>{d.kpis.openPOValue} still to deliver</span>} />
       </MetricGrid>
 
       <div className="stagger mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -86,11 +89,38 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
               { key: "units", label: "Units", kind: "column", data: d.consumptionUnits, format: "count", aName: "Units used" },
             ]} />
         </WidgetBoundary>
-        <Card aria-label="Centre spending comparison">
-          <CardHeader icon={Landmark} title="Centre spend" subtitle="This month · line marks budget" />
-          <ComparisonBars rows={d.centreSpend} label="Spend by centre" />
+        <Card aria-label="Centre spending comparison" className="flex flex-col">
+          <CardHeader icon={Landmark} title="Centre spend" subtitle={`Highest ${topSpend.length} of ${d.centreSpend.length} this month · line marks budget`}
+            action={<Link href="/approvals/budgets" className={buttonClass("ghost", "sm")}>All ›</Link>} />
+          <ComparisonBars rows={topSpend} label="Spend by centre" />
         </Card>
       </div>
+
+      <Card aria-label="Recent centre requests" className="mt-4">
+        <CardHeader icon={Inbox} title="Recent centre requests" subtitle="Latest submissions across your centres"
+          action={<Link href="/requests?period=all" className={buttonClass("ghost", "sm")}>All requests ›</Link>} />
+        {d.recentRequests.length === 0 ? <p className="text-label text-ink-3">No requests submitted yet.</p> : (
+          <ul className="-mx-2 divide-y divide-line/70">
+            {d.recentRequests.map((r) => (
+              <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-2 py-2.5 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto_auto]">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 truncate text-body font-medium">
+                    <Link href={`/requests/${r.id}`} className="truncate underline-offset-4 hover:underline">{r.centre}</Link>
+                    {r.emergency && <StatusBadge tone="red">Emergency</StatusBadge>}
+                  </p>
+                  <p className="truncate text-[12px] text-ink-3"><span className="font-mono text-[11.5px]">{r.id}</span> · {r.by} · <time dateTime={r.submittedAt}>{r.when}</time></p>
+                </div>
+                <p className="hidden text-label text-ink-2 tabular md:block">{r.items} item{r.items === 1 ? "" : "s"} · <span className="font-medium text-ink">{r.amount}</span></p>
+                <StatusBadge tone={r.status.tone} dot>{r.status.label}</StatusBadge>
+                <div className="col-span-2 flex gap-1 md:col-span-1">
+                  <Link href={`/requests/${r.id}`} className={buttonClass("ghost", "sm")}>Request</Link>
+                  <Link href={`/inventory/counts?f_centre=${encodeURIComponent(r.centre)}`} className={buttonClass("ghost", "sm")}>Stock count</Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       <div className="stagger mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Card aria-label="Supplier performance">
@@ -109,11 +139,11 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
           </ul>
         </Card>
         <Card aria-label="Critical stock alerts">
-          <CardHeader icon={PackageSearch} title="Critical stock" subtitle={`${d.alertsTotal} items at or below half their reorder point`} />
+          <CardHeader icon={PackageSearch} title="Critical stock" subtitle={`${d.alertsTotal} item${d.alertsTotal === 1 ? "" : "s"} at or below half their reorder point`} />
           <DataList rows={d.alerts} empty="No critical stock" label="Critical stock alerts" />
         </Card>
         <Card aria-label="Procurement cycle performance" className="md:col-span-2 xl:col-span-1">
-          <CardHeader icon={CalendarClock} title="Procurement cycle" subtitle="Orders delivered on time" />
+          <CardHeader icon={CalendarClock} title="Procurement cycle" subtitle="Orders delivered on time · last 90 days" />
           <Gauge value={d.cycle.onTime} target={0.92} label="On-time delivery" caption="Target 92%" />
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-tile bg-surface-2 py-2.5"><p className="text-body font-medium tabular">{d.cycle.cycleDays.toFixed(1)}d</p><p className="text-[11px] text-ink-3">PO → receipt</p></div>

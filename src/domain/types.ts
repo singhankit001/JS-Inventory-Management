@@ -172,8 +172,22 @@ export interface PurchaseOrder {
   total: Paise;
   expectedAt: ISODate;
   createdAt: ISODate;
+  /** User who raised the PO — separation of duties: they cannot also authorise it. */
+  raisedBy: ID;
   /** Positive = paid more than quoted. */
   priceVariance: Paise;
+}
+
+/** One product on a purchase order. Invariant: PurchaseOrder.total = Σ quantity × unitPrice. */
+export interface PurchaseOrderLine {
+  id: ID;
+  purchaseOrderId: ID;
+  productId: ID;
+  /** In the product's unit of measure. */
+  quantity: number;
+  unitPrice: Paise;
+  /** Set when the line came from an approved request item. */
+  requestItemId?: ID;
 }
 
 export interface GoodsReceipt {
@@ -183,6 +197,18 @@ export interface GoodsReceipt {
   receivedAt: ISODate;
   receivedBy: ID;
   status: "pending_confirmation" | "confirmed" | "discrepancy";
+  /** Totals across this receipt's lines (kept denormalised for list views). */
+  orderedQty: number;
+  receivedQty: number;
+  damagedQty: number;
+}
+
+/** Item-level count for one PO line on one delivery. orderedQty = quantity still outstanding when it arrived. */
+export interface GoodsReceiptLine {
+  id: ID;
+  receiptId: ID;
+  purchaseOrderLineId: ID;
+  productId: ID;
   orderedQty: number;
   receivedQty: number;
   damagedQty: number;
@@ -223,7 +249,10 @@ export interface Notification {
   body: string;
   href?: string;
   createdAt: ISODate;
+  /** Read state for the user the notification was fetched for (derived from readBy). */
   read: boolean;
+  /** Users who have read it — broadcasts ("*") are read per user, never globally. */
+  readBy: ID[];
   severity: "info" | "warning" | "critical";
 }
 

@@ -4,10 +4,13 @@ import { FlaskConical } from "lucide-react";
 import type { Session } from "@/lib/auth/session";
 import { getRepository } from "@/lib/data/provider";
 import { can, DASHBOARD_PATH, ROLE_DEFINITIONS } from "@/lib/auth/permissions";
-import { MODULES, visibleModules, visiblePages } from "@/lib/modules";
+import { MODULES, navPages, visibleModules, visiblePages, type ModuleGroup } from "@/lib/modules";
 import { initials, relative } from "@/lib/format";
+import { JOURNEY_CENTRE, JOURNEY_ROLES } from "@/features/pipeline/journey";
 import { ToastProvider } from "@/components/feedback/toast";
-import { CentreSelect, MobileNav, NotificationsMenu, ProfileMenu, Toolbar, TopNav, type CommandEntry, type NavEntry, type QuickAction } from "./shell-client";
+import { CentreSelect, MobileNav, NotificationsMenu, ProfileMenu, Toolbar, type CommandEntry, type NavEntry, type QuickAction } from "./shell-client";
+import { TopNav } from "./nav-menu";
+import { TipGroup } from "@/components/ui/float-tip";
 
 /** Badge counts are computed server-side from the caller's scoped data — never trusted from the client. */
 async function navBadges(session: Session) {
@@ -26,10 +29,10 @@ function quickActions(session: Session): QuickAction[] {
   const r = session.role;
   const out: QuickAction[] = [];
   if (can(r, "receiving.record")) out.push({ label: "Record goods receipt", href: "/dashboards/receiving#receive" });
-  if (can(r, "requests.create")) out.push({ label: "New monthly request", phase: 2 }, { label: "Record audio/video request", phase: 3 });
-  if (can(r, "procurement.manage")) out.push({ label: "Request quotation", phase: 2 }, { label: "Raise purchase order", phase: 2 });
-  if (can(r, "finance.manage")) out.push({ label: "Record payment", phase: 2 });
-  if (can(r, "admin.users")) out.push({ label: "Invite user", phase: 2 });
+  if (can(r, "requests.create")) out.push({ label: "New monthly request", href: "/requests/new" }, { label: "Record audio/video request", href: "/requests/intake" });
+  if (can(r, "procurement.manage")) out.push({ label: "Request quotation", href: "/procurement/compare" }, { label: "Raise purchase order", href: "/procurement/orders?new=1" });
+  if (can(r, "finance.manage")) out.push({ label: "Record payment", href: "/finance/payments?new=1" });
+  if (can(r, "admin.users")) out.push({ label: "Invite user", href: "/admin/users?invite=1" });
   return out;
 }
 
@@ -38,21 +41,46 @@ export async function AppShell({ session, children }: { session: Session; childr
   const [badges, notifications] = await Promise.all([navBadges(session), repo.notifications(session.user.id)]);
   const dash = DASHBOARD_PATH[session.role];
 
+  const linksOf = (g: ModuleGroup) => navPages(session.role, g).map((p) => ({ label: p.tab ?? p.title, href: p.href!, summary: p.summary }));
+  const matchOf = (g: ModuleGroup) => [`/modules/${g.id}`, ...visiblePages(session.role, g).filter((p) => p.href && p.href !== dash).map((p) => p.href!.replace("/[id]", ""))];
+  const dashboards = MODULES.find((g) => g.id === "operations")!;
+  const governance = MODULES.find((g) => g.id === "governance")!;
+  const govLinks = linksOf(governance);
+
+  // The end-to-end request story, for the roles that take part in it and can read its centre.
+  const journey = JOURNEY_ROLES.includes(session.role) && session.centres.some((c) => c.id === JOURNEY_CENTRE)
+    ? { label: "Request journey", href: "/requests/journey", summary: "Kavya Nair's voice request, from Baner to the CEO's dashboard." }
+    : undefined;
+
   const entries: NavEntry[] = [
-    { key: "dashboard", label: "Dashboard", href: dash, match: [dash] },
-    ...visibleModules(session.role).map((g) => ({
-      key: g.id,
-      label: g.short,
-      href: `/modules/${g.id}`,
-      badge: badges[g.id],
-      match: [`/modules/${g.id}`, ...visiblePages(session.role, g).filter((p) => p.href && p.href !== dash).map((p) => p.href!)],
-    })),
+    {
+      key: "dashboard", label: "Dashboard", href: dash, match: [dash, ...(journey ? [journey.href] : [])], description: "Role workspaces",
+      sections: [
+        { links: linksOf(dashboards).map((l) => (l.href === dash ? { ...l, label: `${l.label} · yours` } : l)) },
+        ...(journey ? [{ label: "Demo walkthrough", links: [journey] }] : []),
+      ],
+    },
+    // Governance pages live inside Administration's menu rather than taking a pill of their own.
+    ...visibleModules(session.role).filter((g) => g.id !== "operations" && g.id !== "governance").map((g) => {
+      const withGov = g.id === "admin" && govLinks.length > 0;
+      return {
+        key: g.id,
+        label: g.id === "admin" ? "Administration" : g.short,
+        // Opens the module's first page this role can see; /modules/<id> remains the module index.
+        href: navPages(session.role, g)[0]?.href ?? `/modules/${g.id}`,
+        description: g.description,
+        badge: badges[g.id],
+        match: [...matchOf(g), ...(withGov ? matchOf(governance) : [])],
+        sections: [{ links: linksOf(g) }, ...(withGov ? [{ label: "Governance", links: govLinks }] : [])],
+      };
+    }),
   ];
 
   const commands: CommandEntry[] = [
     { label: "My dashboard", href: dash, group: ROLE_DEFINITIONS[session.role].label },
+    ...(journey ? [{ label: journey.label, href: journey.href, group: "Demo walkthrough" }] : []),
     ...MODULES.flatMap((g) =>
-      visiblePages(session.role, g).map((p) => ({ label: p.title, href: p.href ?? `/modules/${g.id}#${p.slug}`, group: g.short, planned: p.status === "planned" })),
+      navPages(session.role, g).map((p) => ({ label: p.title, href: p.href!, group: g.short, planned: p.status === "planned" })),
     ),
   ];
 
@@ -60,7 +88,8 @@ export async function AppShell({ session, children }: { session: Session; childr
     <ToastProvider>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:rounded-full focus:bg-pill focus:px-4 focus:py-2 focus:text-pill-ink">Skip to content</a>
       <div className="mx-auto flex min-h-dvh max-w-[1600px] flex-col px-4 pb-28 sm:px-6 lg:pr-8 lg:pb-12 lg:pl-28">
-        <header className="sticky top-0 z-30 -mx-4 mb-4 flex items-center gap-3 px-4 pt-4 pb-3 backdrop-blur-[2px] sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
+        {/* The backdrop sits on a pseudo-element so the nav panel keeps its own backdrop blur (nested backdrop-filters see nothing). */}
+        <header className="app-header sticky top-0 z-30 -mx-4 mb-5 flex items-center gap-3 px-4 pt-4 pb-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
           <Link href={dash} className="flex items-center gap-2.5 rounded-[14px] pr-2" aria-label="Jumpstart Inventory OS — home">
             <span className="grid size-10 place-items-center rounded-[12px] bg-pill text-pill-ink shadow-float">
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 18 L9 6 L12 13 L15 9 L20 18" /><circle cx="15" cy="5" r="1.6" fill="currentColor" stroke="none" /></svg>
@@ -75,16 +104,16 @@ export async function AppShell({ session, children }: { session: Session; childr
           </nav>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             {repo.mode === "seed" && (
-              <span className="hidden items-center gap-1.5 rounded-full bg-amber-soft px-2.5 py-1 text-[11px] font-medium text-amber md:inline-flex" title="All figures are fictional development seed data">
+              <TipGroup className="contents"><span className="hidden items-center gap-1.5 rounded-full bg-amber-soft px-2.5 py-1 text-[11px] font-medium text-amber md:inline-flex" data-tip="All figures are fictional development seed data">
                 <FlaskConical className="size-3.5" />Demo data
-              </span>
+              </span></TipGroup>
             )}
             {session.centres.length > 1 && (
               <span className="hidden xl:block">
                 <Suspense><CentreSelect centres={session.centres.map((c) => ({ id: c.id, name: c.name }))} /></Suspense>
               </span>
             )}
-            <NotificationsMenu items={notifications.map((n) => ({ id: n.id, title: n.title, body: n.body, read: n.read, severity: n.severity, href: n.href, when: relative(n.createdAt) }))} />
+            <NotificationsMenu items={notifications.map((n) => ({ id: n.id, title: n.title, body: n.body, read: n.read, severity: n.severity, href: n.href, when: relative(n.createdAt) }))} demo={repo.mode === "seed"} />
             <ProfileMenu
               name={session.user.name}
               email={session.user.email}

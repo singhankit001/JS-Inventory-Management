@@ -4,48 +4,22 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as D from "@radix-ui/react-dialog";
 import {
-  Bell, Building2, ChevronDown, CornerDownLeft, LayoutGrid, LogOut, Menu as MenuIcon, Moon, MoreHorizontal, Plus, Search, Sparkles, Sun,
+  Bell, Building2, CheckCheck, ChevronDown, CornerDownLeft, LayoutGrid, LogOut, Menu as MenuIcon, Moon, Plus, Search, Sparkles, Sun,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useOptimistic, useState, useTransition } from "react";
 import { cn } from "@/lib/cn";
-import { PillGroup, type PillItem } from "@/components/ui/pill-group";
+import { MobileNavList, type NavEntry } from "./nav-menu";
 import { CountBadge, StatusBadge } from "@/components/ui/badge";
 import { Menu, MenuContent, MenuItem, MenuLabel, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { Dialog, DrawerContent } from "@/components/ui/dialog";
 import { signOut, switchWorkspace } from "@/app/actions/session";
+import { markRead } from "@/app/actions/notifications";
+import { useToast } from "@/components/feedback/toast";
 
-export interface NavEntry { key: string; label: string; href: string; badge?: number; match: string[] }
+export type { NavEntry } from "./nav-menu";
 export interface CommandEntry { label: string; href: string; group: string; planned?: boolean }
 export interface QuickAction { label: string; href?: string; phase?: 2 | 3 }
 export interface ShellNotification { id: string; title: string; body: string; when: string; read: boolean; severity: "info" | "warning" | "critical"; href?: string }
-
-const isActive = (pathname: string, e: NavEntry) => e.match.some((m) => pathname === m || pathname.startsWith(`${m}/`));
-
-/* ───────────── Floating top navigation ───────────── */
-export function TopNav({ entries, maxVisible = 6 }: { entries: NavEntry[]; maxVisible?: number }) {
-  const pathname = usePathname();
-  const active = entries.find((e) => isActive(pathname, e));
-  // Keep the active entry visible even if it lives in the overflow.
-  let visible = entries.slice(0, maxVisible);
-  if (active && !visible.includes(active)) visible = [...visible.slice(0, maxVisible - 1), active];
-  const overflow = entries.filter((e) => !visible.includes(e));
-  const items: PillItem[] = visible.map((e) => ({ key: e.key, label: e.label, href: e.href, badge: e.badge ? <CountBadge count={e.badge} label={`${e.badge} pending in ${e.label}`} /> : undefined }));
-  return (
-    <div className="flex items-center gap-1">
-      <PillGroup variant="nav" ariaLabel="Primary" items={items} activeKey={active?.key} />
-      {overflow.length > 0 && (
-        <Menu>
-          <MenuTrigger className="grid size-10 place-items-center rounded-full bg-surface/80 text-ink-2 shadow-card ring-1 ring-line/70 backdrop-blur-xl hover:text-ink" aria-label="More sections"><MoreHorizontal className="size-4" /></MenuTrigger>
-          <MenuContent>
-            {overflow.map((e) => (
-              <MenuItem key={e.key} asChild><Link href={e.href} className="justify-between">{e.label}{e.badge ? <CountBadge count={e.badge} /> : null}</Link></MenuItem>
-            ))}
-          </MenuContent>
-        </Menu>
-      )}
-    </div>
-  );
-}
 
 /* ───────────── Mobile navigation drawer ───────────── */
 export function MobileNav({ entries }: { entries: NavEntry[] }) {
@@ -54,23 +28,9 @@ export function MobileNav({ entries }: { entries: NavEntry[] }) {
   useEffect(() => setOpen(false), [pathname]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <D.Trigger className="grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line lg:hidden" aria-label="Open navigation"><MenuIcon className="size-4.5" /></D.Trigger>
-      <DrawerContent title="Navigate">
-        <nav aria-label="Primary (mobile)">
-          <ul className="grid gap-1">
-            {entries.map((e) => {
-              const active = isActive(pathname, e);
-              return (
-                <li key={e.key}>
-                  <Link href={e.href} aria-current={active ? "page" : undefined} className={cn("flex h-12 items-center justify-between rounded-[14px] px-4 text-body font-medium transition-colors", active ? "bg-pill text-pill-ink" : "hover:bg-surface-2")}>
-                    {e.label}
-                    {e.badge ? <CountBadge count={e.badge} /> : null}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      <D.Trigger className="grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform,translate,scale] duration-200 hover:bg-surface-2 active:scale-95 lg:hidden" aria-label="Open navigation"><MenuIcon className="size-4.5" /></D.Trigger>
+      <DrawerContent title="Navigate" description="Every section and page your role can open.">
+        <MobileNavList entries={entries} />
       </DrawerContent>
     </Dialog>
   );
@@ -180,14 +140,14 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const btn = "group relative grid size-10 place-items-center rounded-full text-toolbar-ink transition-[background-color,color,transform] duration-200 hover:bg-white/10 hover:text-white active:scale-95 dark:hover:bg-white/5 [&_svg]:size-[18px]";
+  const btn = "group relative grid size-10 place-items-center rounded-full text-toolbar-ink transition-[background-color,color,transform,translate,scale] duration-200 hover:bg-white/10 hover:text-white active:scale-95 dark:hover:bg-white/5 [&_svg]:size-[18px]";
   const tip = (label: string) => <span className="pointer-events-none absolute left-full ml-3 hidden rounded-[8px] bg-pill px-2 py-1 text-[11.5px] whitespace-nowrap text-pill-ink opacity-0 shadow-pop transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 lg:block">{label}</span>;
 
   return (
     <>
       <aside
         aria-label="Utilities"
-        className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full bg-toolbar p-1.5 shadow-pop ring-1 ring-white/5 lg:top-1/2 lg:bottom-auto lg:left-6 lg:translate-x-0 lg:-translate-y-1/2 lg:flex-col"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-full bg-toolbar p-1.5 shadow-pop ring-1 ring-white/5 lg:top-1/2 lg:bottom-auto lg:left-6 lg:translate-x-0 lg:-translate-y-1/2 lg:flex-col"
       >
         <button className={btn} onClick={() => setCmdOpen(true)} aria-label="Search (Ctrl K)"><Search />{tip("Search  ⌘K")}</button>
         <Menu>
@@ -218,7 +178,7 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
             <p className="mt-4 text-eyebrow font-medium tracking-[0.1em] text-ink-3 uppercase">It will answer questions like</p>
             <ul className="mt-2 grid gap-2 text-label text-ink-2">
               <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Which centres will run out of hand wash this month?”</li>
-              <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Why is Powai over budget?”</li>
+              <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Why is Wakad over budget?”</li>
               <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Draft next month’s request from last term’s usage.”</li>
             </ul>
           </div>
@@ -232,30 +192,54 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
 /* ───────────── Notifications ───────────── */
 const sevTone = { info: "blue", warning: "amber", critical: "red" } as const;
 
-export function NotificationsMenu({ items }: { items: ShellNotification[] }) {
-  const unread = items.filter((n) => !n.read).length;
+export function NotificationsMenu({ items, demo = false }: { items: ShellNotification[]; demo?: boolean }) {
+  const toast = useToast();
+  const [, start] = useTransition();
+  // Read ids flip instantly; the server action's revalidation then delivers the persisted state as new props.
+  const [readIds, addRead] = useOptimistic<string[], string[]>([], (s, ids) => [...s, ...ids]);
+  const list = items.map((n) => (n.read || readIds.includes(n.id) ? { ...n, read: true } : n));
+  const unread = list.filter((n) => !n.read).length;
+  const mark = (ids?: string[]) => start(async () => {
+    addRead(ids ?? list.map((n) => n.id));
+    const res = await markRead(ids).catch(() => ({ ok: false }));
+    if (!res.ok) toast({ tone: "error", title: "Couldn't update notifications", body: "Your read state wasn't saved. Try again." });
+  });
   return (
     <Menu>
-      <MenuTrigger className="relative grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-transform hover:scale-105" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
+      <MenuTrigger className="relative grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform,translate,scale] duration-200 hover:bg-surface-2 active:scale-95" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
         <Bell className="size-4" strokeWidth={1.75} />
-        {unread > 0 && <span className="absolute top-2 right-2.5 size-2 rounded-full bg-orange ring-2 ring-surface" aria-hidden />}
+        {unread > 0 && <span className="absolute -top-1 -right-1 flex rounded-full ring-2 ring-canvas" aria-hidden><CountBadge count={unread} /></span>}
       </MenuTrigger>
       <MenuContent className="w-[min(92vw,360px)]">
-        <MenuLabel>Notifications</MenuLabel>
-        {items.length === 0 && <p className="px-2.5 py-4 text-label text-ink-3">You're all caught up.</p>}
-        {items.map((n) => {
+        <div className="flex items-baseline justify-between gap-3 pr-2.5">
+          <MenuLabel>Notifications</MenuLabel>
+          {unread > 0 && <span className="text-[11.5px] text-ink-3 tabular">{unread} unread</span>}
+        </div>
+        {list.length === 0 && <p className="px-2.5 py-4 text-label text-ink-3">You&apos;re all caught up.</p>}
+        {list.map((n) => {
           const body = (
             <div className="flex gap-3">
               <span className={cn("mt-1.5 size-2 shrink-0 rounded-full", n.read ? "bg-line-strong" : { info: "bg-blue", warning: "bg-amber", critical: "bg-red" }[n.severity])} aria-hidden />
               <div className="min-w-0">
-                <p className="text-body font-medium">{n.title}</p>
+                <p className={cn("text-body", n.read ? "text-ink-2" : "font-medium text-ink")}>{!n.read && <span className="sr-only">Unread: </span>}{n.title}</p>
                 <p className="text-label text-ink-3">{n.body}</p>
                 <p className="mt-0.5 text-[11px] text-ink-3">{n.when} {n.severity !== "info" && <StatusBadge tone={sevTone[n.severity]} className="ml-1">{n.severity}</StatusBadge>}</p>
               </div>
             </div>
           );
-          return n.href ? <MenuItem key={n.id} asChild><Link href={n.href} className="!items-start">{body}</Link></MenuItem> : <MenuItem key={n.id} className="!items-start">{body}</MenuItem>;
+          const onRead = () => { if (!n.read) mark([n.id]); };
+          return n.href
+            ? <MenuItem key={n.id} asChild onSelect={onRead}><Link href={n.href} className="!items-start">{body}</Link></MenuItem>
+            // No destination: stay open so the item visibly turns read.
+            : <MenuItem key={n.id} className="!items-start" onSelect={(e) => { e.preventDefault(); onRead(); }}>{body}</MenuItem>;
         })}
+        {list.length > 0 && (
+          <>
+            <MenuSeparator />
+            <MenuItem disabled={unread === 0} onSelect={() => mark()}><CheckCheck />Mark all as read</MenuItem>
+            {demo && <p className="px-2.5 pt-0.5 pb-1 text-[11px] text-ink-3">Demo: read state resets daily</p>}
+          </>
+        )}
       </MenuContent>
     </Menu>
   );
@@ -266,7 +250,7 @@ export function ProfileMenu({ name, email, initials, role, roles }: { name: stri
   const [pending, start] = useTransition();
   return (
     <Menu>
-      <MenuTrigger className="grid size-10 place-items-center rounded-full bg-[#cfe6e4] text-[12px] font-semibold text-[#1f4b48] ring-2 ring-surface transition-transform hover:scale-105 dark:bg-[#1f3b39] dark:text-[#bfe3df]" aria-label={`Account: ${name}`}>
+      <MenuTrigger className="grid size-10 place-items-center rounded-full bg-[#cfe6e4] text-[12px] font-semibold text-[#1f4b48] ring-2 ring-surface transition-transform duration-200 active:scale-95 dark:bg-[#1f3b39] dark:text-[#bfe3df]" aria-label={`Account: ${name}`}>
         {initials}
       </MenuTrigger>
       <MenuContent className="w-72">
@@ -302,7 +286,7 @@ export function CentreSelect({ centres }: { centres: { id: string; name: string 
   };
   return (
     <Menu>
-      <MenuTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-surface px-3.5 text-label font-medium shadow-card ring-1 ring-line/70 hover:bg-surface-2">
+      <MenuTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-surface px-3.5 text-label font-medium shadow-card ring-1 ring-line/70 transition-[background-color,transform,translate,scale] duration-200 hover:bg-surface-2 active:scale-[0.97]">
         <Building2 className="size-4 text-ink-3" />
         <span className="max-w-32 truncate">{label}</span>
         <ChevronDown className="size-3.5 text-ink-3" />

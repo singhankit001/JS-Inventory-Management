@@ -22,15 +22,23 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
 }
 
 /** Breadcrumbs, light display title, optional centre nav (middle) and status chip (right). */
-export function PageHeader({ crumbs, title, aside, children }: { crumbs: Crumb[]; title: string; aside?: React.ReactNode; children?: React.ReactNode }) {
+/**
+ * Breadcrumbs + light display title, optional sub-nav beside the title (reference: "Warehouses · Inventory | Purchasing")
+ * and a right-aligned aside (status chip / actions). The sub-nav stays with the title when space runs out instead of
+ * dropping under the aside.
+ */
+export function PageHeader({ crumbs, title, description, aside, children }: { crumbs: Crumb[]; title: string; description?: React.ReactNode; aside?: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <header className="animate-enter mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-      <div className="min-w-0">
-        <Breadcrumbs items={crumbs} />
-        <h1 className="mt-2 text-[1.875rem] leading-tight font-normal tracking-[-0.025em] sm:text-display">{title}</h1>
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+      <div className="flex min-w-0 flex-wrap items-end gap-x-6 gap-y-3">
+        <div className="min-w-0">
+          <Breadcrumbs items={crumbs} />
+          <h1 className="mt-2 text-[1.875rem] leading-tight font-normal tracking-[-0.025em] sm:text-display">{title}</h1>
+          {description && <p className="mt-1 max-w-2xl text-body text-ink-3">{description}</p>}
+        </div>
+        {children && <div className="max-w-full min-w-0 overflow-x-auto pb-0.5">{children}</div>}
       </div>
-      {children}
-      {aside}
+      {aside && <div className="flex flex-wrap items-center gap-2">{aside}</div>}
     </header>
   );
 }

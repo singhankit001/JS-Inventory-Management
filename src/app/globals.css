@@ -174,7 +174,9 @@
   --dur-base: 240ms;
   --dur-lead: 360ms;   /* pill leading edge */
   --dur-trail: 550ms;  /* pill trailing edge */
-  --dur-page: 520ms;
+  --dur-page: 340ms;
+  --dur-draw: 700ms;   /* line / ring / gauge draw-ins (recharts areas use the same) */
+  --dur-grow: 600ms;   /* bar grow-ins (recharts bars use the same) */
 }
 
 @layer base {
@@ -186,6 +188,7 @@
   }
   body {
     min-height: 100dvh;
+    overflow-x: clip; /* the header backdrop bleeds to the viewport edges */
     background:
       radial-gradient(1200px 600px at 55% -10%, var(--canvas-glow), transparent 70%),
       var(--canvas);
@@ -214,6 +217,7 @@
     border: 1px solid color-mix(in oklab, var(--line) 70%, transparent);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
+    min-width: 0; /* grid items default to min-content width, which pushed cards past the viewport on phones */
   }
 }
 
@@ -244,23 +248,48 @@
     --pb var(--dur-lead) var(--ease-out-3);
 }
 
-/* ───────────── Page / panel enter: blur-fade, as seen when switching tabs in the video ───────────── */
+/* ───────────── Page / panel enter: blur-fade, as seen when switching tabs in the video ─────────────
+   Fill mode is `backwards`, not `both`: once finished, nothing is left on the element, so hover transforms
+   (card lift) work and no lingering filter/transform turns cards into containing blocks for fixed children. */
 @keyframes enter {
-  from { opacity: 0; filter: blur(10px); transform: translateY(6px) scale(0.995); }
-  to { opacity: 1; filter: blur(0); transform: none; }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 .animate-enter {
-  animation: enter var(--dur-page) var(--ease-out-3) both;
+  animation: enter var(--dur-page) var(--ease-out-3) backwards;
 }
+
+/* Stagger: each child waits --stagger-base (set on the grid, e.g. style={{ "--stagger-base": "200ms" }})
+   plus 40ms per position. --stagger-base does not inherit, so nested/re-keyed staggers (table pages,
+   filters) start immediately instead of waiting for their row's page-load delay.
+   --enter-delay is exposed to descendants so chart draw-ins start with their card, not before it. */
+@property --stagger-base { syntax: "<time>"; inherits: false; initial-value: 0ms; }
 .stagger > * {
-  animation: enter var(--dur-page) var(--ease-out-3) both;
+  --stagger-base: inherit;
+  --i: 0;
+  --enter-delay: calc(var(--stagger-base) + var(--i) * 30ms);
+  animation: enter var(--dur-page) var(--ease-out-3) var(--enter-delay) backwards;
 }
-.stagger > *:nth-child(2) { animation-delay: 40ms; }
-.stagger > *:nth-child(3) { animation-delay: 80ms; }
-.stagger > *:nth-child(4) { animation-delay: 120ms; }
-.stagger > *:nth-child(5) { animation-delay: 160ms; }
-.stagger > *:nth-child(6) { animation-delay: 200ms; }
-.stagger > *:nth-child(n + 7) { animation-delay: 240ms; }
+.stagger > :nth-child(2) { --i: 1; }
+.stagger > :nth-child(3) { --i: 2; }
+.stagger > :nth-child(4) { --i: 3; }
+.stagger > :nth-child(5) { --i: 4; }
+.stagger > :nth-child(6) { --i: 5; }
+.stagger > :nth-child(n + 7) { --i: 6; }
+
+/* Page sequence: (app)/template.tsx wraps every route in .page-enter and remounts per navigation.
+   Rows cascade top-to-bottom; plain blocks (PageHeader, notes) blur-fade themselves, stagger grids
+   hand the delay to their cards, and blocks that contain a stagger grid leave the motion to it
+   (one owner per element, no nested blur). */
+.page-enter > :nth-child(2) { --stagger-base: 40ms; }
+.page-enter > :nth-child(3) { --stagger-base: 90ms; }
+.page-enter > :nth-child(4) { --stagger-base: 140ms; }
+.page-enter > :nth-child(5) { --stagger-base: 180ms; }
+.page-enter > :nth-child(n + 6) { --stagger-base: 220ms; }
+.page-enter > :not(.stagger):not(:has(.stagger)) {
+  --enter-delay: var(--stagger-base);
+  animation: enter var(--dur-page) var(--ease-out-3) var(--enter-delay) backwards;
+}
 
 @keyframes shimmer {
   to { background-position: -200% 0; }
@@ -281,17 +310,17 @@
 @keyframes ring-draw {
   from { stroke-dashoffset: var(--ring-len); }
 }
-.ring-draw { animation: ring-draw 1100ms var(--ease-out-3) both; }
+.ring-draw { animation: ring-draw var(--dur-draw) var(--ease-out-3) var(--enter-delay, 0ms) both; }
 
 @keyframes bar-grow {
   from { transform: scaleX(0); }
 }
-.bar-grow { transform-origin: left; animation: bar-grow 900ms var(--ease-out-3) both; }
+.bar-grow { transform-origin: left; animation: bar-grow var(--dur-grow) var(--ease-out-3) var(--enter-delay, 0ms) both; }
 
 @keyframes cell-in {
   from { opacity: 0; transform: scale(0.6); }
 }
-.cell-in { animation: cell-in 420ms var(--ease-spring) both; }
+.cell-in { animation: cell-in 420ms var(--ease-spring) var(--enter-delay, 0ms) backwards; }
 
 @keyframes pulse-dot {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--green) 45%, transparent); }
@@ -313,3 +342,111 @@
 @keyframes spark-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes gauge-fill { from { stroke-dasharray: 0 1; } }
 @keyframes needle-swing { from { transform: rotate(-210deg); } }
+.spark-draw { animation: spark-draw var(--dur-draw) var(--ease-out-3) var(--enter-delay, 0ms) both; }
+.gauge-fill { animation: gauge-fill var(--dur-draw) var(--ease-out-3) var(--enter-delay, 0ms) both; }
+.needle-swing { animation: needle-swing var(--dur-draw) var(--ease-spring) var(--enter-delay, 0ms) both; }
+
+/* Theme toggle cross-fade (View Transitions API; skipped entirely under reduced motion in JS). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-base);
+  animation-timing-function: var(--ease-out-3);
+}
+
+/* ───────────── Sticky header backdrop ─────────────
+   Opaque enough that cards never read through the floating pills, fading out at the bottom edge. */
+.app-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 -100vw;
+  z-index: -1;
+  background: color-mix(in oklab, var(--canvas) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(1.4);
+  mask-image: linear-gradient(to bottom, black 62%, transparent);
+  pointer-events: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .app-header::before { background: var(--canvas); backdrop-filter: none; }
+}
+
+/* ───────────── Navigation mega-menu ───────────── */
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+}
+.nav-panel[data-moving="true"] { transition: transform var(--dur-base) var(--ease-out-3); }
+.nav-panel-card {
+  transform-origin: var(--origin-x, 50%) top;
+  animation: menu-in 200ms var(--ease-out-3) both;
+}
+
+/* ───────────── Sign-in ─────────────
+   Hero: the pale-blue secondary-card field warming to orange-soft at the floor, lit from the top-left.
+   Panel: warm canvas with a faint blue wash so both halves share one light source. */
+.login-hero {
+  background:
+    radial-gradient(120% 70% at 12% 0%, color-mix(in oklab, var(--surface) 55%, transparent), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, color-mix(in oklab, var(--orange-soft) 85%, transparent), transparent 70%),
+    linear-gradient(165deg, var(--secondary-card) 0%, var(--blue-soft) 58%, color-mix(in oklab, var(--blue-soft) 60%, var(--canvas-glow)) 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--surface) 35%, transparent), var(--shadow-card);
+}
+.login-panel {
+  background:
+    radial-gradient(80% 50% at 85% 0%, color-mix(in oklab, var(--blue-soft) 70%, transparent), transparent 70%),
+    radial-gradient(70% 40% at 0% 100%, color-mix(in oklab, var(--violet-soft) 45%, transparent), transparent 70%),
+    var(--canvas-glow);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+@keyframes login-rise { from { opacity: 0; transform: translateY(10px); } }
+.login-rise { animation: login-rise 560ms var(--ease-out-3) backwards; }
+
+.login-account { transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-3); }
+.login-account:active { transform: scale(0.985); }
+.login-continue {
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 14px 28px -14px color-mix(in oklab, var(--blue) 75%, transparent);
+  transition: transform var(--dur-fast) var(--ease-out-3), box-shadow var(--dur-base) var(--ease-out-3), background-color var(--dur-fast) ease;
+}
+.login-continue:not(:disabled):active { transform: scale(0.985); }
+@media (hover: hover) and (pointer: fine) {
+  .login-account[aria-checked="false"]:hover { border-color: var(--line-strong); background: var(--surface); transform: translateY(-1px); box-shadow: var(--shadow-card); }
+  .login-continue:not(:disabled):hover { background: color-mix(in oklab, var(--blue) 90%, var(--ink)); box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 20px 36px -14px color-mix(in oklab, var(--blue) 85%, transparent); }
+}
+
+/* Isometric scene. --px/--py (−1…1) come from SceneStage: a small camera tilt on the stage, deeper layers shift more. */
+.ops-stage { --px: 0; --py: 0; perspective: 1600px; }
+.ops-scene {
+  transform: rotateX(calc(var(--py) * -3deg)) rotateY(calc(var(--px) * 4deg));
+  transition: transform 900ms var(--ease-out-3);
+  overflow: visible;
+}
+.scene-layer {
+  transform: translate(calc(var(--px) * var(--depth) * 12px), calc(var(--py) * var(--depth) * 8px));
+  transition: transform 900ms var(--ease-out-3);
+}
+@keyframes scene-in { from { opacity: 0; transform: translateY(16px); } }
+.scene-in { transform-box: fill-box; animation: scene-in 760ms var(--ease-out-3) backwards; }
+.scene-rise { animation-timing-function: var(--ease-spring); }
+@keyframes scene-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.scene-path { stroke-dasharray: 1; animation: scene-draw 1600ms var(--ease-in-out-3) 500ms backwards; }
+@keyframes scene-bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+.scene-bob { animation: scene-bob 3.2s var(--ease-in-out-3) infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-packets { display: none; }
+  .scene-bob, .ops-scene, .scene-layer { animation: none; transform: none; }
+}
+
+/* ───────────── Shared floating tooltip + small hover targets ───────────── */
+@keyframes tip-in { from { opacity: 0; } }
+.float-tip { opacity: 0; }
+.float-tip[data-ready="true"] { opacity: 1; animation: tip-in 140ms var(--ease-out-3); }
+.heat-cell { transition: transform 180ms var(--ease-out-3); cursor: default; }
+.heat-cell:focus-visible { transform: scale(1.18); }
+@media (hover: hover) and (pointer: fine) {
+  .heat-cell:hover { transform: scale(1.18); }
+}
+
+/* ───────────── Request journey ───────────── */
+.journey-fill { transition: transform 700ms var(--ease-out-3); }
+.journey-tab { transition: background-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
+@keyframes journey-timer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.journey-timer { animation: journey-timer linear both; }

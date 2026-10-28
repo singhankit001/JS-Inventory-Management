@@ -25,7 +25,7 @@ export interface ListRow {
 export function DataList({ rows, empty, label }: { rows: ListRow[]; empty: string; label: string }) {
   if (!rows.length) return <EmptyState title={empty} className="py-8" />;
   return (
-    <ul className="-mx-2 grid" aria-label={label}>
+    <ul className="-mx-2 grid grid-cols-1" aria-label={label}>
       {rows.map((r) => {
         const Icon = r.icon;
         const inner = (
