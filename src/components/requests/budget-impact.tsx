@@ -2,6 +2,7 @@ import { cn } from "@/lib/cn";
 import { toneDot } from "@/components/ui/badge";
 import { moneyCompact, percent } from "@/lib/format";
 import type { BudgetImpact } from "@/features/requests/logic";
+import { TipGroup } from "@/components/ui/float-tip";
 
 /**
  * Month budget as one bar: spent (solid) · committed (soft) · this request (orange) against the allocation mark.
@@ -30,7 +31,7 @@ export function BudgetImpactBar({ impact, requestLabel = "This request", classNa
           <div className={cn("bar-grow h-full bg-orange", impact.over && "bg-red")} style={{ width: `${share.request * 100}%`, animationDelay: "180ms" }} />
         </div>
         {/* Allocation mark: only distinct from the end when demand exceeds it. */}
-        {impact.over && <span className="absolute top-1/2 h-5 w-0.5 -translate-y-1/2 rounded bg-ink" style={{ left: `${share.allocation * 100}%` }} title="Allocation" />}
+        {impact.over && <TipGroup className="contents"><span className="absolute top-1/2 h-5 w-0.5 -translate-y-1/2 rounded bg-ink" style={{ left: `${share.allocation * 100}%` }} data-tip="Allocation" /></TipGroup>}
       </div>
       <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-1.5 text-[12px] xs:grid-cols-3">
         {legend.map((l) => (

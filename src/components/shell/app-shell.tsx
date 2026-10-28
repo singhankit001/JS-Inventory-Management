@@ -10,6 +10,7 @@ import { JOURNEY_CENTRE, JOURNEY_ROLES } from "@/features/pipeline/journey";
 import { ToastProvider } from "@/components/feedback/toast";
 import { CentreSelect, MobileNav, NotificationsMenu, ProfileMenu, Toolbar, type CommandEntry, type NavEntry, type QuickAction } from "./shell-client";
 import { TopNav } from "./nav-menu";
+import { TipGroup } from "@/components/ui/float-tip";
 
 /** Badge counts are computed server-side from the caller's scoped data — never trusted from the client. */
 async function navBadges(session: Session) {
@@ -103,9 +104,9 @@ export async function AppShell({ session, children }: { session: Session; childr
           </nav>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             {repo.mode === "seed" && (
-              <span className="hidden items-center gap-1.5 rounded-full bg-amber-soft px-2.5 py-1 text-[11px] font-medium text-amber md:inline-flex" title="All figures are fictional development seed data">
+              <TipGroup className="contents"><span className="hidden items-center gap-1.5 rounded-full bg-amber-soft px-2.5 py-1 text-[11px] font-medium text-amber md:inline-flex" data-tip="All figures are fictional development seed data">
                 <FlaskConical className="size-3.5" />Demo data
-              </span>
+              </span></TipGroup>
             )}
             {session.centres.length > 1 && (
               <span className="hidden xl:block">

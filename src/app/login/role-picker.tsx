@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { ArrowRight, Building2, Check, LineChart, PackageCheck, School, ShieldCheck, ShoppingCart, Wallet, type LucideIcon } from "lucide-react";
 import type { Role } from "@/domain/types";
 import { cn } from "@/lib/cn";
+import { TipGroup } from "@/components/ui/float-tip";
 import { signIn } from "@/app/actions/session";
 
 const ICONS: Record<Role, LucideIcon> = {
@@ -94,7 +95,7 @@ export function RolePicker({ groups, next }: { groups: AccountGroup[]; next?: st
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-1.5 text-[13.5px] leading-tight font-medium tracking-[-0.01em] text-ink">
                           <span className="truncate">{a.label}</span>
-                          {a.also.length > 0 && <span title={`Also ${a.also.join(", ")}`} className="shrink-0 rounded-full bg-surface-3 px-1.5 py-px text-[10.5px] font-medium text-ink-2">+{a.also.length}<span className="sr-only"> more role: {a.also.join(", ")}</span></span>}
+                          {a.also.length > 0 && <TipGroup className="contents"><span data-tip={`Also ${a.also.join(", ")}`} className="shrink-0 rounded-full bg-surface-3 px-1.5 py-px text-[10.5px] font-medium text-ink-2">+{a.also.length}<span className="sr-only"> more role: {a.also.join(", ")}</span></span></TipGroup>}
                         </span>
                         <span className="mt-0.5 block truncate text-[11.5px] text-ink-3">{a.person} · {a.scope}</span>
                       </span>

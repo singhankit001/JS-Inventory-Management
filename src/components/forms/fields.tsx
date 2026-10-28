@@ -1,7 +1,9 @@
 "use client";
 
 import { ChevronDown, Minus, Plus, Search, Upload } from "lucide-react";
-import { useId, useMemo, useRef, useState, type InputHTMLAttributes, type SelectHTMLAttributes } from "react";
+import * as M from "@radix-ui/react-dropdown-menu";
+import { Children, isValidElement, useId, useLayoutEffect, useMemo, useRef, useState, type InputHTMLAttributes, type OptionHTMLAttributes, type SelectHTMLAttributes } from "react";
+import { MenuRadioGroup, MenuRadioItem } from "@/components/ui/menu";
 import { cn } from "@/lib/cn";
 
 const control =
@@ -34,11 +36,68 @@ export function DateInput(props: Omit<InputHTMLAttributes<HTMLInputElement>, "ty
   return <Input type="date" {...props} />;
 }
 
-export function Select({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+interface Opt { value: string; label: React.ReactNode; disabled: boolean }
+
+const readOptions = (children: React.ReactNode): Opt[] =>
+  Children.toArray(children).flatMap((c) => {
+    if (!isValidElement<OptionHTMLAttributes<HTMLOptionElement>>(c) || c.type !== "option") return [];
+    return [{ value: String(c.props.value ?? ""), label: c.props.children, disabled: !!c.props.disabled }];
+  });
+
+const setNativeValue = Object.getOwnPropertyDescriptor(globalThis.HTMLSelectElement?.prototype ?? {}, "value")?.set;
+
+/**
+ * Drop-in for `<select>` that takes the same `<option>` children and props. A hidden native select keeps form
+ * submission, `required` validation and real `change` events (so `onChange(e => e.target.value)` callers are
+ * unchanged); the visible trigger and list are a portalled Radix menu with collision handling, typeahead and Escape.
+ */
+export function Select({ className, children, id, disabled, onChange, "aria-label": ariaLabel, "aria-describedby": describedBy, "aria-invalid": invalid, "aria-busy": busy, ...native }: SelectHTMLAttributes<HTMLSelectElement>) {
+  const ref = useRef<HTMLSelectElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [shown, setShown] = useState(String(native.value ?? native.defaultValue ?? ""));
+  const [open, setOpen] = useState(false);
+  const options = readOptions(children);
+  const current = options.find((o) => o.value === shown) ?? options[0];
+  const placeholder = !current || current.disabled;
+
+  // The native select is the source of truth: it applies `value`, `defaultValue` and the browser's first-option default.
+  useLayoutEffect(() => { if (ref.current) setShown(ref.current.value); }, [native.value, children]);
+
+  const choose = (v: string) => {
+    const el = ref.current;
+    if (!el || v === el.value) return;
+    setNativeValue?.call(el, v);
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+    setShown(el.value);
+  };
+
   return (
     <div className="relative">
-      <select className={cn(control, "appearance-none pr-9", className)} {...props}>{children}</select>
-      <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-ink-3" />
+      <select ref={ref} {...native} onChange={onChange} disabled={disabled} tabIndex={-1} aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-px w-full opacity-0"
+        onInvalid={() => triggerRef.current?.focus()}>
+        {children}
+      </select>
+      <M.Root open={open} onOpenChange={setOpen} modal={false}>
+        <M.Trigger ref={triggerRef} id={id} disabled={disabled} aria-label={ariaLabel} aria-describedby={describedBy} aria-invalid={invalid} aria-busy={busy}
+          className={cn(control, "flex items-center gap-2 pr-9 text-left data-[state=open]:border-focus data-[state=open]:ring-4 data-[state=open]:ring-focus/15", className)}>
+          <span className={cn("min-w-0 flex-1 truncate", placeholder && "text-ink-3")}>{current?.label}</span>
+          <ChevronDown className={cn("pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-ink-3 transition-transform duration-200", open && "rotate-180")} />
+        </M.Trigger>
+        <M.Portal>
+          <M.Content ref={listRef} align="start" sideOffset={6} collisionPadding={12} loop
+            onKeyDown={(e) => { if (e.key === "Tab") setOpen(false); }}
+            // Open on the current choice, like a native list, whether opened by pointer or keyboard.
+            onFocus={(e) => { if (e.target === listRef.current) requestAnimationFrame(() => listRef.current?.querySelector<HTMLElement>("[data-state=checked]")?.focus()); }}
+            className="animate-pop z-50 max-h-[min(20rem,var(--radix-dropdown-menu-content-available-height))] w-max max-w-[min(28rem,calc(100vw-24px))] min-w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto overscroll-contain rounded-[16px] border border-line bg-surface p-1.5 text-ink shadow-pop">
+            <MenuRadioGroup value={shown} onValueChange={choose}>
+              {options.filter((o) => !(o.disabled && o.value === "")).map((o) => (
+                <MenuRadioItem key={o.value} value={o.value} disabled={o.disabled} className="data-[state=checked]:font-medium">{o.label}</MenuRadioItem>
+              ))}
+            </MenuRadioGroup>
+          </M.Content>
+        </M.Portal>
+      </M.Root>
     </div>
   );
 }

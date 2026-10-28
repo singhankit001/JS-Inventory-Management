@@ -11,6 +11,7 @@ import { Card, CardHeader, Eyebrow } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { buttonClass } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/states";
+import { TipGroup } from "@/components/ui/float-tip";
 import { AnimatedNumber } from "@/components/charts/animated-number";
 import { count, money } from "@/lib/format";
 
@@ -49,7 +50,7 @@ export default async function Alerts({ searchParams }: { searchParams: Promise<{
                 </span>
               </header>
               <div className="-mx-1 overflow-x-auto">
-                <table className="w-full border-separate border-spacing-0 text-left text-body">
+                <TipGroup className="contents"><table className="w-full border-separate border-spacing-0 text-left text-body">
                   <caption className="sr-only">{g.name} low stock</caption>
                   <thead>
                     <tr className="text-[11.5px] text-ink-3">
@@ -68,12 +69,12 @@ export default async function Alerts({ searchParams }: { searchParams: Promise<{
                         <td className="border-b border-line/60 px-2 py-2.5 text-right tabular">{count(i.onHand)} <span className="text-ink-3">{i.uom}</span></td>
                         <td className="hidden border-b border-line/60 px-2 py-2.5 text-right tabular sm:table-cell">{i.reorderPoint}</td>
                         <td className={`border-b border-line/60 px-2 py-2.5 text-right tabular ${i.cover !== null && i.cover < 7 ? "font-medium text-red" : ""}`}>{i.coverLabel}</td>
-                        <td className="border-b border-line/60 px-2 py-2.5 text-right font-medium tabular" title={`${money(i.reorderValue)} at unit cost`}>+{count(i.reorder)}</td>
+                        <td className="border-b border-line/60 px-2 py-2.5 text-right font-medium tabular" data-tip={`${money(i.reorderValue)} at unit cost`}>+{count(i.reorder)}</td>
                         <td className="hidden border-b border-line/60 px-2 py-2.5 md:table-cell"><StatusBadge tone={i.badge.tone} dot>{i.badge.label}</StatusBadge></td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></TipGroup>
               </div>
             </Card>
           ))}

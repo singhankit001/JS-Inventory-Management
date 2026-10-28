@@ -3,6 +3,7 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { Tone } from "@/components/ui/badge";
+import { TipGroup } from "@/components/ui/float-tip";
 
 /** Catmull-Rom → cubic Bézier, matching the soft curves in the reference sparklines. */
 export function smoothPath(points: [number, number][]) {
@@ -149,7 +150,7 @@ export function ComparisonBars({ rows, label }: { rows: { label: string; sub?: s
           </div>
           <div className="relative h-2.5 rounded-full bg-surface-3">
             <div className={cn("bar-grow h-full rounded-full", toneBg[r.tone ?? "slate"])} style={{ width: `${(r.value / max) * 100}%`, animationDelay: `calc(var(--enter-delay, 0ms) + ${i * 70}ms)` }} />
-            {r.marker !== undefined && <span className="absolute top-1/2 h-4 w-0.5 -translate-y-1/2 rounded bg-ink" style={{ left: `${(r.marker / max) * 100}%` }} title="Budget" />}
+            {r.marker !== undefined && <TipGroup className="contents"><span className="absolute top-1/2 h-4 w-0.5 -translate-y-1/2 rounded bg-ink" style={{ left: `${(r.marker / max) * 100}%` }} data-tip="Budget" /></TipGroup>}
           </div>
           <span className="text-label font-medium tabular">{r.display}</span>
         </li>

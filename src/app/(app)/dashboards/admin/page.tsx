@@ -16,6 +16,7 @@ import { StatusBadge } from "@/components/ui/badge";
 import { CategoryDistribution, ComparisonBars, ProgressRing, TrendIndicator } from "@/components/charts/svg";
 import { AnimatedNumber } from "@/components/charts/animated-number";
 import { DataTable } from "@/components/data/data-table";
+import { TipGroup } from "@/components/ui/float-tip";
 
 export const metadata: Metadata = { title: "Administrator dashboard" };
 
@@ -111,11 +112,11 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         </Card>
         <Card aria-label="AI job queue" className="md:col-span-2 xl:col-span-1">
           <CardHeader icon={Bot} title="AI job queue" subtitle="Audio, video and OCR processing" />
-          <div className="mb-3 grid grid-cols-5 gap-1.5 text-center">
+          <TipGroup className="mb-3 grid grid-cols-5 gap-1.5 text-center">
             {d.jobs.byStatus.map((s) => (
-              <div key={s.status} className="rounded-tile bg-surface-2 px-1 py-2"><p className="text-body font-medium"><AnimatedNumber value={s.n} /></p><p className="truncate text-[10.5px] text-ink-3" title={s.label}>{s.label}</p></div>
+              <div key={s.status} className="rounded-tile bg-surface-2 px-1 py-2"><p className="text-body font-medium"><AnimatedNumber value={s.n} /></p><p className="truncate text-[10.5px] text-ink-3" data-tip={s.label}>{s.label}</p></div>
             ))}
-          </div>
+          </TipGroup>
           <DataList rows={d.jobs.rows} empty="Queue is empty" label="Recent AI jobs" />
         </Card>
       </div>
