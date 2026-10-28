@@ -427,12 +427,45 @@
 .scene-rise { animation-timing-function: var(--ease-spring); }
 @keyframes scene-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 .scene-path { stroke-dasharray: 1; animation: scene-draw 1600ms var(--ease-in-out-3) 500ms backwards; }
-@keyframes scene-bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
-.scene-bob { animation: scene-bob 3.2s var(--ease-in-out-3) infinite alternate; }
+@keyframes scene-bob { from { transform: translateY(0); } to { transform: translateY(-2.5px); } }
+.scene-bob { animation: scene-bob 4s var(--ease-in-out-3) infinite alternate; }
+.scene-float { animation: scene-bob 5s var(--ease-in-out-3) infinite alternate; }
+@keyframes scene-beacon { 0%, 70%, 100% { opacity: 0.35; } 85% { opacity: 1; } }
+.scene-beacon { animation: scene-beacon 3.6s ease-in-out infinite; }
+/* Lit-edge hairline on scene objects: bright on light faces, restrained on dark ones. */
+.ops-scene { --hl: rgb(255 255 255 / 0.6); }
+[data-theme="dark"] .ops-scene { --hl: rgb(255 255 255 / 0.16); }
+
+/* Flow comet: dash of length --a with a gap longer than the path, so one dash runs. Each layer's offset is shifted by
+   its own --a, keeping every layer's head at the same point: head = --a − offset, travelling 0 → 1.14. */
+@property --h { syntax: "<number>"; inherits: false; initial-value: 0; }
+.flow-comet {
+  opacity: 0;
+  stroke-dasharray: var(--a) 2;
+  stroke-dashoffset: calc((var(--a) - var(--h)) * 1px);
+  animation: flow-comet 7s cubic-bezier(0.45, 0, 0.55, 1) var(--delay) infinite;
+}
+@keyframes flow-comet {
+  0% { --h: 0; opacity: 0; }
+  10%, 86% { opacity: 1; }
+  100% { --h: 1.14; opacity: 0; }
+}
+
+/* Hover-revealed station cards; the show rule is generated per station in OpsScene. */
+.ops-hit { fill: transparent; pointer-events: all; }
+.ops-label {
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: opacity 180ms var(--ease-out-3), transform 180ms var(--ease-out-3);
+}
+.ops-scene:has(.ops-hit:hover) .ops-label { transition-duration: 260ms, 340ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene-packets { display: none; }
-  .scene-bob, .ops-scene, .scene-layer { animation: none; transform: none; }
+  .scene-flow { display: none; }
+  .ops-label { transform: none; }
+  .scene-bob, .scene-float, .scene-beacon, .ops-scene, .scene-layer { animation: none; transform: none; }
 }
 
 /* ───────────── Shared floating tooltip + small hover targets ───────────── */

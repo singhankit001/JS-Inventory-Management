@@ -177,9 +177,28 @@ export function demoProvider(d: AIDataset): AIProvider {
   const periods = lastPeriods(today, 12);
   const thisPeriod = periods.at(-1)!;
   const dayMs = 86_400_000;
-  const consumed = (since: number, centreId?: ID, productId?: ID) => d.movements
-    .filter((m) => m.type === "consumption" && (!centreId || m.centreId === centreId) && (!productId || m.productId === productId) && today.getTime() - new Date(m.occurredAt).getTime() <= since * dayMs)
-    .reduce((s, m) => s + m.quantity, 0);
+  // Consumption grouped by centre|product with parsed timestamps, built on first use: risks() asks once per balance row,
+  // and rescanning every movement for each row made /analytics/insights the slowest page.
+  let byLine: Map<string, { t: number; q: number }[]> | undefined;
+  const consumed = (since: number, centreId?: ID, productId?: ID) => {
+    if (centreId && productId) {
+      if (!byLine) {
+        byLine = new Map();
+        for (const m of d.movements) {
+          if (m.type !== "consumption") continue;
+          const k = `${m.centreId}|${m.productId}`;
+          const row = { t: new Date(m.occurredAt).getTime(), q: m.quantity };
+          const list = byLine.get(k);
+          if (list) list.push(row); else byLine.set(k, [row]);
+        }
+      }
+      const cutoff = today.getTime() - since * dayMs;
+      return (byLine.get(`${centreId}|${productId}`) ?? []).reduce((s, m) => s + (m.t >= cutoff ? m.q : 0), 0);
+    }
+    return d.movements
+      .filter((m) => m.type === "consumption" && (!centreId || m.centreId === centreId) && (!productId || m.productId === productId) && today.getTime() - new Date(m.occurredAt).getTime() <= since * dayMs)
+      .reduce((s, m) => s + m.quantity, 0);
+  };
   const monthlyAvg = (centreId: ID, productId: ID) => Math.round(consumed(90, centreId, productId) / 3);
   const uniq = <T extends Citation>(cs: T[]) => [...new Map(cs.map((c) => [`${c.kind}:${c.id}`, c])).values()];
 
