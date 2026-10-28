@@ -379,22 +379,60 @@
   animation: menu-in 200ms var(--ease-out-3) both;
 }
 
-/* ───────────── Sign-in ───────────── */
+/* ───────────── Sign-in ─────────────
+   Hero: the pale-blue secondary-card field warming to orange-soft at the floor, lit from the top-left.
+   Panel: warm canvas with a faint blue wash so both halves share one light source. */
+.login-hero {
+  background:
+    radial-gradient(120% 70% at 12% 0%, color-mix(in oklab, var(--surface) 55%, transparent), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, color-mix(in oklab, var(--orange-soft) 85%, transparent), transparent 70%),
+    linear-gradient(165deg, var(--secondary-card) 0%, var(--blue-soft) 58%, color-mix(in oklab, var(--blue-soft) 60%, var(--canvas-glow)) 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--surface) 35%, transparent), var(--shadow-card);
+}
+.login-panel {
+  background:
+    radial-gradient(80% 50% at 85% 0%, color-mix(in oklab, var(--blue-soft) 70%, transparent), transparent 70%),
+    radial-gradient(70% 40% at 0% 100%, color-mix(in oklab, var(--violet-soft) 45%, transparent), transparent 70%),
+    var(--canvas-glow);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
 @keyframes login-rise { from { opacity: 0; transform: translateY(10px); } }
 .login-rise { animation: login-rise 560ms var(--ease-out-3) backwards; }
-@keyframes net-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-.net-line { fill: none; stroke-width: 1; }
-.net-line:not([data-far]) { stroke-dasharray: 1; animation: net-draw 900ms var(--ease-out-3) backwards; }
-.net-line[data-far] { animation: login-rise 900ms var(--ease-out-3) backwards; } /* dashed: another city */
-@keyframes net-pop { from { opacity: 0; transform: scale(0.6); } }
-.net-node { transform-box: fill-box; transform-origin: center; animation: net-pop 520ms var(--ease-spring) backwards; }
-.login-glow { background: radial-gradient(closest-side, color-mix(in oklab, var(--primary-card-ink) 9%, transparent), transparent); }
-.login-account { transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
-.login-continue { transition: transform var(--dur-fast) var(--ease-out-3), box-shadow var(--dur-base) var(--ease-out-3); }
+
+.login-account { transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out-3); }
+.login-account:active { transform: scale(0.985); }
+.login-continue {
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 14px 28px -14px color-mix(in oklab, var(--blue) 75%, transparent);
+  transition: transform var(--dur-fast) var(--ease-out-3), box-shadow var(--dur-base) var(--ease-out-3), background-color var(--dur-fast) ease;
+}
 .login-continue:not(:disabled):active { transform: scale(0.985); }
 @media (hover: hover) and (pointer: fine) {
-  .login-account[aria-checked="false"]:hover { background: color-mix(in oklab, var(--surface) 70%, transparent); color: var(--ink); }
-  .login-continue:not(:disabled):hover { box-shadow: var(--shadow-pop); }
+  .login-account[aria-checked="false"]:hover { border-color: var(--line-strong); background: var(--surface); transform: translateY(-1px); box-shadow: var(--shadow-card); }
+  .login-continue:not(:disabled):hover { background: color-mix(in oklab, var(--blue) 90%, var(--ink)); box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 20px 36px -14px color-mix(in oklab, var(--blue) 85%, transparent); }
+}
+
+/* Isometric scene. --px/--py (−1…1) come from SceneStage: a small camera tilt on the stage, deeper layers shift more. */
+.ops-stage { --px: 0; --py: 0; perspective: 1600px; }
+.ops-scene {
+  transform: rotateX(calc(var(--py) * -3deg)) rotateY(calc(var(--px) * 4deg));
+  transition: transform 900ms var(--ease-out-3);
+  overflow: visible;
+}
+.scene-layer {
+  transform: translate(calc(var(--px) * var(--depth) * 12px), calc(var(--py) * var(--depth) * 8px));
+  transition: transform 900ms var(--ease-out-3);
+}
+@keyframes scene-in { from { opacity: 0; transform: translateY(16px); } }
+.scene-in { transform-box: fill-box; animation: scene-in 760ms var(--ease-out-3) backwards; }
+.scene-rise { animation-timing-function: var(--ease-spring); }
+@keyframes scene-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.scene-path { stroke-dasharray: 1; animation: scene-draw 1600ms var(--ease-in-out-3) 500ms backwards; }
+@keyframes scene-bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+.scene-bob { animation: scene-bob 3.2s var(--ease-in-out-3) infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-packets { display: none; }
+  .scene-bob, .ops-scene, .scene-layer { animation: none; transform: none; }
 }
 
 /* ───────────── Shared floating tooltip + small hover targets ───────────── */
