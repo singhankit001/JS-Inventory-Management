@@ -11,7 +11,7 @@ import { WelcomeCard, DayTimeline } from "@/components/dashboard/welcome";
 import { KpiCard, MetricGrid } from "@/components/dashboard/kpi-card";
 import { ActivityTimeline, DataList, StatusCard } from "@/components/dashboard/lists";
 import { Card, CardHeader } from "@/components/ui/card";
-import { buttonClass, PlannedAction } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { CategoryDistribution, ComparisonBars, ProgressRing, TrendIndicator } from "@/components/charts/svg";
 import { AnimatedNumber } from "@/components/charts/animated-number";
