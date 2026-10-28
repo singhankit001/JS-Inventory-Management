@@ -43,7 +43,8 @@ export function daysOfCover(onHand: number, consumed: number, windowDays = 90): 
 /** Units to order to bring stock back up to twice the reorder point. */
 export const suggestedReorder = (onHand: number, reorderPoint: number) => Math.max(0, 2 * reorderPoint - onHand);
 
-export const coverLabel = (d: number | null) => (d === null ? "No recent use" : d >= 365 ? "1 yr+" : `${d} d`);
+// Labels sort correctly with the table's numeric-aware string sort ("No recent use" lands after every number).
+export const coverLabel = (d: number | null) => (d === null ? "No recent use" : `${Math.min(d, 365)}${d >= 365 ? "+" : ""} d`);
 
 /** Count adjustments carry `count-<CENTRE CODE>-<YYYY-MM>` as their reference (seed and submitStockCount). */
 export const countReference = (centreCode: string, period: string) => `count-${centreCode}-${period}`;
