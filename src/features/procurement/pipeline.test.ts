@@ -39,3 +39,12 @@ describe("cycle time", () => {
     expect(out[0]).toMatchObject({ value: 0, orders: 0 });
   });
 });
+
+describe("price trend", () => {
+  it("is the quantity-weighted average unit price per month", async () => {
+    const { priceTrend } = await import("./history");
+    const pos = new Map([["a", po("a", "received", 0, iso(9, 2))], ["b", po("b", "received", 0, iso(9, 9))]]);
+    const lines = [{ id: "1", purchaseOrderId: "a", productId: "p", quantity: 1, unitPrice: 100 }, { id: "2", purchaseOrderId: "b", productId: "p", quantity: 3, unitPrice: 200 }];
+    expect(priceTrend(lines, pos, "p", ["2026-09", "2026-10"])).toEqual([{ period: "2026-09", value: 0, qty: 0 }, { period: "2026-10", value: 175, qty: 4 }]);
+  });
+});
