@@ -104,3 +104,27 @@ describe("approval detail on the seed", async () => {
     expect(asPurchasing!.decisions.every((x) => !x.allowed && /Purchasing cannot approve/.test(x.reason!))).toBe(true);
   });
 });
+
+describe("create request loader", async () => {
+  const { seedRepository } = await import("@/lib/data/provider");
+  const { loadNewRequest } = await import("./new");
+  const repo = seedRepository(["c-and"]);
+  it("defaults to the first month without a request and blocks duplicates with a way out", async () => {
+    const d = await loadNewRequest(repo, {});
+    expect(d.kind).toBe("form");
+    if (d.kind !== "form") return;
+    expect(d.periods[0]!.taken).toBeDefined();
+    expect(d.products.every((p) => p.suggested >= 0 && p.categoryId !== "cat-pan")).toBe(true);
+    const blocked = await loadNewRequest(repo, { period: d.periods[0]!.key });
+    expect(blocked).toMatchObject({ kind: "blocked" });
+    expect(blocked.kind === "blocked" && blocked.actions.some((a) => a.href.includes(d.period))).toBe(true);
+  });
+  it("only edits drafts and returned requests", async () => {
+    const all = seedRepository("all");
+    const submitted = (await all.requests()).find((r) => r.status === "submitted")!;
+    expect(await loadNewRequest(all, { edit: submitted.id })).toMatchObject({ kind: "blocked" });
+    const draft = (await all.requests()).find((r) => r.status === "draft")!;
+    const d = await loadNewRequest(all, { edit: draft.id });
+    expect(d.kind === "form" && Object.keys(d.initial).length).toBeGreaterThan(0);
+  });
+});
