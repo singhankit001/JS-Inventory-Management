@@ -4,10 +4,11 @@ import { FlaskConical } from "lucide-react";
 import type { Session } from "@/lib/auth/session";
 import { getRepository } from "@/lib/data/provider";
 import { can, DASHBOARD_PATH, ROLE_DEFINITIONS } from "@/lib/auth/permissions";
-import { MODULES, navPages, visibleModules, visiblePages } from "@/lib/modules";
+import { MODULES, navPages, visibleModules, visiblePages, type ModuleGroup } from "@/lib/modules";
 import { initials, relative } from "@/lib/format";
 import { ToastProvider } from "@/components/feedback/toast";
-import { CentreSelect, MobileNav, NotificationsMenu, ProfileMenu, Toolbar, TopNav, type CommandEntry, type NavEntry, type QuickAction } from "./shell-client";
+import { CentreSelect, MobileNav, NotificationsMenu, ProfileMenu, Toolbar, type CommandEntry, type NavEntry, type QuickAction } from "./shell-client";
+import { TopNav } from "./nav-menu";
 
 /** Badge counts are computed server-side from the caller's scoped data — never trusted from the client. */
 async function navBadges(session: Session) {
@@ -38,17 +39,31 @@ export async function AppShell({ session, children }: { session: Session; childr
   const [badges, notifications] = await Promise.all([navBadges(session), repo.notifications(session.user.id)]);
   const dash = DASHBOARD_PATH[session.role];
 
+  const linksOf = (g: ModuleGroup) => navPages(session.role, g).map((p) => ({ label: p.tab ?? p.title, href: p.href!, summary: p.summary }));
+  const matchOf = (g: ModuleGroup) => [`/modules/${g.id}`, ...visiblePages(session.role, g).filter((p) => p.href && p.href !== dash).map((p) => p.href!.replace("/[id]", ""))];
+  const dashboards = MODULES.find((g) => g.id === "operations")!;
+  const governance = MODULES.find((g) => g.id === "governance")!;
+  const govLinks = linksOf(governance);
+
   const entries: NavEntry[] = [
-    { key: "dashboard", label: "Dashboard", href: dash, match: [dash] },
-    // Operations only ever holds the role's own dashboard, which the Dashboard tab already covers.
-    ...visibleModules(session.role).filter((g) => g.id !== "operations").map((g) => ({
-      key: g.id,
-      label: g.short,
-      // Opens the module's first page this role can see; /modules/<id> remains the module index.
-      href: navPages(session.role, g)[0]?.href ?? `/modules/${g.id}`,
-      badge: badges[g.id],
-      match: [`/modules/${g.id}`, ...visiblePages(session.role, g).filter((p) => p.href && p.href !== dash).map((p) => p.href!.replace("/[id]", ""))],
-    })),
+    {
+      key: "dashboard", label: "Dashboard", href: dash, match: [dash], description: "Role workspaces",
+      sections: [{ links: linksOf(dashboards).map((l) => (l.href === dash ? { ...l, label: `${l.label} · yours` } : l)) }],
+    },
+    // Governance pages live inside Administration's menu rather than taking a pill of their own.
+    ...visibleModules(session.role).filter((g) => g.id !== "operations" && g.id !== "governance").map((g) => {
+      const withGov = g.id === "admin" && govLinks.length > 0;
+      return {
+        key: g.id,
+        label: g.id === "admin" ? "Administration" : g.short,
+        // Opens the module's first page this role can see; /modules/<id> remains the module index.
+        href: navPages(session.role, g)[0]?.href ?? `/modules/${g.id}`,
+        description: g.description,
+        badge: badges[g.id],
+        match: [...matchOf(g), ...(withGov ? matchOf(governance) : [])],
+        sections: [{ links: linksOf(g) }, ...(withGov ? [{ label: "Governance", links: govLinks }] : [])],
+      };
+    }),
   ];
 
   const commands: CommandEntry[] = [
@@ -62,7 +77,8 @@ export async function AppShell({ session, children }: { session: Session; childr
     <ToastProvider>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:rounded-full focus:bg-pill focus:px-4 focus:py-2 focus:text-pill-ink">Skip to content</a>
       <div className="mx-auto flex min-h-dvh max-w-[1600px] flex-col px-4 pb-28 sm:px-6 lg:pr-8 lg:pb-12 lg:pl-28">
-        <header className="sticky top-0 z-30 -mx-4 mb-4 flex items-center gap-3 px-4 pt-4 pb-3 backdrop-blur-[2px] sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
+        {/* The backdrop sits on a pseudo-element so the nav panel keeps its own backdrop blur (nested backdrop-filters see nothing). */}
+        <header className="app-header sticky top-0 z-30 -mx-4 mb-5 flex items-center gap-3 px-4 pt-4 pb-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
           <Link href={dash} className="flex items-center gap-2.5 rounded-[14px] pr-2" aria-label="Jumpstart Inventory OS — home">
             <span className="grid size-10 place-items-center rounded-[12px] bg-pill text-pill-ink shadow-float">
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 18 L9 6 L12 13 L15 9 L20 18" /><circle cx="15" cy="5" r="1.6" fill="currentColor" stroke="none" /></svg>

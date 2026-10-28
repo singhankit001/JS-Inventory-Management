@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import * as D from "@radix-ui/react-dialog";
 import {
-  Bell, Building2, CheckCheck, ChevronDown, CornerDownLeft, LayoutGrid, LogOut, Menu as MenuIcon, Moon, MoreHorizontal, Plus, Search, Sparkles, Sun,
+  Bell, Building2, CheckCheck, ChevronDown, CornerDownLeft, LayoutGrid, LogOut, Menu as MenuIcon, Moon, Plus, Search, Sparkles, Sun,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useOptimistic, useState, useTransition } from "react";
 import { cn } from "@/lib/cn";
-import { PillGroup, type PillItem } from "@/components/ui/pill-group";
+import { MobileNavList, type NavEntry } from "./nav-menu";
 import { CountBadge, StatusBadge } from "@/components/ui/badge";
 import { Menu, MenuContent, MenuItem, MenuLabel, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { Dialog, DrawerContent } from "@/components/ui/dialog";
@@ -16,38 +16,10 @@ import { signOut, switchWorkspace } from "@/app/actions/session";
 import { markRead } from "@/app/actions/notifications";
 import { useToast } from "@/components/feedback/toast";
 
-export interface NavEntry { key: string; label: string; href: string; badge?: number; match: string[] }
+export type { NavEntry } from "./nav-menu";
 export interface CommandEntry { label: string; href: string; group: string; planned?: boolean }
 export interface QuickAction { label: string; href?: string; phase?: 2 | 3 }
 export interface ShellNotification { id: string; title: string; body: string; when: string; read: boolean; severity: "info" | "warning" | "critical"; href?: string }
-
-const isActive = (pathname: string, e: NavEntry) => e.match.some((m) => pathname === m || pathname.startsWith(`${m}/`));
-
-/* ───────────── Floating top navigation ───────────── */
-export function TopNav({ entries, maxVisible = 6 }: { entries: NavEntry[]; maxVisible?: number }) {
-  const pathname = usePathname();
-  const active = entries.find((e) => isActive(pathname, e));
-  // Keep the active entry visible even if it lives in the overflow.
-  let visible = entries.slice(0, maxVisible);
-  if (active && !visible.includes(active)) visible = [...visible.slice(0, maxVisible - 1), active];
-  const overflow = entries.filter((e) => !visible.includes(e));
-  const items: PillItem[] = visible.map((e) => ({ key: e.key, label: e.label, href: e.href, badge: e.badge ? <CountBadge count={e.badge} label={`${e.badge} pending in ${e.label}`} /> : undefined }));
-  return (
-    <div className="flex items-center gap-1">
-      <PillGroup variant="nav" ariaLabel="Primary" items={items} activeKey={active?.key} />
-      {overflow.length > 0 && (
-        <Menu>
-          <MenuTrigger className="grid size-10 place-items-center rounded-full bg-surface/80 text-ink-2 shadow-card ring-1 ring-line/70 backdrop-blur-xl transition-[color,transform] duration-200 hover:text-ink active:scale-95" aria-label="More sections"><MoreHorizontal className="size-4" /></MenuTrigger>
-          <MenuContent>
-            {overflow.map((e) => (
-              <MenuItem key={e.key} asChild><Link href={e.href} className="justify-between">{e.label}{e.badge ? <CountBadge count={e.badge} /> : null}</Link></MenuItem>
-            ))}
-          </MenuContent>
-        </Menu>
-      )}
-    </div>
-  );
-}
 
 /* ───────────── Mobile navigation drawer ───────────── */
 export function MobileNav({ entries }: { entries: NavEntry[] }) {
@@ -57,22 +29,8 @@ export function MobileNav({ entries }: { entries: NavEntry[] }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <D.Trigger className="grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-95 lg:hidden" aria-label="Open navigation"><MenuIcon className="size-4.5" /></D.Trigger>
-      <DrawerContent title="Navigate">
-        <nav aria-label="Primary (mobile)">
-          <ul className="grid gap-1">
-            {entries.map((e) => {
-              const active = isActive(pathname, e);
-              return (
-                <li key={e.key}>
-                  <Link href={e.href} aria-current={active ? "page" : undefined} className={cn("flex h-12 items-center justify-between rounded-[14px] px-4 text-body font-medium transition-colors", active ? "bg-pill text-pill-ink" : "hover:bg-surface-2")}>
-                    {e.label}
-                    {e.badge ? <CountBadge count={e.badge} /> : null}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      <DrawerContent title="Navigate" description="Every section and page your role can open.">
+        <MobileNavList entries={entries} />
       </DrawerContent>
     </Dialog>
   );
@@ -220,7 +178,7 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
             <p className="mt-4 text-eyebrow font-medium tracking-[0.1em] text-ink-3 uppercase">It will answer questions like</p>
             <ul className="mt-2 grid gap-2 text-label text-ink-2">
               <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Which centres will run out of hand wash this month?”</li>
-              <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Why is Powai over budget?”</li>
+              <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Why is Wakad over budget?”</li>
               <li className="rounded-[12px] bg-surface-2 px-3 py-2">“Draft next month’s request from last term’s usage.”</li>
             </ul>
           </div>

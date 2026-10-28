@@ -15,9 +15,11 @@ export interface PillItem {
 const styles = {
   nav: {
     track: "rounded-full bg-surface/80 p-1 shadow-card ring-1 ring-line/70 backdrop-blur-xl",
-    item: "h-9 px-4 text-[13.5px]",
+    item: "h-10 px-4 text-[13.5px]",
     pill: "bg-pill text-pill-ink",
-    idle: "text-ink-2 hover:text-ink",
+    // Light tint of the pill colour (black in light theme, off-white in dark) under the hovered item. data-open keeps it
+    // while that item's menu is open, so the pill stays lit as the cursor moves into the panel or focus moves by keyboard.
+    idle: "text-ink-2 hover:bg-pill/10 hover:text-ink data-[open=true]:bg-pill/10 data-[open=true]:text-ink",
   },
   segmented: {
     track: "rounded-full bg-surface-3/80 p-1",
