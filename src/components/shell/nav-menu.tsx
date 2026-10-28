@@ -153,7 +153,7 @@ export function TopNav({ entries }: { entries: NavEntry[] }) {
           data-key="more"
           aria-expanded={openKey === "more"}
           aria-controls="nav-panel"
-          className="grid size-11 place-items-center rounded-full bg-surface/80 text-ink-2 shadow-card ring-1 ring-line/70 backdrop-blur-xl transition-[background-color,color,transform] duration-200 hover:bg-surface-3 hover:text-ink active:scale-95 aria-expanded:bg-surface-3 aria-expanded:text-ink"
+          className="grid size-11 place-items-center rounded-full bg-surface/80 text-ink-2 shadow-card ring-1 ring-line/70 backdrop-blur-xl transition-[background-color,color,transform,translate,scale] duration-200 hover:bg-surface-3 hover:text-ink active:scale-95 aria-expanded:bg-surface-3 aria-expanded:text-ink"
           aria-label="More sections"
         >
           <MoreHorizontal className="size-4" />

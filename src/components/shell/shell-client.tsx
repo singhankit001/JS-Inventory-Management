@@ -28,7 +28,7 @@ export function MobileNav({ entries }: { entries: NavEntry[] }) {
   useEffect(() => setOpen(false), [pathname]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <D.Trigger className="grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-95 lg:hidden" aria-label="Open navigation"><MenuIcon className="size-4.5" /></D.Trigger>
+      <D.Trigger className="grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform,translate,scale] duration-200 hover:bg-surface-2 active:scale-95 lg:hidden" aria-label="Open navigation"><MenuIcon className="size-4.5" /></D.Trigger>
       <DrawerContent title="Navigate" description="Every section and page your role can open.">
         <MobileNavList entries={entries} />
       </DrawerContent>
@@ -140,7 +140,7 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const btn = "group relative grid size-10 place-items-center rounded-full text-toolbar-ink transition-[background-color,color,transform] duration-200 hover:bg-white/10 hover:text-white active:scale-95 dark:hover:bg-white/5 [&_svg]:size-[18px]";
+  const btn = "group relative grid size-10 place-items-center rounded-full text-toolbar-ink transition-[background-color,color,transform,translate,scale] duration-200 hover:bg-white/10 hover:text-white active:scale-95 dark:hover:bg-white/5 [&_svg]:size-[18px]";
   const tip = (label: string) => <span className="pointer-events-none absolute left-full ml-3 hidden rounded-[8px] bg-pill px-2 py-1 text-[11.5px] whitespace-nowrap text-pill-ink opacity-0 shadow-pop transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 lg:block">{label}</span>;
 
   return (
@@ -206,7 +206,7 @@ export function NotificationsMenu({ items, demo = false }: { items: ShellNotific
   });
   return (
     <Menu>
-      <MenuTrigger className="relative grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-95" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
+      <MenuTrigger className="relative grid size-10 place-items-center rounded-full bg-surface shadow-card ring-1 ring-line/70 transition-[background-color,transform,translate,scale] duration-200 hover:bg-surface-2 active:scale-95" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
         <Bell className="size-4" strokeWidth={1.75} />
         {unread > 0 && <span className="absolute -top-1 -right-1 flex rounded-full ring-2 ring-canvas" aria-hidden><CountBadge count={unread} /></span>}
       </MenuTrigger>
@@ -286,7 +286,7 @@ export function CentreSelect({ centres }: { centres: { id: string; name: string 
   };
   return (
     <Menu>
-      <MenuTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-surface px-3.5 text-label font-medium shadow-card ring-1 ring-line/70 transition-[background-color,transform] duration-200 hover:bg-surface-2 active:scale-[0.97]">
+      <MenuTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-surface px-3.5 text-label font-medium shadow-card ring-1 ring-line/70 transition-[background-color,transform,translate,scale] duration-200 hover:bg-surface-2 active:scale-[0.97]">
         <Building2 className="size-4 text-ink-3" />
         <span className="max-w-32 truncate">{label}</span>
         <ChevronDown className="size-3.5 text-ink-3" />

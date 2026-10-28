@@ -6,6 +6,7 @@ import { getRepository } from "@/lib/data/provider";
 import { can, DASHBOARD_PATH, ROLE_DEFINITIONS } from "@/lib/auth/permissions";
 import { MODULES, navPages, visibleModules, visiblePages, type ModuleGroup } from "@/lib/modules";
 import { initials, relative } from "@/lib/format";
+import { JOURNEY_CENTRE, JOURNEY_ROLES } from "@/features/pipeline/journey";
 import { ToastProvider } from "@/components/feedback/toast";
 import { CentreSelect, MobileNav, NotificationsMenu, ProfileMenu, Toolbar, type CommandEntry, type NavEntry, type QuickAction } from "./shell-client";
 import { TopNav } from "./nav-menu";
@@ -45,10 +46,18 @@ export async function AppShell({ session, children }: { session: Session; childr
   const governance = MODULES.find((g) => g.id === "governance")!;
   const govLinks = linksOf(governance);
 
+  // The end-to-end request story, for the roles that take part in it and can read its centre.
+  const journey = JOURNEY_ROLES.includes(session.role) && session.centres.some((c) => c.id === JOURNEY_CENTRE)
+    ? { label: "Request journey", href: "/requests/journey", summary: "Kavya Nair's voice request, from Baner to the CEO's dashboard." }
+    : undefined;
+
   const entries: NavEntry[] = [
     {
-      key: "dashboard", label: "Dashboard", href: dash, match: [dash], description: "Role workspaces",
-      sections: [{ links: linksOf(dashboards).map((l) => (l.href === dash ? { ...l, label: `${l.label} · yours` } : l)) }],
+      key: "dashboard", label: "Dashboard", href: dash, match: [dash, ...(journey ? [journey.href] : [])], description: "Role workspaces",
+      sections: [
+        { links: linksOf(dashboards).map((l) => (l.href === dash ? { ...l, label: `${l.label} · yours` } : l)) },
+        ...(journey ? [{ label: "Demo walkthrough", links: [journey] }] : []),
+      ],
     },
     // Governance pages live inside Administration's menu rather than taking a pill of their own.
     ...visibleModules(session.role).filter((g) => g.id !== "operations" && g.id !== "governance").map((g) => {
@@ -68,6 +77,7 @@ export async function AppShell({ session, children }: { session: Session; childr
 
   const commands: CommandEntry[] = [
     { label: "My dashboard", href: dash, group: ROLE_DEFINITIONS[session.role].label },
+    ...(journey ? [{ label: journey.label, href: journey.href, group: "Demo walkthrough" }] : []),
     ...MODULES.flatMap((g) =>
       navPages(session.role, g).map((p) => ({ label: p.title, href: p.href!, group: g.short, planned: p.status === "planned" })),
     ),
