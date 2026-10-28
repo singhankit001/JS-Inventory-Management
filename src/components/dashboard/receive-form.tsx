@@ -17,11 +17,11 @@ export interface ReceiveOption { id: string; label: string; centre: string; expe
 type Counts = Record<string, { received: number; damaged: number }>;
 
 /** Record an item-level goods receipt against an open PO. Writes to the in-memory demo data via a server action. */
-export function ReceiveForm({ options }: { options: ReceiveOption[] }) {
+export function ReceiveForm({ options, initialPoId }: { options: ReceiveOption[]; initialPoId?: string }) {
   const toast = useToast();
   const uid = useId();
   const [pending, start] = useTransition();
-  const [poId, setPoId] = useState("");
+  const [poId, setPoId] = useState(() => (options.some((o) => o.id === initialPoId) ? initialPoId! : ""));
   const [counts, setCounts] = useState<Counts>({});
   const po = options.find((o) => o.id === poId);
   const rows = (po?.lines ?? []).map((l) => {

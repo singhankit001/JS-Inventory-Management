@@ -80,7 +80,7 @@ export default async function CentreDashboard({ searchParams }: { searchParams: 
       <MetricGrid className="mt-4">
         <KpiCard variant="primary" icon={Boxes} label="Stock on hand" value={<AnimatedNumber value={d.kpis.stockValue} format="moneyCompact" />}
           footnote={<span>{d.kpis.units} units across {d.kpis.skus} SKUs</span>} />
-        <KpiCard variant="secondary" icon={Siren} label="Items to restock" value={<AnimatedNumber value={d.kpis.attention} />} href="/modules/inventory#alerts"
+        <KpiCard variant="secondary" icon={Siren} label="Items to restock" value={<AnimatedNumber value={d.kpis.attention} />} href="/inventory/alerts"
           footnote={<span>{d.kpis.critical} critical · at or below reorder point</span>} />
         <KpiCard icon={Wallet} label="Budget used this month" value={<AnimatedNumber value={d.kpis.budgetUsed} format="percent" />} spark={d.kpis.budgetSpark} sparkTone="green"
           footnote={<TrendIndicator direction={pace > 0 ? "up" : "down"} good={pace <= 0}>{percent(d.kpis.monthElapsed)} of the month gone</TrendIndicator>} />

@@ -116,7 +116,7 @@ export async function loadPurchasing(repo: Repository) {
     queue: queue.map((r) => {
       const lines = requestItems.filter((i) => i.requestId === r.id).length;
       return {
-        id: r.id, title: cmap.get(r.centreId)?.name ?? r.centreId, href: "/modules/requests#monthly",
+        id: r.id, title: cmap.get(r.centreId)?.name ?? r.centreId, href: "/requests",
         sub: [lines ? `${lines} lines` : null, r.submittedAt ? `submitted ${relative(r.submittedAt, today)}` : null].filter(Boolean).join(" · "),
         value: moneyCompact(r.total),
         badge: r.priority === "emergency" ? { label: "Emergency", tone: "red" as Tone } : { label: "Routine", tone: "neutral" as Tone },
@@ -146,7 +146,7 @@ export async function loadPurchasing(repo: Repository) {
       };
     }),
     delayed: delayed.slice(0, 5).map(({ po, late }) => ({
-      id: po.id, title: `${po.number} · ${smap.get(po.supplierId)?.name ?? po.supplierId}`, href: "/modules/procurement#orders",
+      id: po.id, title: `${po.number} · ${smap.get(po.supplierId)?.name ?? po.supplierId}`, href: "/procurement/orders",
       sub: `${cmap.get(po.centreId)?.name} · expected ${shortDate(po.expectedAt)} · ${byPo(po).units} units · ${moneyCompact(po.total)}`,
       badge: { label: `${late}d late`, tone: "red" as Tone },
     })),
