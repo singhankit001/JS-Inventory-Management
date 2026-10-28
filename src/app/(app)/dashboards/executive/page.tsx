@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BadgeCheck, Boxes, CalendarClock, ChartLine, ClipboardCheck, Gauge as GaugeIcon, Landmark, Lightbulb, PackageSearch, Siren, Truck, Users, Wallet } from "lucide-react";
+import { BadgeCheck, Boxes, Inbox, CalendarClock, ChartLine, ClipboardCheck, Gauge as GaugeIcon, Landmark, Lightbulb, PackageSearch, Siren, Truck, Users, Wallet } from "lucide-react";
 import { requirePermission, scopedRepository } from "@/lib/auth/session";
 import { loadExecutive } from "@/features/dashboards/executive";
 import { dateEyebrow, firstName, greeting } from "@/features/dashboards/shared";
@@ -28,6 +28,8 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
   const { repo, centre } = scopedRepository(session, (await searchParams).centre);
   const d = await loadExecutive(repo);
   const today = repo.today();
+  // The six centres closest to (or over) budget; the full list lives on Budgets & allocations.
+  const topSpend = [...d.centreSpend].sort((a, b) => b.value / (b.marker || 1) - a.value / (a.marker || 1)).slice(0, 6);
 
   return (
     <>
@@ -42,8 +44,8 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
           dateLabel={dateEyebrow(today)}
           greeting={`${greeting()}, ${firstName(session.user.name)}.`}
           actions={<>
-            <Link href="/modules/approvals" className={buttonClass("primary", "sm")}><ClipboardCheck />Approvals</Link>
-            <Link href="/modules/operations" className={buttonClass("secondary", "sm")}><Landmark />Centres</Link>
+            <Link href="/approvals" className={buttonClass("primary", "sm")}><ClipboardCheck />Approvals</Link>
+            <Link href="/inventory/centres" className={buttonClass("secondary", "sm")}><Landmark />Centres</Link>
           </>}
           footer={<DayTimeline events={d.welcome.events} nowHour={d.welcome.nowHour} label="Today's operational timeline" />}
         >
@@ -87,11 +89,38 @@ export default async function ExecutiveDashboard({ searchParams }: { searchParam
               { key: "units", label: "Units", kind: "column", data: d.consumptionUnits, format: "count", aName: "Units used" },
             ]} />
         </WidgetBoundary>
-        <Card aria-label="Centre spending comparison">
-          <CardHeader icon={Landmark} title="Centre spend" subtitle="This month · line marks budget" />
-          <ComparisonBars rows={d.centreSpend} label="Spend by centre" />
+        <Card aria-label="Centre spending comparison" className="flex flex-col">
+          <CardHeader icon={Landmark} title="Centre spend" subtitle={`Highest ${topSpend.length} of ${d.centreSpend.length} this month · line marks budget`}
+            action={<Link href="/approvals/budgets" className={buttonClass("ghost", "sm")}>All ›</Link>} />
+          <ComparisonBars rows={topSpend} label="Spend by centre" />
         </Card>
       </div>
+
+      <Card aria-label="Recent centre requests" className="mt-4">
+        <CardHeader icon={Inbox} title="Recent centre requests" subtitle="Latest submissions across your centres"
+          action={<Link href="/requests?period=all" className={buttonClass("ghost", "sm")}>All requests ›</Link>} />
+        {d.recentRequests.length === 0 ? <p className="text-label text-ink-3">No requests submitted yet.</p> : (
+          <ul className="-mx-2 divide-y divide-line/70">
+            {d.recentRequests.map((r) => (
+              <li key={r.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-2 py-2.5 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto_auto]">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 truncate text-body font-medium">
+                    <Link href={`/requests/${r.id}`} className="truncate underline-offset-4 hover:underline">{r.centre}</Link>
+                    {r.emergency && <StatusBadge tone="red">Emergency</StatusBadge>}
+                  </p>
+                  <p className="truncate text-[12px] text-ink-3"><span className="font-mono text-[11.5px]">{r.id}</span> · {r.by} · <time dateTime={r.submittedAt}>{r.when}</time></p>
+                </div>
+                <p className="hidden text-label text-ink-2 tabular md:block">{r.items} item{r.items === 1 ? "" : "s"} · <span className="font-medium text-ink">{r.amount}</span></p>
+                <StatusBadge tone={r.status.tone} dot>{r.status.label}</StatusBadge>
+                <div className="col-span-2 flex gap-1 md:col-span-1">
+                  <Link href={`/requests/${r.id}`} className={buttonClass("ghost", "sm")}>Request</Link>
+                  <Link href={`/inventory/counts?f_centre=${encodeURIComponent(r.centre)}`} className={buttonClass("ghost", "sm")}>Stock count</Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       <div className="stagger mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Card aria-label="Supplier performance">

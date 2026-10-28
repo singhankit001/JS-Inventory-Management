@@ -26,6 +26,19 @@ const varianceColumns: Column[] = [
   { key: "value", header: "Value", kind: "money", align: "right", hideBelow: "lg" },
 ];
 
+const reconColumns: Column[] = [
+  { key: "centre", header: "Centre", kind: "link" },
+  { key: "period", header: "Period" },
+  { key: "opening", header: "Opening stock", kind: "money", align: "right", hideBelow: "lg" },
+  { key: "receipts", header: "Receipts", kind: "money", align: "right", hideBelow: "md" },
+  { key: "closing", header: "Closing count", kind: "money", align: "right", hideBelow: "sm" },
+  { key: "consumption", header: "Consumption", kind: "money", align: "right" },
+  { key: "discrepancy", header: "Discrepancy", kind: "money", align: "right", hideBelow: "sm" },
+  { key: "submittedBy", header: "Submitted by", hideBelow: "lg" },
+  { key: "status", header: "Verification", kind: "badge" },
+  { key: "updated", header: "Last updated", kind: "date", hideBelow: "md" },
+];
+
 const signed = (n: number, f: (n: number) => string) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${f(Math.abs(n))}`;
 
 export default async function Counts({ searchParams }: { searchParams: Promise<{ centre?: string }> }) {
@@ -66,6 +79,13 @@ export default async function Counts({ searchParams }: { searchParams: Promise<{
           <p className="mt-3 text-[12px] text-ink-3">{s.shrinkLines} shrinkage lines over the last 12 months.</p>
         </Card>
       </div>
+
+      <Card aria-label="Reconciliation by centre and period" className="mt-6">
+        <CardHeader icon={Scale} title="Reconciliation" subtitle="Opening + receipts − consumption ± discrepancy = closing, at unit cost · last three months · simulated figures" />
+        <DataTable columns={reconColumns} rows={d.reconRows} label="Stock reconciliation by centre and period" pageSize={10} exportName={`stock-reconciliation-${d.period}`}
+          filters={[{ key: "centre", label: "centre" }, { key: "period", label: "period" }, { key: "status", label: "status" }, { key: "submittedBy", label: "submitter" }]}
+          emptyTitle="No counts in this view" emptyBody="Change the filters, or pick another centre above." />
+      </Card>
 
       <section aria-labelledby="centre-status-h" className="mt-6">
         <h2 id="centre-status-h" className="mb-3 flex items-center gap-2 text-title font-normal"><Store className="size-4 text-ink-3" aria-hidden />Status by centre</h2>

@@ -1,14 +1,14 @@
 import type { Repository } from "@/lib/data/provider";
-import { centreSummaries, consumptionSeries, dayOffset, hourOf, indexBy, lastPeriods, lowStock, poOutstanding, valuation } from "./shared";
+import { REQUEST_STATUS, centreSummaries, consumptionSeries, dayOffset, hourOf, indexBy, lastPeriods, lowStock, poOutstanding, valuation } from "./shared";
 import { count, money, moneyCompact, monthLabel, percent, relative } from "@/lib/format";
 import { period } from "@/lib/data/seed";
 import type { Tone } from "@/components/ui/badge";
 
 export async function loadExecutive(repo: Repository) {
   const today = repo.today();
-  const [centres, products, balances, budgets, approvals, pos, suppliers, movements, audit, users, receipts, poLines, receiptLines] = await Promise.all([
+  const [centres, products, balances, budgets, approvals, pos, suppliers, movements, audit, users, receipts, poLines, receiptLines, requests, requestItems] = await Promise.all([
     repo.centres(), repo.products(), repo.balances(), repo.budgets(), repo.approvals(), repo.purchaseOrders(), repo.suppliers(), repo.movements(), repo.audit(), repo.users(), repo.receipts(),
-    repo.purchaseOrderLines(), repo.receiptLines(),
+    repo.purchaseOrderLines(), repo.receiptLines(), repo.requests(), repo.requestItems(),
   ]);
   const pmap = indexBy(products, "id");
   const cmap = indexBy(centres, "id");
@@ -110,6 +110,15 @@ export async function loadExecutive(repo: Repository) {
     suppliers: [...suppliers].sort((a, b) => b.onTimeRate - a.onTimeRate).map((s) => ({ id: s.id, name: s.name, onTime: s.onTimeRate, quality: s.qualityScore, lead: s.avgLeadDays, status: s.status })),
     alerts: alerts.slice(0, 6).map((a) => ({ id: `${a.balance.centreId}-${a.product.id}`, title: a.product.name, sub: `${cmap.get(a.balance.centreId)?.name} · ${a.balance.onHand} left, reorder at ${a.product.reorderPoint}`, badge: { label: "Critical", tone: "red" as Tone } })),
     alertsTotal: alerts.length,
+    recentRequests: requests.filter((r) => r.submittedAt).sort((a, b) => b.submittedAt!.localeCompare(a.submittedAt!)).slice(0, 6).map((r) => {
+      const centre = cmap.get(r.centreId);
+      return {
+        id: r.id, centreId: r.centreId, centre: centre?.name ?? r.centreId,
+        emergency: r.priority === "emergency", submittedAt: r.submittedAt!, when: relative(r.submittedAt!),
+        items: requestItems.filter((i) => i.requestId === r.id).length, amount: money(r.total),
+        by: umap.get(r.submittedBy)?.name ?? "—", status: REQUEST_STATUS[r.status],
+      };
+    }),
     cycle: { onTime, cycleDays, receipts: recentReceipts.length, discrepancies: recentReceipts.filter((r) => r.status === "discrepancy").length },
     insights,
     activity: audit.slice(0, 6).map((e) => ({ id: e.id, actor: umap.get(e.actorId)?.name ?? "Unknown", action: e.action, subject: e.subject, at: relative(e.occurredAt, today) })),

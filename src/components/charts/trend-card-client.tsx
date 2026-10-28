@@ -32,8 +32,9 @@ export function TrendCardClient({ leading, title, subtitle, views, className }: 
         <span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-blue" />{view.aName}</span>
         {view.bName && <span className="flex items-center gap-1.5"><i className="h-0.5 w-3 border-t-2 border-dashed border-ink-3" />{view.bName}</span>}
       </div>
-      {/* Grows with a taller neighbour instead of leaving a gap; absolute box gives recharts a definite height. */}
-      <div className="relative min-h-[240px] flex-1">
+      {/* Grows with a taller neighbour up to a cap, so a long list beside it never stretches the chart; the absolute
+          box gives recharts a definite height. */}
+      <div className="relative min-h-[240px] flex-1 sm:min-h-[260px] lg:max-h-[340px]">
         <div key={view.key} className={cn("absolute inset-0", key && "animate-enter")} role="tabpanel" aria-label={view.label}>
           {view.kind === "trend"
             ? <TrendChart data={view.data} aName={view.aName} bName={view.bName} format={view.format} height="100%" />
