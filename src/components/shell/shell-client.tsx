@@ -140,7 +140,7 @@ export function Toolbar({ commands, quickActions }: { commands: CommandEntry[]; 
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const btn = "group relative grid size-10 place-items-center rounded-full text-toolbar-ink transition-[background-color,color,transform,translate,scale] duration-200 hover:bg-white/10 hover:text-white active:scale-95 dark:hover:bg-white/5 [&_svg]:size-[18px]";
+  const btn = "group relative grid size-10 place-items-center rounded-full text-toolbar-ink transition-[background-color,color,box-shadow,transform,translate,scale] duration-200 ease-out hover:bg-white hover:text-toolbar hover:shadow-[0_6px_16px_-6px_rgb(255_255_255/0.45)] focus-visible:bg-white focus-visible:text-toolbar data-[state=open]:bg-white data-[state=open]:text-toolbar active:scale-95 [&_svg]:size-[18px]";
   const tip = (label: string) => <span className="pointer-events-none absolute left-full ml-3 hidden rounded-[8px] bg-pill px-2 py-1 text-[11.5px] whitespace-nowrap text-pill-ink opacity-0 shadow-pop transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 lg:block">{label}</span>;
 
   return (
