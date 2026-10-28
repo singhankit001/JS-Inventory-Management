@@ -7,6 +7,7 @@ import { demoCommand } from "@/lib/demo/command";
 import { DECISION_PAST, approvedQuantities, planDecision } from "@/features/approvals/decide";
 import { periodLabel, requestKind } from "@/features/requests/logic";
 import { money } from "@/lib/format";
+import { period as periodOf } from "@/lib/data/seed";
 
 const centreName = (s: SeedData, id?: string) => s.centres.find((c) => c.id === id)?.name ?? "All centres";
 
@@ -51,5 +52,24 @@ export async function decideApproval(input: CommandInput<"decideApproval">) {
       return { message: `${who} approved at ${money(value)}${trimmed ? ` (${trimmed} line${trimmed === 1 ? "" : "s"} trimmed)` : ""}` };
     }
     return { message: `${who} ${DECISION_PAST[cmd.decision]}` };
+  });
+}
+
+/** Change one centre's allocation for this month or a future one. Past months are closed. */
+export async function setBudget(input: CommandInput<"setBudget">) {
+  return demoCommand("setBudget", input, (cmd, s) => {
+    if (!s.centres.some((c) => c.id === cmd.centreId)) return { code: "not_found", error: "That centre does not exist." };
+    if (cmd.period < periodOf(s.today)) return { code: "validation", error: "Past months are closed; adjust this month or a future one." };
+    if (cmd.allocated <= 0) return { code: "validation", error: "The allocation must be above zero." };
+    return { permission: "budgets.manage", resource: { centreId: cmd.centreId } };
+  }, (cmd, { store: s, audit }) => {
+    const centre = s.centres.find((c) => c.id === cmd.centreId)!;
+    let b = s.budgets.find((x) => x.centreId === cmd.centreId && x.period === cmd.period);
+    const before = b?.allocated ?? centre.monthlyBudget;
+    if (!b) s.budgets.push(b = { centreId: cmd.centreId, period: cmd.period, allocated: cmd.allocated, committed: 0, spent: 0 });
+    b.allocated = cmd.allocated;
+    audit("changed budget", `${centre.name} · ${periodLabel(cmd.period)} · ${money(before)} → ${money(cmd.allocated)}`, centre.id);
+    const left = b.allocated - b.spent - b.committed;
+    return { message: `${centre.name} ${periodLabel(cmd.period)} allocation set to ${money(cmd.allocated)} (${left >= 0 ? `${money(left)} headroom` : `${money(-left)} over`})` };
   });
 }

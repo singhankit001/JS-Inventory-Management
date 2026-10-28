@@ -9,7 +9,8 @@ vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 vi.mock("@/lib/data/provider", () => ({ demoStore: () => h.store }));
 vi.mock("@/lib/auth/session", () => ({ requireSession: async () => h.session }));
 
-const { decideApproval } = await import("@/app/actions/approvals");
+const { decideApproval, setBudget } = await import("@/app/actions/approvals");
+const { period } = await import("@/lib/data/seed");
 
 function signIn(userId: string, role: Role) {
   const user = h.store.users.find((u) => u.id === userId)!;
@@ -71,5 +72,25 @@ describe("decideApproval", () => {
 
     const po = h.store.approvals.find((x) => x.subjectType === "purchase_order" && x.status === "pending");
     if (po) expect(await decideApproval({ approvalId: po.id, decision: "approved" })).toMatchObject({ ok: false, code: "invalid_transition" });
+  });
+});
+
+describe("setBudget", () => {
+  it("changes this month's allocation with an audit entry, Head Office only", async () => {
+    const now = period(h.store.today);
+    const b = h.store.budgets.find((x) => x.centreId === "c-and" && x.period === now)!;
+    expect(await setBudget({ centreId: "c-and", period: now, allocated: 90_000_00 })).toMatchObject({ ok: true });
+    expect(b.allocated).toBe(90_000_00);
+    expect(h.store.audit[0]).toMatchObject({ action: "changed budget", centreId: "c-and" });
+    signIn("u-ceo", "ceo");
+    expect(await setBudget({ centreId: "c-and", period: now, allocated: 1 })).toMatchObject({ ok: false, code: "forbidden" });
+  });
+  it("creates next month's record but refuses past months and zero", async () => {
+    const next = period(new Date(h.store.today.getFullYear(), h.store.today.getMonth() + 1, 1));
+    const past = period(new Date(h.store.today.getFullYear(), h.store.today.getMonth() - 1, 1));
+    expect(await setBudget({ centreId: "c-kor", period: next, allocated: 50_000_00 })).toMatchObject({ ok: true });
+    expect(h.store.budgets.find((x) => x.centreId === "c-kor" && x.period === next)).toMatchObject({ allocated: 50_000_00, spent: 0, committed: 0 });
+    expect(await setBudget({ centreId: "c-kor", period: past, allocated: 50_000_00 })).toMatchObject({ ok: false, code: "validation" });
+    expect(await setBudget({ centreId: "c-kor", period: next, allocated: 0 })).toMatchObject({ ok: false, code: "validation" });
   });
 });
