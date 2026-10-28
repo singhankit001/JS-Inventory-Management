@@ -139,3 +139,15 @@ describe("emergency loader", async () => {
     expect(d.open.filter((o) => !o.waitingDecision).every((o) => !o.breached)).toBe(true);
   });
 });
+
+describe("exceptions loader", async () => {
+  const { seedRepository } = await import("@/lib/data/provider");
+  const { loadExceptions } = await import("@/features/approvals/exceptions");
+  it("groups every exception under exactly one severity and escalates late emergencies", async () => {
+    const d = await loadExceptions(seedRepository("all"), new Date(Date.now() + 3 * 86_400_000));
+    expect(d.groups.reduce((s, g) => s + g.items.length, 0)).toBe(d.total);
+    expect(d.groups[0]!.items.some((x) => x.kind === "Emergency")).toBe(true);
+    const scoped = await loadExceptions(seedRepository(["c-and"]));
+    expect(scoped.groups.flatMap((g) => g.items).every((x) => !x.title.includes("Koramangala"))).toBe(true);
+  });
+});
