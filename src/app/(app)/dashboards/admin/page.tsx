@@ -39,7 +39,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
           dateLabel={dateEyebrow(repo.today())}
           greeting={`${greeting()}, ${firstName(session.user.name)}.`}
           actions={<>
-            {canUsers && <Link href="/governance/permissions" className={buttonClass("primary", "sm")}><KeyRound />Role matrix</Link>}
+            {canUsers && <Link href="/admin/roles" className={buttonClass("primary", "sm")}><KeyRound />Role matrix</Link>}
             {canAudit && <Link href="/governance/audit" className={buttonClass("secondary", "sm")}><ScrollText />Audit log</Link>}
           </>}
           footer={<DayTimeline events={d.welcome.events} nowHour={d.welcome.nowHour} label="Today's sign-ins and audited changes" />}
@@ -124,7 +124,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
         <Card aria-label="Last active recency">
           <CardHeader icon={Clock} title="Last active" subtitle="Active accounts by most recent sign-in" />
           <ComparisonBars rows={d.recency} label="Active users by last sign-in" />
-          <p className="mt-4 text-label text-ink-3">Suspending idle accounts is part of Users &amp; roles, which arrives in Phase 2.</p>
+          <p className="mt-4 text-label text-ink-3">Suspend or reassign idle accounts in <Link href="/admin/users" className="text-ink underline-offset-2 hover:underline">Centres &amp; users</Link>.</p>
         </Card>
         <Card aria-label="Recent audit events">
           <CardHeader icon={BadgeCheck} title="Recent audit events" action={canAudit && <Link className={buttonClass("ghost", "sm")} href="/governance/audit">Audit log ›</Link>} />
@@ -139,8 +139,8 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             <p className="text-label text-ink-3">Roles, centre access and last sign-in</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {canUsers && <Link className={buttonClass("secondary", "md")} href="/governance/permissions"><ShieldCheck />Role matrix</Link>}
-            {canUsers && <PlannedAction label="Invite user" icon={<UserPlus className="size-4" />} />}
+            {canUsers && <Link className={buttonClass("secondary", "md")} href="/admin/roles"><ShieldCheck />Role matrix</Link>}
+            {canUsers && <Link className={buttonClass("primary", "md")} href="/admin/users?invite=1"><UserPlus />Invite user</Link>}
           </div>
         </div>
         <Card>
