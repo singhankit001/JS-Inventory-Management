@@ -15,9 +15,9 @@ describe.each(DATES.map((d) => [d.toDateString(), d] as const))("seed on %s", (_
   const owedOn = (poId: string) => linesOf(poId).reduce((t, l) => t + Math.max(0, l.quantity - (good.get(l.id) ?? 0)), 0);
   const off = (iso: string) => Math.round((new Date(new Date(iso).toDateString()).getTime() - s.today.getTime()) / 86_400_000);
 
-  it("has 15 centres and keeps the demo accounts", () => {
-    expect(s.centres).toHaveLength(15);
-    expect(s.users.find((u) => u.id === "u-rcv")?.centreIds).toEqual(["c-and", "c-pow"]);
+  it("has the 11 published centres and keeps the demo accounts", () => {
+    expect(s.centres).toHaveLength(11);
+    expect(s.users.find((u) => u.id === "u-rcv")?.centreIds).toEqual(["c-bnr", "c-wkd"]);
     for (const c of s.centres) expect(s.users.some((u) => u.roles.includes("centre_leader") && u.centreIds.includes(c.id))).toBe(true);
   });
 
@@ -75,7 +75,7 @@ describe.each(DATES.map((d) => [d.toDateString(), d] as const))("seed on %s", (_
       running.set(key, (running.get(key) ?? 0) + sign[m.type] * m.quantity);
       expect(running.get(key)).toBeGreaterThanOrEqual(0);
     }
-    expect(s.balances).toHaveLength(15 * s.products.length);
+    expect(s.balances).toHaveLength(s.centres.length * s.products.length);
     for (const b of s.balances) {
       expect(b.onHand).toBeGreaterThanOrEqual(0);
       expect(b.onHand).toBe(running.get(`${b.centreId}:${b.productId}`));
@@ -108,7 +108,7 @@ describe.each(DATES.map((d) => [d.toDateString(), d] as const))("seed on %s", (_
       const key = `${r.centreId}:${period(new Date(r.receivedAt))}`;
       spent.set(key, (spent.get(key) ?? 0) + (l.receivedQty - l.damagedQty) * lineMap.get(l.purchaseOrderLineId)!.unitPrice);
     }
-    expect(s.budgets).toHaveLength(15 * 12);
+    expect(s.budgets).toHaveLength(s.centres.length * 12);
     const thisPeriod = period(s.today);
     for (const b of s.budgets) {
       expect(b.spent).toBe(spent.get(`${b.centreId}:${b.period}`) ?? 0);
@@ -138,7 +138,7 @@ describe.each(DATES.map((d) => [d.toDateString(), d] as const))("seed on %s", (_
   });
 
   it("gives the receiving user deliveries due today and an overdue one", () => {
-    const mine = s.purchaseOrders.filter((p) => p.status === "issued" && (p.centreId === "c-and" || p.centreId === "c-pow"));
+    const mine = s.purchaseOrders.filter((p) => p.status === "issued" && (p.centreId === "c-bnr" || p.centreId === "c-wkd"));
     expect(mine.filter((p) => off(p.expectedAt) === 0).length).toBeGreaterThan(0);
     expect(mine.filter((p) => off(p.expectedAt) < 0).length).toBeGreaterThan(0);
     expect(s.purchaseOrders.some((p) => p.status === "awaiting_authorisation")).toBe(true);

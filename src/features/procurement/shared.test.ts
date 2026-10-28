@@ -4,7 +4,7 @@ import { poActions, poSteps, poTotals, referencePrice } from "./shared";
 
 const ceo: Actor = { userId: "u-ceo", role: "ceo", scope: "all" };
 const buyer: Actor = { userId: "u-po", role: "purchasing", scope: "all" };
-const awaiting = { status: "awaiting_authorisation" as const, centreId: "c-and", raisedBy: "u-po" };
+const awaiting = { status: "awaiting_authorisation" as const, centreId: "c-bnr", raisedBy: "u-po" };
 
 describe("raisePO totals", () => {
   it("total is Σ quantity × unit price and variance is against the contract price", () => {

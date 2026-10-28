@@ -22,25 +22,25 @@ beforeEach(() => { h.store = buildSeed(); signIn("u-cl", "centre_leader"); });
 
 describe("request actions", () => {
   it("submits a new request: request, priced items, pending Head Office approval and audit", async () => {
-    const res = await submitRequest({ centreId: "c-and", period: nextPeriod(), items: lines }, "For the art week");
-    expect(res).toMatchObject({ ok: true, data: { id: `rq-AND-${nextPeriod()}` } });
-    const r = h.store.requests.find((x) => x.id === `rq-AND-${nextPeriod()}`)!;
+    const res = await submitRequest({ centreId: "c-bnr", period: nextPeriod(), items: lines }, "For the art week");
+    expect(res).toMatchObject({ ok: true, data: { id: `rq-BNR-${nextPeriod()}` } });
+    const r = h.store.requests.find((x) => x.id === `rq-BNR-${nextPeriod()}`)!;
     const items = h.store.requestItems.filter((i) => i.requestId === r.id);
     expect(r).toMatchObject({ status: "submitted", priority: "routine", submittedBy: "u-cl", total: 20 * 180_00 + 10 * 150_00 });
     expect(items.map((i) => i.unitCost)).toEqual([180_00, 150_00]);
     expect(h.store.approvals.at(-1)).toMatchObject({ subjectId: r.id, status: "pending", stage: "head_office", critical: false, amount: r.total });
-    expect(h.store.audit[0]).toMatchObject({ action: "submitted", actorId: "u-cl", centreId: "c-and" });
-    expect(h.store.audit[0]!.subject).toMatch(/\(rq-AND-.*\) — For the art week$/);
+    expect(h.store.audit[0]).toMatchObject({ action: "submitted", actorId: "u-cl", centreId: "c-bnr" });
+    expect(h.store.audit[0]!.subject).toMatch(/\(rq-BNR-.*\) — For the art week$/);
   });
 
   it("blocks a second routine request for the same centre and month", async () => {
-    expect(await saveDraftRequest({ centreId: "c-and", period: period(h.store.today), items: lines })).toMatchObject({ ok: false, code: "conflict" });
+    expect(await saveDraftRequest({ centreId: "c-bnr", period: period(h.store.today), items: lines })).toMatchObject({ ok: false, code: "conflict" });
   });
 
   it("keeps a centre leader inside their own centre", async () => {
     expect(await saveDraftRequest({ centreId: "c-kor", period: nextPeriod(), items: lines })).toMatchObject({ ok: false, code: "forbidden" });
     signIn("u-ho", "head_office");
-    expect(await saveDraftRequest({ centreId: "c-and", period: nextPeriod(), items: lines })).toMatchObject({ ok: false, code: "forbidden" });
+    expect(await saveDraftRequest({ centreId: "c-bnr", period: nextPeriod(), items: lines })).toMatchObject({ ok: false, code: "forbidden" });
   });
 
   it("edits and resubmits a request returned for revision, opening a new approval round", async () => {
@@ -57,17 +57,17 @@ describe("request actions", () => {
   });
 
   it("refuses to edit a submitted request", async () => {
-    const r = h.store.requests.find((x) => x.status === "submitted" && x.centreId === "c-and" && x.priority === "routine")!;
+    const r = h.store.requests.find((x) => x.status === "submitted" && x.centreId === "c-bnr" && x.priority === "routine")!;
     expect(await saveDraftRequest({ requestId: r.id, centreId: r.centreId, period: r.period, items: lines })).toMatchObject({ ok: false, code: "invalid_transition" });
   });
 
   it("raises an emergency with a critical final-stage approval and keeps the reason", async () => {
-    const res = await raiseEmergency({ centreId: "c-and", reason: "Hand wash ran out", items: [{ productId: "p-10", proposedQty: 4 }] });
+    const res = await raiseEmergency({ centreId: "c-bnr", reason: "Hand wash ran out", items: [{ productId: "p-10", proposedQty: 4 }] });
     expect(res.ok).toBe(true);
     const r = h.store.requests.find((x) => x.id === (res.ok && res.data!.id))!;
     expect(r).toMatchObject({ priority: "emergency", status: "submitted", total: 4 * 620_00 });
     expect(h.store.approvals.at(-1)).toMatchObject({ subjectId: r.id, critical: true, stage: "final", status: "pending" });
     expect(h.store.audit[0]!.subject).toMatch(/— Hand wash ran out$/);
-    expect(await raiseEmergency({ centreId: "c-and", reason: "", items: [{ productId: "p-10", proposedQty: 4 }] })).toMatchObject({ ok: false, code: "validation" });
+    expect(await raiseEmergency({ centreId: "c-bnr", reason: "", items: [{ productId: "p-10", proposedQty: 4 }] })).toMatchObject({ ok: false, code: "validation" });
   });
 });

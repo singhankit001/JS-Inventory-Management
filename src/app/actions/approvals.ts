@@ -11,7 +11,7 @@ import { period as periodOf } from "@/lib/data/seed";
 
 const centreName = (s: SeedData, id?: string) => s.centres.find((c) => c.id === id)?.name ?? "All centres";
 
-/** "Monthly request · Andheri West · Oct 2026 (rq-…)" — the request id lets the request page find its history. */
+/** "Monthly request · Baner · Oct 2026 (rq-…)" — the request id lets the request page find its history. */
 function auditSubject(s: SeedData, a: Approval) {
   const r = s.requests.find((x) => x.id === a.subjectId);
   if (a.subjectType === "monthly_request" && r) return `${requestKind(r)} · ${centreName(s, r.centreId)} · ${periodLabel(r.period)} (${r.id})`;

@@ -79,23 +79,20 @@ export function buildSeed(now = new Date()): SeedData {
   const thisPeriod = period(today);
 
   // ---- Master data ----
+  // Names and cities of the centres listed on jumpstartpreschool.in. Enrolment, budgets and every operational figure below are simulated.
   const centreSpec: [string, string, string, string, number][] = [
     // id, code, name, city, enrolled children (drives consumption and budget)
-    ["c-and", "AND", "Andheri West", "Mumbai", 210],
-    ["c-pow", "POW", "Powai Lakeside", "Mumbai", 175],
+    ["c-bnr", "BNR", "Baner", "Pune", 210],
+    ["c-wkd", "WKD", "Wakad", "Pune", 175],
     ["c-kor", "KOR", "Koramangala", "Bengaluru", 190],
-    ["c-whf", "WHF", "Whitefield", "Bengaluru", 150],
-    ["c-ban", "BAN", "Banjara Hills", "Hyderabad", 165],
-    ["c-bdr", "BDR", "Bandra West", "Mumbai", 140],
-    ["c-thn", "THN", "Thane West", "Mumbai", 185],
-    ["c-hsr", "HSR", "HSR Layout", "Bengaluru", 160],
-    ["c-ind", "IND", "Indiranagar", "Bengaluru", 130],
-    ["c-gcb", "GCB", "Gachibowli", "Hyderabad", 170],
-    ["c-kln", "KLN", "Kalyani Nagar", "Pune", 125],
-    ["c-bnr", "BNR", "Baner", "Pune", 145],
-    ["c-ggn", "GGN", "Gurugram Sector 57", "Delhi NCR", 200],
-    ["c-nda", "NDA", "Noida Sector 50", "Delhi NCR", 155],
-    ["c-ann", "ANN", "Anna Nagar", "Chennai", 135],
+    ["c-hjw", "HJW", "Hinjewadi", "Pune", 150],
+    ["c-vmn", "VMN", "Viman Nagar", "Pune", 165],
+    ["c-krv", "KRV", "Karve Road", "Pune", 140],
+    ["c-mgp", "MGP", "Magarpatta", "Pune", 185],
+    ["c-pms", "PMS", "Pimple Saudagar", "Pune", 160],
+    ["c-nyc", "NYC", "Nyati County", "Pune", 130],
+    ["c-bbw", "BBW", "Bibwewadi", "Pune", 170],
+    ["c-khr", "KHR", "Kharadi", "Pune", 125],
   ];
 
   const categories: ProductCategory[] = [
@@ -152,34 +149,30 @@ export function buildSeed(now = new Date()): SeedData {
 
   const leaderSpec: [string, string, string, string, number][] = [
     // centre, id, name, email, last active (days ago)
-    ["c-pow", "u-cl-pow", "Ishita Menon", "powai@demo.jumpstart.local", 0],
-    ["c-whf", "u-cl-whf", "Karthik Rao", "whitefield@demo.jumpstart.local", 1],
-    ["c-ban", "u-cl-ban", "Sana Qureshi", "banjarahills@demo.jumpstart.local", 0],
-    ["c-bdr", "u-cl-bdr", "Fatima Sheikh", "bandra@demo.jumpstart.local", 2],
-    ["c-thn", "u-cl-thn", "Pranav Kulkarni", "thane@demo.jumpstart.local", 0],
-    ["c-hsr", "u-cl-hsr", "Divya Shetty", "hsrlayout@demo.jumpstart.local", 3],
-    ["c-ind", "u-cl-ind", "Nikhil Bhat", "indiranagar@demo.jumpstart.local", 1],
-    ["c-gcb", "u-cl-gcb", "Lakshmi Reddy", "gachibowli@demo.jumpstart.local", 9],
-    ["c-kln", "u-cl-kln", "Aditi Deshpande", "kalyaninagar@demo.jumpstart.local", 0],
-    ["c-bnr", "u-cl-bnr", "Siddharth Joshi", "baner@demo.jumpstart.local", 1],
-    ["c-ggn", "u-cl-ggn", "Simran Kaur", "gurugram@demo.jumpstart.local", 4],
-    ["c-nda", "u-cl-nda", "Rahul Verma", "noida@demo.jumpstart.local", 0],
-    ["c-ann", "u-cl-ann", "Priya Raghavan", "annanagar@demo.jumpstart.local", 12],
+    ["c-wkd", "u-cl-wkd", "Ishita Menon", "wakad@demo.jumpstart.local", 0],
+    ["c-hjw", "u-cl-hjw", "Karthik Rao", "hinjewadi@demo.jumpstart.local", 1],
+    ["c-vmn", "u-cl-vmn", "Sana Qureshi", "vimannagar@demo.jumpstart.local", 0],
+    ["c-krv", "u-cl-krv", "Fatima Sheikh", "karveroad@demo.jumpstart.local", 2],
+    ["c-mgp", "u-cl-mgp", "Pranav Kulkarni", "magarpatta@demo.jumpstart.local", 0],
+    ["c-pms", "u-cl-pms", "Divya Shetty", "pimplesaudagar@demo.jumpstart.local", 3],
+    ["c-nyc", "u-cl-nyc", "Nikhil Bhat", "nyaticounty@demo.jumpstart.local", 1],
+    ["c-bbw", "u-cl-bbw", "Lakshmi Reddy", "bibwewadi@demo.jumpstart.local", 9],
+    ["c-khr", "u-cl-khr", "Aditi Deshpande", "kharadi@demo.jumpstart.local", 0],
   ];
   const users: User[] = [
     { id: "u-ceo", name: "Aarav Kapoor", email: "ceo@demo.jumpstart.local", roles: ["ceo"], centreIds: [], status: "active", lastActiveAt: day(0, 9) },
     { id: "u-ho", name: "Meera Iyer", email: "headoffice@demo.jumpstart.local", roles: ["head_office", "finance"], centreIds: [], status: "active", lastActiveAt: day(0, 9) },
-    { id: "u-cl", name: "Kavya Nair", email: "andheri@demo.jumpstart.local", roles: ["centre_leader"], centreIds: ["c-and"], status: "active", lastActiveAt: day(0, 8) },
+    { id: "u-cl", name: "Kavya Nair", email: "baner@demo.jumpstart.local", roles: ["centre_leader"], centreIds: ["c-bnr"], status: "active", lastActiveAt: day(0, 8) },
     { id: "u-cl2", name: "Rohan Desai", email: "koramangala@demo.jumpstart.local", roles: ["centre_leader"], centreIds: ["c-kor"], status: "active", lastActiveAt: day(-1, 17) },
     { id: "u-po", name: "Vikram Shah", email: "purchasing@demo.jumpstart.local", roles: ["purchasing"], centreIds: [], status: "active", lastActiveAt: day(0, 10) },
     { id: "u-fin", name: "Anjali Rao", email: "finance@demo.jumpstart.local", roles: ["finance"], centreIds: [], status: "active", lastActiveAt: day(0, 11) },
-    { id: "u-rcv", name: "Suresh Pillai", email: "receiving@demo.jumpstart.local", roles: ["receiving"], centreIds: ["c-and", "c-pow"], status: "active", lastActiveAt: day(0, 7) },
+    { id: "u-rcv", name: "Suresh Pillai", email: "receiving@demo.jumpstart.local", roles: ["receiving"], centreIds: ["c-bnr", "c-wkd"], status: "active", lastActiveAt: day(0, 7) },
     { id: "u-adm", name: "Neha Joshi", email: "admin@demo.jumpstart.local", roles: ["admin"], centreIds: [], status: "active", lastActiveAt: day(0, 12) },
-    { id: "u-old", name: "Former Staff", email: "former@demo.jumpstart.local", roles: ["receiving"], centreIds: ["c-ban"], status: "suspended", lastActiveAt: day(-60) },
+    { id: "u-old", name: "Former Staff", email: "former@demo.jumpstart.local", roles: ["receiving"], centreIds: ["c-vmn"], status: "suspended", lastActiveAt: day(-60) },
     ...leaderSpec.map(([centreId, id, name, email, ago]): User => ({ id, name, email, roles: ["centre_leader"], centreIds: [centreId], status: "active", lastActiveAt: day(-ago, int(8, 18)) })),
   ];
-  const leaderOf = new Map<string, string>([["c-and", "u-cl"], ["c-kor", "u-cl2"], ...leaderSpec.map(([c, id]) => [c, id] as [string, string])]);
-  const receiverOf = (centreId: string) => (centreId === "c-and" || centreId === "c-pow" ? "u-rcv" : leaderOf.get(centreId)!);
+  const leaderOf = new Map<string, string>([["c-bnr", "u-cl"], ["c-kor", "u-cl2"], ...leaderSpec.map(([c, id]) => [c, id] as [string, string])]);
+  const receiverOf = (centreId: string) => (centreId === "c-bnr" || centreId === "c-wkd" ? "u-rcv" : leaderOf.get(centreId)!);
 
   const suppliers: Supplier[] = [
     { id: "s-1", name: "Crayonworks Educational Supplies", categoryIds: ["cat-art", "cat-sta"], status: "approved", onTimeRate: 0.94, qualityScore: 0.92, avgLeadDays: 4 },
@@ -243,9 +236,9 @@ export function buildSeed(now = new Date()): SeedData {
 
   // Scripted situations so the demo accounts always have something to do today (receiving user covers AND + POW).
   const scripts: Script[] = [
-    { centreId: "c-pow", supplierId: "s-2", off: -8, delay: 9 }, // expected two days ago, still not here → overdue
-    { centreId: "c-and", supplierId: "s-4", off: -6, delay: 0, short: true, followUp: 2 }, // arrived short, balance due in two days
-    { centreId: "c-and", supplierId: "s-3", off: -4 }, // due later this week
+    { centreId: "c-wkd", supplierId: "s-2", off: -8, delay: 9 }, // expected two days ago, still not here → overdue
+    { centreId: "c-bnr", supplierId: "s-4", off: -6, delay: 0, short: true, followUp: 2 }, // arrived short, balance due in two days
+    { centreId: "c-bnr", supplierId: "s-3", off: -4 }, // due later this week
     { centreId: "c-kor", supplierId: "s-1", off: 0, hold: true }, // raised today, awaiting authorisation
   ];
 
@@ -494,9 +487,9 @@ export function buildSeed(now = new Date()): SeedData {
     requestItems.push(...items);
     requests.push({ id, centreId, period: thisPeriod, status, priority: "emergency", source, submittedBy: leaderOf.get(centreId)!, submittedAt: day(off, hour), total: sum(items, (i) => i.proposedQty * i.unitCost) });
   };
-  emergency("c-and", "AND", "submitted", "video", 0, 9, [["p-10", 12], ["p-19", 4], ["p-21", 8]]);
-  emergency("c-ban", "BAN", "approved", "form", -2, 11, [["p-11", 8], ["p-13", 30]]);
-  emergency("c-hsr", "HSR", "submitted", "audio", -1, 15, [["p-12", 40], ["p-20", 6]]);
+  emergency("c-bnr", "BNR", "submitted", "video", 0, 9, [["p-10", 12], ["p-19", 4], ["p-21", 8]]);
+  emergency("c-vmn", "VMN", "approved", "form", -2, 11, [["p-11", 8], ["p-13", 30]]);
+  emergency("c-pms", "PMS", "submitted", "audio", -1, 15, [["p-12", 40], ["p-20", 6]]);
 
   // ---- Balances ----
   const lastMove = new Map<string, string>();
@@ -595,16 +588,16 @@ export function buildSeed(now = new Date()): SeedData {
   const centreName = new Map(centres.map((c) => [c.id, c.name]));
   const supplierName = (id: string) => smap.get(id)?.name ?? id;
   const issued = sims.filter((s) => s.po.status === "issued");
-  const rcvToday = issued.filter((s) => s.expectedOff === 0 && (s.po.centreId === "c-and" || s.po.centreId === "c-pow"));
-  const rcvOverdue = issued.filter((s) => s.expectedOff < 0 && (s.po.centreId === "c-and" || s.po.centreId === "c-pow"));
+  const rcvToday = issued.filter((s) => s.expectedOff === 0 && (s.po.centreId === "c-bnr" || s.po.centreId === "c-wkd"));
+  const rcvOverdue = issued.filter((s) => s.expectedOff < 0 && (s.po.centreId === "c-bnr" || s.po.centreId === "c-wkd"));
   const awaiting = sims.filter((s) => s.po.status === "awaiting_authorisation");
   const queries = invoices.filter((i) => i.status === "query");
-  const andCritical = products.filter((p) => get(stock, k("c-and", p.id)) <= Math.floor(p.reorderPoint / 2));
+  const andCritical = products.filter((p) => get(stock, k("c-bnr", p.id)) <= Math.floor(p.reorderPoint / 2));
   const overBudget = centres.filter((c) => { const b = budgets.find((x) => x.centreId === c.id && x.period === thisPeriod)!; return b.spent + b.committed > b.allocated; });
   const readyToOrder = requests.filter((r) => r.status === "approved");
   const allUsers = users.map((u) => u.id);
   const notifications: Notification[] = [
-    { id: "n1", userId: "*", title: "Emergency request from Andheri West", body: "Hand wash and first-aid refills — video request awaiting review.", href: "/dashboards/head-office", createdAt: day(0, 9), read: false, readBy: [], severity: "critical" },
+    { id: "n1", userId: "*", title: "Emergency request from Baner", body: "Hand wash and first-aid refills — video request awaiting review.", href: "/dashboards/head-office", createdAt: day(0, 9), read: false, readBy: [], severity: "critical" },
     { id: "n2", userId: "*", title: "Closing count due", body: "Monthly closing stock counts are due on the last working day.", createdAt: day(-1, 16), read: false, readBy: [], severity: "warning" },
     ...(awaiting[0] ? [{ id: "n3", userId: "*", title: `${awaiting[0].po.number} awaiting authorisation`, body: `${awaiting.length} purchase order${awaiting.length === 1 ? "" : "s"} need final authorisation before they can be issued.`, href: "/dashboards/head-office", createdAt: awaiting[0].po.createdAt, read: false, readBy: allUsers, severity: "info" as const }] : []),
     ...(rcvToday.length ? [{ id: "n4", userId: "u-rcv", title: `${rcvToday.length} deliver${rcvToday.length === 1 ? "y" : "ies"} expected today`, body: rcvToday.map((s) => `${s.po.number} · ${supplierName(s.po.supplierId)}`).join(", "), href: "/dashboards/receiving", createdAt: day(0, 7), read: false, readBy: [], severity: "info" as const }] : []),
@@ -640,15 +633,15 @@ export function buildSeed(now = new Date()): SeedData {
       return { actorId: "u-fin", action: "recorded payment", subject: `${inv.number} · ${supplierName(inv.supplierId)}`, centreId: inv.centreId, occurredAt: p.paidAt };
     }),
     { actorId: "u-adm", action: "changed role", subject: "Rohan Desai → Centre Leader", occurredAt: day(-3, 12) },
-    { actorId: "u-adm", action: "invited user", subject: "Priya Raghavan · Anna Nagar", occurredAt: day(-11, 15) },
-    { actorId: "u-adm", action: "suspended user", subject: "Former Staff · Banjara Hills", occurredAt: day(-13, 10) },
+    { actorId: "u-adm", action: "invited user", subject: "Aditi Deshpande · Kharadi", occurredAt: day(-11, 15) },
+    { actorId: "u-adm", action: "suspended user", subject: "Former Staff · Viman Nagar", occurredAt: day(-13, 10) },
   ];
   const audit: AuditEvent[] = events.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)).map((e, i) => ({ id: `ae-${i + 1}`, ...e }));
 
   const aiJobs: AIProcessingJob[] = [
-    { id: "ai-1", kind: "video_request", centreId: "c-and", status: "needs_review", createdAt: day(0, 9) },
+    { id: "ai-1", kind: "video_request", centreId: "c-bnr", status: "needs_review", createdAt: day(0, 9) },
     { id: "ai-2", kind: "audio_request", centreId: "c-kor", status: "completed", createdAt: day(submittedOff(), 11) },
-    { id: "ai-3", kind: "audio_request", centreId: "c-hsr", status: "processing", createdAt: day(-1, 15) },
+    { id: "ai-3", kind: "audio_request", centreId: "c-pms", status: "processing", createdAt: day(-1, 15) },
     ...invoices.slice(-4).map((inv, i): AIProcessingJob => ({ id: `ai-${4 + i}`, kind: "invoice_ocr", centreId: inv.centreId, status: i === 0 ? "failed" : "completed", createdAt: day(Math.min(0, draftInvoices.at(-4 + i)!.invOff), 16) })),
     { id: "ai-8", kind: "insight", status: "queued", createdAt: day(0, 6) },
   ];

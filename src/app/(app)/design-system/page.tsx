@@ -175,7 +175,7 @@ export default async function DesignSystemPage() {
               <div><Eyebrow className="mb-2">Gauge</Eyebrow><Gauge value={0.88} target={0.92} label="Sample on-time delivery" caption="Target 92%" /></div>
               <div className="grid content-start gap-5">
                 <div><Eyebrow className="mb-3">CategoryDistribution</Eyebrow><CategoryDistribution label="Sample stock value by category" segments={[{ label: "Art & craft", value: 42, tone: "blue" }, { label: "Hygiene", value: 28, tone: "green" }, { label: "Play", value: 18, tone: "violet" }, { label: "Safety", value: 12, tone: "slate" }]} /></div>
-                <div><Eyebrow className="mb-3">ComparisonBars</Eyebrow><ComparisonBars label="Sample spend by centre" rows={[{ label: "Andheri West", value: 82, display: "₹82k", tone: "blue", marker: 90 }, { label: "Powai Lakeside", value: 64, display: "₹64k", tone: "blue", marker: 60 }, { label: "Koramangala", value: 41, display: "₹41k", tone: "blue", marker: 55 }]} /></div>
+                <div><Eyebrow className="mb-3">ComparisonBars</Eyebrow><ComparisonBars label="Sample spend by centre" rows={[{ label: "Baner", value: 82, display: "₹82k", tone: "blue", marker: 90 }, { label: "Wakad", value: 64, display: "₹64k", tone: "blue", marker: 60 }, { label: "Koramangala", value: 41, display: "₹41k", tone: "blue", marker: 55 }]} /></div>
               </div>
             </div>
           </Replay>
@@ -190,7 +190,7 @@ export default async function DesignSystemPage() {
             ]} />
             <div className="mt-5">
               <ActivityTimeline items={[
-                { id: "a", actor: "Priya Shah", action: "approved", subject: "Monthly request · Banjara Hills", at: "2 hours ago", tone: "green" },
+                { id: "a", actor: "Priya Shah", action: "approved", subject: "Monthly request · Viman Nagar", at: "2 hours ago", tone: "green" },
                 { id: "b", actor: "Arjun Mehta", action: "issued", subject: "PO-2400 · Crayonworks", at: "yesterday", tone: "blue" },
                 { id: "c", actor: "Neha Iyer", action: "raised query", subject: "INV-8801 · price mismatch", at: "2 days ago" },
               ]} />

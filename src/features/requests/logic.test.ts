@@ -63,14 +63,14 @@ describe("loaders on the seed", async () => {
   it("lists this month's request for every centre and loads each detail", async () => {
     const repo = seedRepository("all");
     const list = await loadMonthlyRequests(repo);
-    expect(list.rows.length).toBeGreaterThanOrEqual(15);
+    expect(list.rows.length).toBeGreaterThanOrEqual((await repo.centres()).length);
     for (const row of list.rows) expect(await loadRequestDetail(repo, row.id)).not.toBeNull();
   });
   it("hides other centres' requests from a centre-scoped repository", async () => {
-    const repo = seedRepository(["c-and"]);
-    expect((await loadMonthlyRequests(repo, "all")).rows.every((r) => r.centre === "Andheri West")).toBe(true);
-    expect(await loadRequestDetail(seedRepository("all"), "rq-HSR-em1")).not.toBeNull();
-    expect(await loadRequestDetail(repo, "rq-HSR-em1")).toBeNull();
+    const repo = seedRepository(["c-bnr"]);
+    expect((await loadMonthlyRequests(repo, "all")).rows.every((r) => r.centre === "Baner")).toBe(true);
+    expect(await loadRequestDetail(seedRepository("all"), "rq-PMS-em1")).not.toBeNull();
+    expect(await loadRequestDetail(repo, "rq-PMS-em1")).toBeNull();
   });
 });
 
@@ -108,7 +108,7 @@ describe("approval detail on the seed", async () => {
 describe("create request loader", async () => {
   const { seedRepository } = await import("@/lib/data/provider");
   const { loadNewRequest } = await import("./new");
-  const repo = seedRepository(["c-and"]);
+  const repo = seedRepository(["c-bnr"]);
   it("defaults to the first month without a request and blocks duplicates with a way out", async () => {
     const d = await loadNewRequest(repo, {});
     expect(d.kind).toBe("form");
@@ -147,7 +147,7 @@ describe("exceptions loader", async () => {
     const d = await loadExceptions(seedRepository("all"), new Date(Date.now() + 3 * 86_400_000));
     expect(d.groups.reduce((s, g) => s + g.items.length, 0)).toBe(d.total);
     expect(d.groups[0]!.items.some((x) => x.kind === "Emergency")).toBe(true);
-    const scoped = await loadExceptions(seedRepository(["c-and"]));
+    const scoped = await loadExceptions(seedRepository(["c-bnr"]));
     expect(scoped.groups.flatMap((g) => g.items).every((x) => !x.title.includes("Koramangala"))).toBe(true);
   });
 });

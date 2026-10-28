@@ -78,12 +78,12 @@ describe("decideApproval", () => {
 describe("setBudget", () => {
   it("changes this month's allocation with an audit entry, Head Office only", async () => {
     const now = period(h.store.today);
-    const b = h.store.budgets.find((x) => x.centreId === "c-and" && x.period === now)!;
-    expect(await setBudget({ centreId: "c-and", period: now, allocated: 90_000_00 })).toMatchObject({ ok: true });
+    const b = h.store.budgets.find((x) => x.centreId === "c-bnr" && x.period === now)!;
+    expect(await setBudget({ centreId: "c-bnr", period: now, allocated: 90_000_00 })).toMatchObject({ ok: true });
     expect(b.allocated).toBe(90_000_00);
-    expect(h.store.audit[0]).toMatchObject({ action: "changed budget", centreId: "c-and" });
+    expect(h.store.audit[0]).toMatchObject({ action: "changed budget", centreId: "c-bnr" });
     signIn("u-ceo", "ceo");
-    expect(await setBudget({ centreId: "c-and", period: now, allocated: 1 })).toMatchObject({ ok: false, code: "forbidden" });
+    expect(await setBudget({ centreId: "c-bnr", period: now, allocated: 1 })).toMatchObject({ ok: false, code: "forbidden" });
   });
   it("creates next month's record but refuses past months and zero", async () => {
     const next = period(new Date(h.store.today.getFullYear(), h.store.today.getMonth() + 1, 1));
