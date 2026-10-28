@@ -10,6 +10,8 @@ import { EmptyState, ErrorState, PermissionDenied, Skeleton } from "@/components
 import { AnimatedNumber } from "@/components/charts/animated-number";
 import { CategoryDistribution, ComparisonBars, Gauge, ProgressRing, Sparkline, TrendIndicator } from "@/components/charts/svg";
 import { ButtonDemo, DialogDemo, FormDemo, Replay, SegmentedDemo } from "@/components/design-system/demos";
+import { WorkflowStepper } from "@/components/ui/stepper";
+import { ModulePageHeader } from "@/components/shell/module-header";
 import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = { title: "Design system" };
@@ -36,7 +38,7 @@ const motion: [string, string][] = [
 ];
 const tones: Tone[] = ["neutral", "blue", "green", "orange", "amber", "red", "violet", "slate"];
 
-const sections = [["tokens", "Colour"], ["type", "Type"], ["shape", "Shape"], ["motion", "Motion"], ["actions", "Actions"], ["badges", "Badges"], ["kpis", "KPI cards"], ["charts", "Charts"], ["lists", "Lists"], ["states", "States"], ["forms", "Forms"], ["overlays", "Overlays"]] as const;
+const sections = [["tokens", "Colour"], ["type", "Type"], ["shape", "Shape"], ["motion", "Motion"], ["actions", "Actions"], ["badges", "Badges"], ["workflow", "Workflow & headers"], ["kpis", "KPI cards"], ["charts", "Charts"], ["lists", "Lists"], ["states", "States"], ["forms", "Forms"], ["overlays", "Overlays"]] as const;
 
 function Section({ id, title, subtitle, children, className }: { id: string; title: string; subtitle?: string; children: React.ReactNode; className?: string }) {
   return (
@@ -48,7 +50,7 @@ function Section({ id, title, subtitle, children, className }: { id: string; tit
 }
 
 export default async function DesignSystemPage() {
-  await requirePermission("dashboard.admin");
+  const session = await requirePermission("dashboard.admin");
   return (
     <>
       <PageHeader crumbs={[{ label: "Jumpstart", href: "/" }, { label: "Governance", href: "/modules/governance" }, { label: "Design system" }]} title="Design system"
@@ -130,6 +132,25 @@ export default async function DesignSystemPage() {
             <div className="mt-3"><StatusCard label="Email notifications" status="Not configured" tone="amber" detail="StatusCard" /></div>
           </Section>
         </div>
+
+        <Section id="workflow" title="WorkflowStepper & ModulePageHeader" subtitle="Progress for requests, approvals, POs, invoices and AI jobs · sample values">
+          <div className="grid gap-6">
+            <div><Eyebrow className="mb-3">In progress</Eyebrow><WorkflowStepper label="Sample request progress" steps={[
+              { label: "Submitted", state: "done", at: "22 Oct" }, { label: "Head Office review", state: "done", at: "23 Oct" },
+              { label: "Purchase order", state: "current", detail: "Awaiting authorisation" }, { label: "Received", state: "upcoming" }, { label: "Invoice matched", state: "upcoming" },
+            ]} /></div>
+            <div><Eyebrow className="mb-3">Blocked</Eyebrow><WorkflowStepper label="Sample AI job progress" steps={[
+              { label: "Queued", state: "done" }, { label: "Processing", state: "blocked", detail: "Failed — needs a retry" }, { label: "Needs review", state: "upcoming" }, { label: "Completed", state: "upcoming" },
+            ]} /></div>
+            <div>
+              <Eyebrow className="mb-3">ModulePageHeader · breadcrumbs, title, description, module sub-nav, aside</Eyebrow>
+              {/* inert: a specimen, so its h1 and links stay out of the page's outline and tab order */}
+              <div inert className="rounded-tile border border-dashed border-line-strong p-4 sm:p-5 [&>header]:mb-0">
+                <ModulePageHeader role={session.role} module="admin" active="users" title="Centres & users" description="Who can sign in, what they can do and which centres they see." aside={<StatusBadge tone="green" dot>Sample aside</StatusBadge>} />
+              </div>
+            </div>
+          </div>
+        </Section>
 
         <Section id="kpis" title="KPI cards" subtitle="One primary and one secondary per row, the rest plain · sample values">
           <Replay label="KPI">
