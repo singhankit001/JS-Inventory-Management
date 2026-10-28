@@ -73,3 +73,15 @@ describe("loaders on the seed", async () => {
     expect(await loadRequestDetail(repo, "rq-HSR-em1")).toBeNull();
   });
 });
+
+describe("approval queue on the seed", async () => {
+  const { seedRepository } = await import("@/lib/data/provider");
+  const { loadApprovalQueue } = await import("@/features/approvals/queue");
+  it("puts critical approvals first and only pending ones in the pending view", async () => {
+    const q = await loadApprovalQueue(seedRepository("all"), "pending");
+    expect(q.rows.length).toBe(q.totals.pending);
+    expect(q.rows.every((r) => r.status.label === "Pending")).toBe(true);
+    const firstStandard = q.rows.findIndex((r) => r.priority.label === "Standard");
+    expect(q.rows.slice(firstStandard).some((r) => r.priority.label === "Critical")).toBe(false);
+  });
+});
