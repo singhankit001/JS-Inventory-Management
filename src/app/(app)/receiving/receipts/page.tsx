@@ -61,7 +61,7 @@ export default async function ReceiptsPage({ searchParams }: { searchParams: Pro
       )}
       {sp.record && (
         <UrlDrawer param="record" dialog wide title="Record goods receipt" description={d.picked ? `${d.picked} is first in the list — choose it to count its lines.` : "Count what arrived against the purchase order."}>
-          {d.options ? <ReceiveForm options={d.options} /> : <EmptyState title="Recording needs the receiving.record permission" className="py-8" />}
+          {d.options ? <ReceiveForm options={d.options} initialPoId={sp.record} /> : <EmptyState title="Recording needs the receiving.record permission" className="py-8" />}
         </UrlDrawer>
       )}
     </>

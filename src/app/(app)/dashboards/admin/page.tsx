@@ -74,7 +74,7 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
 
       <div className="stagger mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Card aria-label="Catalogue health">
-          <CardHeader icon={Library} title="Catalogue health" subtitle="Active products per category" action={<Link className={buttonClass("ghost", "sm")} href="/modules/inventory#catalogue">Catalogue ›</Link>} />
+          <CardHeader icon={Library} title="Catalogue health" subtitle="Active products per category" action={<Link className={buttonClass("ghost", "sm")} href="/inventory/catalogue">Catalogue ›</Link>} />
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
             <ProgressRing value={d.catalogue.ratio} size={96} stroke={8} tone="green" label="Products active">
               <span className="grid text-center leading-tight"><span className="text-title font-medium">{Math.round(d.catalogue.ratio * 100)}%</span><span className="text-[10.5px] font-normal text-ink-3">active</span></span>

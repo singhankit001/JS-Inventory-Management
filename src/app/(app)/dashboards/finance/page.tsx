@@ -54,8 +54,8 @@ export default async function FinanceDashboard({ searchParams }: { searchParams:
           dateLabel={dateEyebrow(today)}
           greeting={`${greeting()}, ${firstName(session.user.name)}.`}
           actions={<>
-            <Link href="/modules/finance#invoices" className={buttonClass("primary", "sm")}><FileCheck2 />Invoices</Link>
-            <Link href="/modules/finance#payments" className={buttonClass("secondary", "sm")}><Banknote />Payments</Link>
+            <Link href="/finance/invoices" className={buttonClass("primary", "sm")}><FileCheck2 />Invoices</Link>
+            <Link href="/finance/payments" className={buttonClass("secondary", "sm")}><Banknote />Payments</Link>
           </>}
           footer={
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -73,7 +73,7 @@ export default async function FinanceDashboard({ searchParams }: { searchParams:
         </WelcomeCard>
 
         <Card aria-label="Payables ageing">
-          <CardHeader icon={Hourglass} title="Payables ageing" action={<Link href="/modules/finance#reconciliation" className={buttonClass("secondary", "sm")}>Reconcile ›</Link>} />
+          <CardHeader icon={Hourglass} title="Payables ageing" action={<Link href="/finance/payments" className={buttonClass("secondary", "sm")}>Reconcile ›</Link>} />
           <div className="flex flex-wrap items-baseline gap-2.5">
             <span className="text-metric-lg font-medium tracking-[-0.03em]"><AnimatedNumber value={d.kpis.outstanding} format="moneyCompact" /></span>
             <StatusBadge tone={d.kpis.overdue ? "orange" : "green"}>{d.kpis.overdue ? `${d.kpis.overdueCount} overdue` : "Nothing overdue"}</StatusBadge>
@@ -86,7 +86,7 @@ export default async function FinanceDashboard({ searchParams }: { searchParams:
       <MetricGrid className="mt-4">
         <KpiCard variant="primary" icon={Wallet} label="Payables outstanding" value={<AnimatedNumber value={d.kpis.outstanding} format="moneyCompact" />}
           footnote={<span>{d.kpis.openCount} unpaid invoices</span>} />
-        <KpiCard variant="secondary" icon={TriangleAlert} label="Overdue" value={<AnimatedNumber value={d.kpis.overdue} format="moneyCompact" />} href="/modules/finance#invoices"
+        <KpiCard variant="secondary" icon={TriangleAlert} label="Overdue" value={<AnimatedNumber value={d.kpis.overdue} format="moneyCompact" />} href="/finance/invoices"
           footnote={<span>{d.kpis.overdueCount} invoice{d.kpis.overdueCount === 1 ? "" : "s"} past due</span>} />
         <KpiCard icon={Banknote} label="Paid this month" value={<AnimatedNumber value={d.kpis.paidMonth} format="moneyCompact" />} spark={d.kpis.paidSpark} sparkTone="green"
           footnote={<TrendIndicator direction={d.kpis.paidChange >= 0 ? "up" : "down"}>{percent(Math.abs(d.kpis.paidChange))} vs last month (month to date)</TrendIndicator>} />
@@ -103,7 +103,7 @@ export default async function FinanceDashboard({ searchParams }: { searchParams:
             ]} />
         </WidgetBoundary>
         <Card aria-label="Recent payments">
-          <CardHeader icon={BadgeCheck} title="Recent payments" action={<Link href="/modules/finance#payments" className={buttonClass("ghost", "sm")}>All ›</Link>} />
+          <CardHeader icon={BadgeCheck} title="Recent payments" action={<Link href="/finance/payments" className={buttonClass("ghost", "sm")}>All ›</Link>} />
           <DataList rows={d.recentPayments} empty="No payments recorded" label="Recent payments" />
           {canManage && <div className="mt-4"><PlannedAction label="Record payment" icon={<Banknote className="size-4" />} /></div>}
         </Card>

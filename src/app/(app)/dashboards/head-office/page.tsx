@@ -62,8 +62,8 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
           dateLabel={dateEyebrow(today)}
           greeting={`${greeting()}, ${firstName(session.user.name)}.`}
           actions={<>
-            <Link href="/modules/approvals#queue" className={buttonClass("primary", "sm")}><ClipboardCheck />Approval queue</Link>
-            <Link href="/modules/approvals#budgets" className={buttonClass("secondary", "sm")}><Wallet />Budgets</Link>
+            <Link href="/approvals" className={buttonClass("primary", "sm")}><ClipboardCheck />Approval queue</Link>
+            <Link href="/approvals/budgets" className={buttonClass("secondary", "sm")}><Wallet />Budgets</Link>
           </>}
           footer={<DayTimeline events={d.welcome.events} nowHour={d.welcome.nowHour} label="Today's requests, deliveries and price submissions" />}
         >
@@ -74,7 +74,7 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
         </WelcomeCard>
 
         <Card aria-label="Requests awaiting review versus history">
-          <CardHeader icon={Inbox} title="Request review" action={<Link href="/modules/requests#monthly" className={buttonClass("secondary", "sm")}>Requests ›</Link>} />
+          <CardHeader icon={Inbox} title="Request review" action={<Link href="/requests" className={buttonClass("secondary", "sm")}>Requests ›</Link>} />
           <div className="flex flex-wrap items-baseline gap-2.5">
             <span className="text-metric-lg font-medium tracking-[-0.03em]"><AnimatedNumber value={d.review.value} format="moneyCompact" /></span>
             <StatusBadge tone={d.review.vsHistory > 0.15 ? "orange" : "green"}>{d.review.vsHistory >= 0 ? "+" : "−"}{percent(Math.abs(d.review.vsHistory))} vs history</StatusBadge>
@@ -87,7 +87,7 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
       <MetricGrid className="mt-4">
         <KpiCard variant="primary" icon={ClipboardCheck} label="Value awaiting decision" value={<AnimatedNumber value={d.kpis.pendingValue} format="moneyCompact" />}
           footnote={<span>{d.kpis.queueCount} items · {d.kpis.critical} urgent</span>} />
-        <KpiCard variant="secondary" icon={Wallet} label="Budget used incl. commitments" value={<AnimatedNumber value={d.kpis.utilisation} format="percent" />} spark={d.kpis.utilSpark} href="/modules/approvals#budgets"
+        <KpiCard variant="secondary" icon={Wallet} label="Budget used incl. commitments" value={<AnimatedNumber value={d.kpis.utilisation} format="percent" />} spark={d.kpis.utilSpark} href="/approvals/budgets"
           footnote={<span>{d.kpis.headroom} headroom this month</span>} />
         <KpiCard icon={Truck} label="Open purchase orders" value={<AnimatedNumber value={d.kpis.openPOs} />}
           footnote={<TrendIndicator direction={d.kpis.overduePOs ? "up" : "flat"} good={!d.kpis.overduePOs}>{d.kpis.overduePOs} overdue · {d.kpis.openPOValue}</TrendIndicator>} />
@@ -127,11 +127,11 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
 
       <div className="stagger mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Card aria-label="Price and supplier approvals">
-          <CardHeader icon={BadgeIndianRupee} title="Price & supplier approvals" subtitle="Quoted price vs current catalogue cost" action={<Link href="/modules/procurement#compare" className={buttonClass("ghost", "sm")}>Compare ›</Link>} />
+          <CardHeader icon={BadgeIndianRupee} title="Price & supplier approvals" subtitle="Quoted price vs current catalogue cost" action={<Link href="/procurement/compare" className={buttonClass("ghost", "sm")}>Compare ›</Link>} />
           <DataList rows={d.priceApprovals} empty="No prices or suppliers awaiting approval" label="Price and supplier approvals" />
         </Card>
         <Card aria-label="Purchase order pipeline">
-          <CardHeader icon={GitCompareArrows} title="PO pipeline" subtitle="Orders by stage · count and value" action={<Link href="/modules/procurement#orders" className={buttonClass("ghost", "sm")}>Orders ›</Link>} />
+          <CardHeader icon={GitCompareArrows} title="PO pipeline" subtitle="Orders by stage · count and value" action={<Link href="/procurement/orders" className={buttonClass("ghost", "sm")}>Orders ›</Link>} />
           {d.pipeline.length ? <CategoryDistribution segments={d.pipeline} label="Purchase orders by stage" /> : <p className="text-label text-ink-3">No purchase orders.</p>}
           <div className="mt-4 grid grid-cols-2 gap-2">
             <StatTile label="Open orders" value={d.poTotals.open} />
@@ -139,7 +139,7 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
           </div>
         </Card>
         <Card aria-label="Receiving and invoice exceptions" className="md:col-span-2 xl:col-span-1">
-          <CardHeader icon={FileWarning} title="Exceptions" subtitle="Receiving discrepancies (30 days) and open invoice mismatches" action={<Link href="/modules/finance#reconciliation" className={buttonClass("ghost", "sm")}>Reconcile ›</Link>} />
+          <CardHeader icon={FileWarning} title="Exceptions" subtitle="Receiving discrepancies (30 days) and open invoice mismatches" action={<Link href="/finance/payments" className={buttonClass("ghost", "sm")}>Reconcile ›</Link>} />
           <DataList rows={d.exceptions.slice(0, 6).map((e) => ({ ...e, icon: e.kind === "receipt" ? PackageX : FileWarning }))} empty="No open exceptions" label="Receiving and invoice exceptions" />
         </Card>
       </div>

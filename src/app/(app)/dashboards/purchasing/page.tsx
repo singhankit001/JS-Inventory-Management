@@ -44,7 +44,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
           greeting={`${greeting()}, ${firstName(session.user.name)}.`}
           actions={<>
             <Link href="/modules/procurement" className={buttonClass("primary", "sm")}><ShoppingCart />Procurement</Link>
-            <Link href="/modules/procurement#compare" className={buttonClass("secondary", "sm")}><Scale />Compare suppliers</Link>
+            <Link href="/procurement/compare" className={buttonClass("secondary", "sm")}><Scale />Compare suppliers</Link>
           </>}
           footer={<DayTimeline events={d.welcome.events} nowHour={d.welcome.nowHour} label="Today's deliveries and procurement activity" />}
         >
@@ -70,11 +70,11 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
       </div>
 
       <MetricGrid className="mt-4">
-        <KpiCard variant="primary" icon={ClipboardList} label="Approved, waiting to order" value={<AnimatedNumber value={d.kpis.queue} />} href="/modules/requests#monthly"
+        <KpiCard variant="primary" icon={ClipboardList} label="Approved, waiting to order" value={<AnimatedNumber value={d.kpis.queue} />} href="/requests"
           footnote={<span>{d.kpis.queueValue} to commit{d.kpis.emergency ? ` · ${d.kpis.emergency} emergency` : ""}</span>} />
-        <KpiCard variant="secondary" icon={Inbox} label="Quotations awaiting reply" value={<AnimatedNumber value={d.kpis.awaitingReply} />} href="/modules/procurement#quotations"
+        <KpiCard variant="secondary" icon={Inbox} label="Quotations awaiting reply" value={<AnimatedNumber value={d.kpis.awaitingReply} />} href="/procurement/compare"
           footnote={<span>{d.kpis.toReview} received and ready to compare</span>} />
-        <KpiCard icon={Wallet} label="Open PO value" value={<AnimatedNumber value={d.kpis.openValue} format="moneyCompact" />} href="/modules/procurement#orders"
+        <KpiCard icon={Wallet} label="Open PO value" value={<AnimatedNumber value={d.kpis.openValue} format="moneyCompact" />} href="/procurement/orders"
           footnote={<span>{d.kpis.openPOs} orders not yet fully received</span>} />
         <KpiCard icon={Timer} label="Delayed purchase orders" value={<AnimatedNumber value={d.kpis.delayed} />}
           footnote={<TrendIndicator direction={d.kpis.delayed ? "up" : "flat"} good={d.kpis.delayed === 0}>{d.kpis.delayed ? `Worst is ${d.kpis.worstLate} days late` : "Everything on schedule"}</TrendIndicator>} />
@@ -82,7 +82,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
 
       <div className="stagger mt-4 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <Card aria-label="Purchase order pipeline">
-          <CardHeader icon={Workflow} title="PO pipeline" subtitle="Orders by stage · count and value" action={<Link className={buttonClass("ghost", "sm")} href="/modules/procurement#orders">Orders ›</Link>} />
+          <CardHeader icon={Workflow} title="PO pipeline" subtitle="Orders by stage · count and value" action={<Link className={buttonClass("ghost", "sm")} href="/procurement/orders">Orders ›</Link>} />
           <ol className="grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="Purchase order stages">
             {d.pipeline.map((s, i) => (
               <li key={s.status} className="relative flex flex-col rounded-tile bg-surface-2 p-3.5 last:col-span-2 sm:last:col-span-1">
@@ -127,7 +127,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
           </ul>
         </Card>
         <Card aria-label="Quotation status">
-          <CardHeader icon={FileSearch} title="Quotations" subtitle={`${d.quotes.total} quotations on file`} action={<Link className={buttonClass("ghost", "sm")} href="/modules/procurement#quotations">All ›</Link>} />
+          <CardHeader icon={FileSearch} title="Quotations" subtitle={`${d.quotes.total} quotations on file`} action={<Link className={buttonClass("ghost", "sm")} href="/procurement/compare">All ›</Link>} />
           <CategoryDistribution segments={d.quotes.segments} label="Quotations by status" />
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-tile bg-surface-2 py-2.5"><p className="text-body font-medium"><AnimatedNumber value={d.quotes.productsCompared} /></p><p className="text-[11px] text-ink-3">Compared</p></div>
@@ -149,7 +149,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
             <h2 id="prices-h" className="text-title">Best price per product</h2>
             <p className="text-label text-ink-3">Lowest received or accepted quotation against the others · saving is per unit versus the highest quote</p>
           </div>
-          <Link className={buttonClass("secondary", "sm")} href="/modules/procurement#compare"><Scale />Supplier comparison</Link>
+          <Link className={buttonClass("secondary", "sm")} href="/procurement/compare"><Scale />Supplier comparison</Link>
         </div>
         <Card>
           <DataTable

@@ -47,7 +47,7 @@ export async function loadMovements(repo: Repository, query: LedgerQuery) {
       centre: { label: cmap.get(m.centreId)?.name ?? m.centreId, href: `/inventory/centres/${m.centreId}` },
       qty,
       value: qty * p.unitCost,
-      reference: m.reference?.startsWith("gr-") ? { label: m.reference, href: `/receiving/receipts?q=${m.reference}` } : m.reference?.startsWith("count-") ? `Stock count ${m.reference.slice(6).replace("-", " · ")}` : m.reference ?? null,
+      reference: m.reference?.startsWith("gr-") ? { label: m.reference, href: `/receiving/receipts?receipt=${m.reference}` } : m.reference?.startsWith("count-") ? `Stock count ${m.reference.slice(6).replace("-", " · ")}` : m.reference ?? null,
     };
   });
 
