@@ -3,6 +3,7 @@
 import type { CommandInput } from "@/domain/commands";
 import type { User } from "@/domain/types";
 import { demoCommand } from "@/lib/demo/command";
+import { applyConfig } from "@/features/admin/config-store";
 import { emailTaken, normaliseEmail, roleLabels, selfAdminRemoval, unknownCentres } from "@/features/admin/users";
 
 // Users and centres are organisation-wide records: an empty resource means only "all"-scope actors may change them.
@@ -59,5 +60,16 @@ export async function upsertCentre(input: CommandInput<"upsertCentre">) {
       else ctx.store.centres.push({ id: ctx.id("c"), ...fields });
       ctx.audit(existing ? "updated centre" : "added centre", `${cmd.name} · ${cmd.code}`, existing?.id);
       return { message: existing ? `${cmd.name} updated` : `${cmd.name} added` };
+    });
+}
+
+export async function updateConfig(input: CommandInput<"updateConfig">) {
+  return demoCommand("updateConfig", input,
+    () => ({ permission: "admin.config", resource: ORG }),
+    (cmd, ctx) => {
+      const changed = applyConfig(cmd, ctx.actor.userId, ctx.now);
+      if (!changed.length) return { code: "validation", error: "Nothing changed." };
+      ctx.audit("updated configuration", changed.join(", "));
+      return { message: `Updated ${changed.join(" and ")}` };
     });
 }
