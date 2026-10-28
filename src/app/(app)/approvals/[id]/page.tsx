@@ -26,7 +26,7 @@ export default async function ApprovalDetailPage({ params, searchParams }: { par
   return (
     <>
       <ModulePageHeader role={session.role} module="approvals" active="queue" title={d.title} crumbs={[{ label: "Approval queue", href: "/approvals" }]}
-        description={<>{d.type} · {a.stage === "final" ? "final authorisation" : "Head Office review"}{d.centre && <> · <Link href={`/inventory/centres?centre=${d.centre.id}`} className="underline-offset-4 hover:text-ink hover:underline">{d.centre.name}</Link></>}{pending && ` · waiting ${d.waiting}`}</>}
+        description={<>{d.type} · {a.stage === "final" ? "final authorisation" : "Head Office review"}{d.centre && <> · <Link href={`/inventory/centres/${d.centre.id}`} className="underline-offset-4 hover:text-ink hover:underline">{d.centre.name}</Link></>}{pending && ` · waiting ${d.waiting}`}</>}
         aside={<>
           {a.critical && <StatusBadge tone="red" dot className="text-label">Critical</StatusBadge>}
           <StatusBadge tone={d.status.tone} dot className="text-label">{d.status.label}</StatusBadge>

@@ -53,7 +53,7 @@ export default async function BudgetsPage({ searchParams }: { searchParams: Prom
             {d.rows.map((b, i) => (
               <li key={b.id}>
                 <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                  <Link href={`/inventory/centres?centre=${b.id}`} className="truncate text-label font-medium underline-offset-4 hover:underline">{b.name}</Link>
+                  <Link href={`/inventory/centres/${b.id}`} className="truncate text-label font-medium underline-offset-4 hover:underline">{b.name}</Link>
                   <span className={cn("text-label font-medium tabular", b.over && "text-red")}>{b.over && <span className="sr-only">Over budget: </span>}{b.leftLabel}</span>
                 </div>
                 <div className="flex h-2.5 overflow-hidden rounded-full bg-surface-3" role="img" aria-label={`${b.name}: ${percent(b.spentPct)} spent, ${percent(b.committedPct)} committed of allocation`}>

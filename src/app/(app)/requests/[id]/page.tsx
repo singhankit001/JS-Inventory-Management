@@ -43,7 +43,7 @@ export default async function RequestDetailPage({ params, searchParams }: { para
     <>
       <ModulePageHeader role={session.role} module="requests" active={r.priority === "emergency" ? "emergency" : "monthly"} title={d.title}
         crumbs={r.priority === "emergency" ? [{ label: "Emergency requests", href: "/requests/emergency" }] : [{ label: "Monthly requests", href: "/requests" }]}
-        description={<>{d.kind} · <Link href={`/inventory/centres?centre=${r.centreId}`} className="underline-offset-4 hover:text-ink hover:underline">{d.centreName}</Link> · {r.id}</>}
+        description={<>{d.kind} · <Link href={`/inventory/centres/${r.centreId}`} className="underline-offset-4 hover:text-ink hover:underline">{d.centreName}</Link> · {r.id}</>}
         aside={<>
           <StatusBadge tone={d.status.tone} dot className="text-label">{d.status.label}</StatusBadge>
           {editable && <Link href={`/requests/new?edit=${r.id}`} className={buttonClass("primary", "md")}><PencilLine />{r.status === "draft" ? "Continue draft" : "Edit & resubmit"}</Link>}
