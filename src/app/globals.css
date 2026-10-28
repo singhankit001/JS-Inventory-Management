@@ -174,9 +174,9 @@
   --dur-base: 240ms;
   --dur-lead: 360ms;   /* pill leading edge */
   --dur-trail: 550ms;  /* pill trailing edge */
-  --dur-page: 520ms;
-  --dur-draw: 1100ms;  /* line / ring / gauge draw-ins (recharts areas use the same) */
-  --dur-grow: 900ms;   /* bar grow-ins (recharts bars use the same) */
+  --dur-page: 340ms;
+  --dur-draw: 700ms;   /* line / ring / gauge draw-ins (recharts areas use the same) */
+  --dur-grow: 600ms;   /* bar grow-ins (recharts bars use the same) */
 }
 
 @layer base {
@@ -252,8 +252,8 @@
    Fill mode is `backwards`, not `both`: once finished, nothing is left on the element, so hover transforms
    (card lift) work and no lingering filter/transform turns cards into containing blocks for fixed children. */
 @keyframes enter {
-  from { opacity: 0; filter: blur(10px); transform: translateY(6px) scale(0.995); }
-  to { opacity: 1; filter: blur(0); transform: none; }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 .animate-enter {
   animation: enter var(--dur-page) var(--ease-out-3) backwards;
@@ -267,7 +267,7 @@
 .stagger > * {
   --stagger-base: inherit;
   --i: 0;
-  --enter-delay: calc(var(--stagger-base) + var(--i) * 40ms);
+  --enter-delay: calc(var(--stagger-base) + var(--i) * 30ms);
   animation: enter var(--dur-page) var(--ease-out-3) var(--enter-delay) backwards;
 }
 .stagger > :nth-child(2) { --i: 1; }
@@ -281,12 +281,11 @@
    Rows cascade top-to-bottom; plain blocks (PageHeader, notes) blur-fade themselves, stagger grids
    hand the delay to their cards, and blocks that contain a stagger grid leave the motion to it
    (one owner per element, no nested blur). */
-.page-enter > :nth-child(2) { --stagger-base: 60ms; }
-.page-enter > :nth-child(3) { --stagger-base: 140ms; }
-.page-enter > :nth-child(4) { --stagger-base: 220ms; }
-.page-enter > :nth-child(5) { --stagger-base: 300ms; }
-.page-enter > :nth-child(6) { --stagger-base: 360ms; }
-.page-enter > :nth-child(n + 7) { --stagger-base: 420ms; }
+.page-enter > :nth-child(2) { --stagger-base: 40ms; }
+.page-enter > :nth-child(3) { --stagger-base: 90ms; }
+.page-enter > :nth-child(4) { --stagger-base: 140ms; }
+.page-enter > :nth-child(5) { --stagger-base: 180ms; }
+.page-enter > :nth-child(n + 6) { --stagger-base: 220ms; }
 .page-enter > :not(.stagger):not(:has(.stagger)) {
   --enter-delay: var(--stagger-base);
   animation: enter var(--dur-page) var(--ease-out-3) var(--enter-delay) backwards;
@@ -321,7 +320,7 @@
 @keyframes cell-in {
   from { opacity: 0; transform: scale(0.6); }
 }
-.cell-in { animation: cell-in 420ms var(--ease-spring) var(--enter-delay, 0ms) both; }
+.cell-in { animation: cell-in 420ms var(--ease-spring) var(--enter-delay, 0ms) backwards; }
 
 @keyframes pulse-dot {
   0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--green) 45%, transparent); }
@@ -380,12 +379,36 @@
   animation: menu-in 200ms var(--ease-out-3) both;
 }
 
-/* ───────────── Sign-in role tiles ───────────── */
+/* ───────────── Sign-in ───────────── */
+@keyframes login-rise { from { opacity: 0; transform: translateY(10px); } }
+.login-rise { animation: login-rise 560ms var(--ease-out-3) backwards; }
+@keyframes net-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.net-line { fill: none; stroke-width: 1; }
+.net-line:not([data-far]) { stroke-dasharray: 1; animation: net-draw 900ms var(--ease-out-3) backwards; }
+.net-line[data-far] { animation: login-rise 900ms var(--ease-out-3) backwards; } /* dashed: another city */
+@keyframes net-pop { from { opacity: 0; transform: scale(0.6); } }
+.net-node { transform-box: fill-box; transform-origin: center; animation: net-pop 520ms var(--ease-spring) backwards; }
+.login-glow { background: radial-gradient(closest-side, color-mix(in oklab, var(--primary-card-ink) 9%, transparent), transparent); }
+.login-account { transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
+.login-continue { transition: transform var(--dur-fast) var(--ease-out-3), box-shadow var(--dur-base) var(--ease-out-3); }
+.login-continue:not(:disabled):active { transform: scale(0.985); }
 @media (hover: hover) and (pointer: fine) {
-  .role-tile:not(:disabled):hover {
-    border-color: var(--line-strong);
-    box-shadow: var(--shadow-float);
-    transform: translateY(-1px);
-  }
+  .login-account[aria-checked="false"]:hover { background: color-mix(in oklab, var(--surface) 70%, transparent); color: var(--ink); }
+  .login-continue:not(:disabled):hover { box-shadow: var(--shadow-pop); }
 }
-.role-tile:not(:disabled):active { transform: scale(0.985); }
+
+/* ───────────── Shared floating tooltip + small hover targets ───────────── */
+@keyframes tip-in { from { opacity: 0; } }
+.float-tip { opacity: 0; }
+.float-tip[data-ready="true"] { opacity: 1; animation: tip-in 140ms var(--ease-out-3); }
+.heat-cell { transition: transform 180ms var(--ease-out-3); cursor: default; }
+.heat-cell:focus-visible { transform: scale(1.18); }
+@media (hover: hover) and (pointer: fine) {
+  .heat-cell:hover { transform: scale(1.18); }
+}
+
+/* ───────────── Request journey ───────────── */
+.journey-fill { transition: transform 700ms var(--ease-out-3); }
+.journey-tab { transition: background-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease; }
+@keyframes journey-timer { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.journey-timer { animation: journey-timer linear both; }
