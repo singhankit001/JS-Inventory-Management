@@ -11,7 +11,7 @@ import { WelcomeCard, DayTimeline } from "@/components/dashboard/welcome";
 import { KpiCard, MetricGrid } from "@/components/dashboard/kpi-card";
 import { DataList } from "@/components/dashboard/lists";
 import { Card, CardHeader, StatTile } from "@/components/ui/card";
-import { buttonClass, PlannedAction } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { StatusBadge, toneDot } from "@/components/ui/badge";
 import { CategoryDistribution, ProgressRing, TrendIndicator } from "@/components/charts/svg";
 import { FlowBars } from "@/components/charts/lazy";
@@ -106,7 +106,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
         <Card aria-label="Approved requests waiting to be ordered">
           <CardHeader icon={ClipboardList} title="Ready to order" subtitle="Approved by Head Office, no PO yet" />
           <DataList rows={d.queue} empty="Nothing waiting to be ordered" label="Approved requests waiting to be ordered" />
-          {canManage && <div className="mt-4"><PlannedAction label="Raise PO" icon={<FileText className="size-4" />} /></div>}
+          {canManage && <div className="mt-4"><Link href="/procurement/orders?new=1" className={buttonClass("secondary", "md")}><FileText />Raise PO</Link></div>}
         </Card>
       </div>
 
@@ -134,7 +134,7 @@ export default async function PurchasingDashboard({ searchParams }: { searchPara
             <div className="rounded-tile bg-surface-2 py-2.5"><p className="text-body font-medium tabular">{d.quotes.avgSaving}</p><p className="text-[11px] text-ink-3">Avg saving</p></div>
             <div className="rounded-tile bg-surface-2 py-2.5"><p className="text-body font-medium"><AnimatedNumber value={d.quotes.expiringSoon} /></p><p className="text-[11px] text-ink-3">Expire ≤ 7d</p></div>
           </div>
-          {canManage && <div className="mt-4"><PlannedAction label="Request quotation" icon={<FileSearch className="size-4" />} /></div>}
+          {canManage && <div className="mt-4"><Link href="/procurement/compare?request=1" className={buttonClass("secondary", "md")}><FileSearch />Request quotation</Link></div>}
         </Card>
         <Card aria-label="Delayed purchase orders" className="md:col-span-2 xl:col-span-1">
           <CardHeader icon={Truck} title="Delayed orders" subtitle="Issued and past the expected date" />

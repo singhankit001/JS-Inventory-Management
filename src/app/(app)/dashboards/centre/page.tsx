@@ -11,7 +11,7 @@ import { KpiCard, MetricGrid } from "@/components/dashboard/kpi-card";
 import { DataList, StatusCard } from "@/components/dashboard/lists";
 import { CentreSummaryCard } from "@/components/dashboard/inventory";
 import { Card, CardHeader, StatTile } from "@/components/ui/card";
-import { buttonClass, PlannedAction } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { ProgressRing, TrendIndicator } from "@/components/charts/svg";
 import { TrendCard } from "@/components/charts/trend-card";
@@ -73,7 +73,7 @@ export default async function CentreDashboard({ searchParams }: { searchParams: 
             <StatTile label="Submitted" value={r.submitted ?? "—"} />
           </div>
           {r.emergencies > 0 && <p className="mt-3 text-[12px] text-ink-3">{r.emergencies} emergency request{r.emergencies > 1 ? "s" : ""} this month · {r.emergencyOpen} awaiting review</p>}
-          <div className="mt-4"><PlannedAction label="New monthly request" icon={<ClipboardPen className="size-4" />} /></div>
+          <div className="mt-4"><Link href="/requests/new" className={buttonClass("secondary", "md")}><ClipboardPen />New monthly request</Link></div>
         </Card>
       </div>
 
@@ -115,7 +115,7 @@ export default async function CentreDashboard({ searchParams }: { searchParams: 
           <div className="grid gap-2">
             {d.counts.map((c) => <StatusCard key={c.id} label={c.label} status={c.status} tone={c.tone} detail={c.detail} />)}
           </div>
-          <div className="mt-4"><PlannedAction label="Start stock count" icon={<ScanBarcode className="size-4" />} /></div>
+          <div className="mt-4"><Link href="/inventory/counts" className={buttonClass("secondary", "md")}><ScanBarcode />Stock count</Link></div>
         </Card>
       </div>
 

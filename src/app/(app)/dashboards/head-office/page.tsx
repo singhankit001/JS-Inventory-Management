@@ -11,7 +11,7 @@ import { WelcomeCard, DayTimeline } from "@/components/dashboard/welcome";
 import { KpiCard, MetricGrid } from "@/components/dashboard/kpi-card";
 import { DataList } from "@/components/dashboard/lists";
 import { Card, CardHeader, StatTile } from "@/components/ui/card";
-import { PlannedAction, buttonClass } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { StatusBadge, toneDot } from "@/components/ui/badge";
 import { PillGroup } from "@/components/ui/pill-group";
 import { CategoryDistribution, ComparisonBars, TrendIndicator } from "@/components/charts/svg";
@@ -146,7 +146,7 @@ export default async function HeadOfficeDashboard({ searchParams }: { searchPara
 
       <Card className="mt-4" aria-labelledby="queue-h">
         <CardHeader id="queue-h" icon={ClipboardCheck} title="Approval queue" subtitle={`${d.kpis.queueCount} awaiting a decision · urgent items first · filter by status or use the centre pills above`}
-          action={canApprove ? <PlannedAction label="Approve / return" /> : undefined} />
+          action={canApprove ? <Link href="/approvals" className={buttonClass("secondary", "sm")}>Open queue ›</Link> : undefined} />
         <DataTable columns={queueColumns} rows={d.queue} label="Approval queue" filters={[{ key: "status", label: "status" }, { key: "centre", label: "centre" }, { key: "type", label: "type" }]} exportName="approval-queue" emptyBody="Requests and purchase orders waiting on Head Office appear here." emptyTitle="Nothing awaiting approval" />
       </Card>
     </>

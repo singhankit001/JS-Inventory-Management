@@ -11,7 +11,7 @@ import { WelcomeCard } from "@/components/dashboard/welcome";
 import { KpiCard, MetricGrid } from "@/components/dashboard/kpi-card";
 import { DataList } from "@/components/dashboard/lists";
 import { Card, CardHeader, StatTile } from "@/components/ui/card";
-import { PlannedAction, buttonClass } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import { CategoryDistribution, ComparisonBars, TrendIndicator } from "@/components/charts/svg";
 import { TrendCard } from "@/components/charts/trend-card";
@@ -105,7 +105,7 @@ export default async function FinanceDashboard({ searchParams }: { searchParams:
         <Card aria-label="Recent payments">
           <CardHeader icon={BadgeCheck} title="Recent payments" action={<Link href="/finance/payments" className={buttonClass("ghost", "sm")}>All ›</Link>} />
           <DataList rows={d.recentPayments} empty="No payments recorded" label="Recent payments" />
-          {canManage && <div className="mt-4"><PlannedAction label="Record payment" icon={<Banknote className="size-4" />} /></div>}
+          {canManage && <div className="mt-4"><Link href="/finance/payments?new=1" className={buttonClass("secondary", "md")}><Banknote />Record payment</Link></div>}
         </Card>
       </div>
 
@@ -126,7 +126,7 @@ export default async function FinanceDashboard({ searchParams }: { searchParams:
 
       <Card className="mt-4" aria-labelledby="invoices-h">
         <CardHeader id="invoices-h" icon={CalendarRange} title="Invoices" subtitle="Earliest due first · filter by status, search by supplier, centre or PO"
-          action={canManage ? <PlannedAction label="Approve invoice" /> : undefined} />
+          action={canManage ? <Link href="/finance/invoices" className={buttonClass("secondary", "sm")}>Review invoices ›</Link> : undefined} />
         <DataTable columns={invoiceColumns} rows={d.invoices} label="Invoices" filters={[{ key: "status", label: "status" }, { key: "match", label: "3-way match" }, { key: "ageing", label: "ageing" }]} exportName="invoices" emptyTitle="No invoices" />
       </Card>
     </>
