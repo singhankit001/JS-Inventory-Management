@@ -1,0 +1,1728 @@
+{
+  "document": {
+    "draft_reference": "REQ-DRAFT-20261030-KR",
+    "reference_note": "Internal draft reference only. Not an invoice number.",
+    "document_type": "Pro forma inventory requisition (draft). Not a tax invoice.",
+    "created": "2026-10-30",
+    "organisation": "Jumpstart Preschool",
+    "centre": null,
+    "centre_note": "Not stated in the videos. Storage boxes are labelled with a KR- prefix (e.g. KR-STA-B15, KR-EVT-B18); confirm which centre this is.",
+    "requested_for": "“This month”, as stated by the speaker on 30 Oct 2026",
+    "status": "Draft, awaiting verification",
+    "currency": "INR",
+    "supplier": null,
+    "gstin": null,
+    "prepared_by": "Jumpstart Inventory OS, AI-assisted video intake"
+  },
+  "videos": [
+    {
+      "video_id": "V1",
+      "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+      "duration": "4:08",
+      "location": "Stationery cupboard (boxes labelled KR-STA-*, KR-EVT-*)",
+      "category": "Stationery"
+    },
+    {
+      "video_id": "V2",
+      "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+      "duration": "2:34",
+      "location": "Kitchen pantry shelves (jars)",
+      "category": "Groceries"
+    },
+    {
+      "video_id": "V3",
+      "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+      "duration": "0:37",
+      "location": "Dry-goods storage rack (packets)",
+      "category": "Groceries"
+    },
+    {
+      "video_id": "V4",
+      "file": "WhatsApp_Video_2026-10-30_at_15.00.32.mp4",
+      "duration": "0:22",
+      "location": "Grain cabinet (jars)",
+      "category": "Groceries"
+    },
+    {
+      "video_id": "V5",
+      "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+      "duration": "0:55",
+      "location": "Toiletries and cleaning shelf",
+      "category": "Toiletries"
+    }
+  ],
+  "summary": {
+    "requested_lines": 38,
+    "observed_not_requested": 39,
+    "by_category": {
+      "Groceries": 14,
+      "Toiletries": 9,
+      "Stationery": 15
+    },
+    "by_status": {
+      "Confirmed": 15,
+      "Inferred": 12,
+      "Needs Verification": 11
+    },
+    "lines_without_quantity": [
+      "T07",
+      "T08",
+      "S01",
+      "S02",
+      "S03",
+      "S04",
+      "S05"
+    ],
+    "priced_lines": 0,
+    "subtotals": null,
+    "tax": null,
+    "grand_total": null,
+    "grand_total_note": "Not calculable: the videos contain no prices."
+  },
+  "duplicate_groups": [
+    {
+      "group": "DUP-SUGAR",
+      "line_ids": [
+        "G03"
+      ]
+    },
+    {
+      "group": "DUP-RAVA",
+      "line_ids": [
+        "G08",
+        "G14"
+      ]
+    }
+  ],
+  "lines": [
+    {
+      "line_id": "G01",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Salt",
+      "brand_variant": "Not specified",
+      "specification": "Loose / packet",
+      "requested_quantity": 2,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 2000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part jar + one empty jar",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "0:14–0:22",
+        "frame_timestamp": "0:06–0:15",
+        "evidence_quote": "“You need more salt?” “Yes.” “How much more you want?” “2 kgs.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "G02",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Moong dal",
+      "brand_variant": "Not specified",
+      "specification": "Split yellow",
+      "requested_quantity": 1,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Half jar",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "0:22–0:34",
+        "frame_timestamp": "0:21–0:31",
+        "evidence_quote": "“moong dal which I have half jar and I had procured 1 kg more because we are going to need it”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Speaker says “had procured”; read as “need to procure”. Confirm."
+    },
+    {
+      "line_id": "G03",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Sugar",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 6,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 6000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part tin",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "0:49–0:57",
+        "frame_timestamp": "0:51–0:54",
+        "evidence_quote": "“This is sugar … we had procured it now for at least 6 kgs”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": "DUP-SUGAR",
+      "notes": "V4 0:09–0:14 refers back to this (“already told about in the video”); not counted twice."
+    },
+    {
+      "line_id": "G04",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Tea powder",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 0.5,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 500.0,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part tin",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "0:57–1:06",
+        "frame_timestamp": "0:57–1:00",
+        "evidence_quote": "“We need half kg more.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "G05",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Ghee",
+      "brand_variant": "Gowardhan Pure Cow Ghee seen on shelf",
+      "specification": null,
+      "requested_quantity": 1,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Half bottle",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "1:06–1:16",
+        "frame_timestamp": "1:12–1:21",
+        "evidence_quote": "“ghee which is half bottle, we had procured 1 kg more”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Brand is what is on the shelf now, not a stated preference."
+    },
+    {
+      "line_id": "G06",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Coriander (dhaniya) powder",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 0.5,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 500.0,
+        "unit": "g"
+      },
+      "on_hand_observed": "Half bottle",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "1:23–1:29",
+        "frame_timestamp": null,
+        "evidence_quote": "“coriander powder which is half bottle but we had procured it for more half kg”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "G07",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Dalia (broken wheat)",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 1,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Half bottle",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "1:50–2:00",
+        "frame_timestamp": "1:48–1:57",
+        "evidence_quote": "“This is dalia … half bottle, we had procured more” … “How much more you want?” “We had procured 1 kg.”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "The “1 kg” answer may belong to dalia or to rava (named just before it). Confirm."
+    },
+    {
+      "line_id": "G08",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Rava (sooji)",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 2,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 2000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part jar",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "2:00–2:08",
+        "frame_timestamp": "2:00–2:06",
+        "evidence_quote": "“rava which we have this much and we had procured 2 kgs.” “You want more 2 kgs?” “We want 2 more kgs.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": "DUP-RAVA",
+      "notes": "V4 asks for 0.5 kg “normal rava” from a different cupboard. Kept as two lines; confirm whether both are needed."
+    },
+    {
+      "line_id": "G09",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Sevai (vermicelli)",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 0.5,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 500.0,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part jar",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "2:08–2:14",
+        "frame_timestamp": "2:06–2:21",
+        "evidence_quote": "“This is shave … we had procured half kg only”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Product name heard as “shave”; vermicelli jars are on screen at this point. Confirm product."
+    },
+    {
+      "line_id": "G10",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Jeera (cumin)",
+      "brand_variant": "Not specified",
+      "specification": "Whole or powder not stated",
+      "requested_quantity": 250,
+      "unit": "g",
+      "quantity_normalised": {
+        "value": 250,
+        "unit": "g"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "audio_timestamp": "2:27–2:34",
+        "frame_timestamp": null,
+        "evidence_quote": "“we need more jeera, 250 grams” (second pass heard “to 50 grams”)"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Quantity heard as 250 g or 50 g. Earlier (0:44) jeera powder is “huge amount, not procuring”; this may be whole jeera."
+    },
+    {
+      "line_id": "G11",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Rice",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 20,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 20000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part can",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V4",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.32.mp4",
+        "audio_timestamp": "0:00–0:09",
+        "frame_timestamp": "0:00–0:03",
+        "evidence_quote": "“This is rice, we need more 20 kgs of rice.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "G12",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Mixed dal",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 2,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 2000,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part jar",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V4",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.32.mp4",
+        "audio_timestamp": "0:00–0:09",
+        "frame_timestamp": "0:06–0:08",
+        "evidence_quote": "“This is mixed dal. We need 2 kgs more.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "G13",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Idli rava",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 0.5,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 500.0,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part jar",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V4",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.32.mp4",
+        "audio_timestamp": "0:14–0:21",
+        "frame_timestamp": "0:09–0:18",
+        "evidence_quote": "“idli rava which we need more half kgs”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "G14",
+      "record_type": "requested",
+      "category": "Groceries",
+      "product_name": "Rava (regular)",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 0.5,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 500.0,
+        "unit": "g"
+      },
+      "on_hand_observed": "Part jar",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V4",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.32.mp4",
+        "audio_timestamp": "0:14–0:21",
+        "frame_timestamp": "0:09–0:18",
+        "evidence_quote": "“our normal rava which we need only half kgs”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": "DUP-RAVA",
+      "notes": "Same product as G08 (2 kg) from a different cupboard. Confirm before ordering both."
+    },
+    {
+      "line_id": "T01",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Unidentified item (possibly Dettol antiseptic liquid)",
+      "brand_variant": "Dettol bottle on shelf",
+      "specification": null,
+      "requested_quantity": 1,
+      "unit": "bottle",
+      "quantity_normalised": {
+        "value": 1,
+        "unit": "bottle"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:00–0:06",
+        "frame_timestamp": "0:06–0:51",
+        "evidence_quote": "Plain pass: “we need at all more one bottle”; vocabulary-hinted pass: “we need Dettol more, one bottle”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": "Antiseptic liquid 500 ml (JS-1021)",
+      "duplicate_group": null,
+      "notes": "The product name only appears when the transcriber was given product hints. Confirm."
+    },
+    {
+      "line_id": "T02",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Liquid wash",
+      "brand_variant": "Not specified",
+      "specification": "Hand wash or dish-wash liquid not stated",
+      "requested_quantity": 1,
+      "unit": "bottle",
+      "quantity_normalised": {
+        "value": 1,
+        "unit": "bottle"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:06–0:12",
+        "frame_timestamp": "0:36–0:39",
+        "evidence_quote": "“we need liquid wash, we need one bottle”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": "Hand wash refill 5 L (JS-1010) if hand wash",
+      "duplicate_group": null,
+      "notes": "Type not stated. A green dish-wash bottle is visible at 0:36."
+    },
+    {
+      "line_id": "T03",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Harpic toilet cleaner",
+      "brand_variant": "Harpic",
+      "specification": null,
+      "requested_quantity": 1,
+      "unit": "bottle",
+      "quantity_normalised": {
+        "value": 1,
+        "unit": "bottle"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:06–0:12",
+        "frame_timestamp": "0:00–0:51",
+        "evidence_quote": "“Harpic of one bottle” (heard as “hair pick”)"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Blue bottles with red nozzles of this type are on the shelf."
+    },
+    {
+      "line_id": "T04",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Scrub pad",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 1,
+      "unit": "pack",
+      "quantity_normalised": {
+        "value": 1,
+        "unit": "pack"
+      },
+      "on_hand_observed": "Some on shelf",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:12–0:23",
+        "frame_timestamp": "0:18–0:27",
+        "evidence_quote": "“we need scrub of one”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Unit (single pad or pack) not stated."
+    },
+    {
+      "line_id": "T05",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Dustbin bags, small",
+      "brand_variant": "Golden City Bin Bag on shelf",
+      "specification": "Small size",
+      "requested_quantity": 6,
+      "unit": "pack",
+      "quantity_normalised": {
+        "value": 6,
+        "unit": "pack"
+      },
+      "on_hand_observed": "Some on shelf",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:12–0:30",
+        "frame_timestamp": "0:18–0:27",
+        "evidence_quote": "“we need dustbin bags, smaller ones, smaller ones, we need six packets”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "An earlier fragment (“six of the packet of this …”) is read as the same request."
+    },
+    {
+      "line_id": "T06",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Washing powder",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 1,
+      "unit": "kg",
+      "quantity_normalised": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "on_hand_observed": "1 kg",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:23–0:33",
+        "frame_timestamp": null,
+        "evidence_quote": "“washing powder which is one kg powder we have right now, but we need one more kg”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "T07",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Broom (jhadu)",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": null,
+      "unit": "pcs",
+      "quantity_normalised": null,
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:30–0:45",
+        "frame_timestamp": null,
+        "evidence_quote": "Second pass: “we need more these jadus”; plain pass: “we need more these”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Quantity not stated."
+    },
+    {
+      "line_id": "T08",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Mop",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": null,
+      "unit": "pcs",
+      "quantity_normalised": null,
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:30–0:48",
+        "frame_timestamp": null,
+        "evidence_quote": "“and the mop also”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Quantity not stated."
+    },
+    {
+      "line_id": "T09",
+      "record_type": "requested",
+      "category": "Toiletries",
+      "product_name": "Dustbin, large, red",
+      "brand_variant": "Not specified",
+      "specification": "Large, red",
+      "requested_quantity": 1,
+      "unit": "pcs",
+      "quantity_normalised": {
+        "value": 1,
+        "unit": "pcs"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "audio_timestamp": "0:45–0:54",
+        "frame_timestamp": null,
+        "evidence_quote": "“we need a large dustbin of one red colour”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "S01",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Tempera colours",
+      "brand_variant": "Not specified",
+      "specification": "Colours not listed",
+      "requested_quantity": null,
+      "unit": "bottle",
+      "quantity_normalised": null,
+      "on_hand_observed": "Some on hand",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "0:07–0:28",
+        "frame_timestamp": "0:15–0:26",
+        "evidence_quote": "“every month at least one tempera colour we needed and different colours”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": "Washable poster paint 500 ml (JS-1002)",
+      "duplicate_group": null,
+      "notes": "At least one per colour per month; which colours and how many not stated."
+    },
+    {
+      "line_id": "S02",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Glue",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": null,
+      "unit": "bottle",
+      "quantity_normalised": null,
+      "on_hand_observed": "2",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "0:16–0:23",
+        "frame_timestamp": "0:15–0:26",
+        "evidence_quote": "“we have only two numbers. We required more than three as per the class.”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": "Glue sticks (10) (JS-1006) if glue sticks",
+      "duplicate_group": null,
+      "notes": "“More than three” may refer to glue or tempera colours; form of glue not stated."
+    },
+    {
+      "line_id": "S03",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Cello tape (transparent)",
+      "brand_variant": "Wonder Tape rolls on hand",
+      "specification": null,
+      "requested_quantity": null,
+      "unit": "roll",
+      "quantity_normalised": null,
+      "on_hand_observed": "3 large + about 12 small",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "0:28–0:52",
+        "frame_timestamp": "0:36–0:45",
+        "evidence_quote": "“tapes also per class we need it every month … three big one and others are … twelve”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Needed every month per class. Five classes are mentioned at 2:31, so 5 if one per class; not stated."
+    },
+    {
+      "line_id": "S04",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Black pens",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": null,
+      "unit": "pcs",
+      "quantity_normalised": null,
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "1:26–1:34",
+        "frame_timestamp": null,
+        "evidence_quote": "“I will need black pens.”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Quantity not stated."
+    },
+    {
+      "line_id": "S05",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "CD markers (permanent)",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": null,
+      "unit": "pcs",
+      "quantity_normalised": null,
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "1:34–1:39",
+        "frame_timestamp": "1:24",
+        "evidence_quote": "“CD markers. And CD markers for writing material.”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Quantity and colour not stated."
+    },
+    {
+      "line_id": "S06",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Wooden sticks (type unclear)",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 1,
+      "unit": "pack",
+      "quantity_normalised": {
+        "value": 1,
+        "unit": "pack"
+      },
+      "on_hand_observed": "1 bundle + ice-cream sticks",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "2:08–2:18",
+        "frame_timestamp": "2:09–2:12",
+        "evidence_quote": "“we need more, one packet of fewer sticks” (second pass: “two sticks”)"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Stick type not clear; possibly skewer sticks."
+    },
+    {
+      "line_id": "S07",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Masking (paper) tape",
+      "brand_variant": "Not specified",
+      "specification": "Wide roll",
+      "requested_quantity": 10,
+      "unit": "roll",
+      "quantity_normalised": {
+        "value": 10,
+        "unit": "roll"
+      },
+      "on_hand_observed": "3",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "2:18–2:33",
+        "frame_timestamp": "2:24–2:30",
+        "evidence_quote": "“we have only three paper tapes … for per class we need at least two … we have five classes”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "10 = 2 per class × 5 classes, as the speaker put it. Whether the 3 on hand count against this is not stated."
+    },
+    {
+      "line_id": "S08",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Paper cups",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 200,
+      "unit": "pcs",
+      "quantity_normalised": {
+        "value": 200,
+        "unit": "pcs"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "2:59–3:08",
+        "frame_timestamp": "3:03",
+        "evidence_quote": "“we need paper cups for the upcoming events … At least 200.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": "Drinking cups (50) (JS-1024) = 4 packs",
+      "duplicate_group": null,
+      "notes": "Kept in Box 15 Cutlery Material (KR-STA-B15), so filed under Stationery/event stock."
+    },
+    {
+      "line_id": "S09",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Chart paper, yellow",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 16,
+      "unit": "sheet",
+      "quantity_normalised": {
+        "value": 16,
+        "unit": "sheet"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "3:08–3:15",
+        "frame_timestamp": "3:09–3:57",
+        "evidence_quote": "“we need yellow chart papers. At least it should be 16.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "S10",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Chart paper, green",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 18,
+      "unit": "sheet",
+      "quantity_normalised": {
+        "value": 18,
+        "unit": "sheet"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "3:15–3:16",
+        "frame_timestamp": "3:09–3:57",
+        "evidence_quote": "“Green chart paper 18.”"
+      },
+      "verification_status": "Needs Verification",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "At 3:49 the speaker says “green is huge for us … we don’t need anything”. Contradicts the 18."
+    },
+    {
+      "line_id": "S11",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Chart paper, chocolate brown",
+      "brand_variant": "Not specified",
+      "specification": "Dark brown",
+      "requested_quantity": 5,
+      "unit": "sheet",
+      "quantity_normalised": {
+        "value": 5,
+        "unit": "sheet"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "3:16–3:21",
+        "frame_timestamp": "3:09–3:57",
+        "evidence_quote": "“Brown chart paper 5, which is dark brown, which is chocolate brown.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "S12",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Chart paper, white",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 17,
+      "unit": "sheet",
+      "quantity_normalised": {
+        "value": 17,
+        "unit": "sheet"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "3:21–3:26",
+        "frame_timestamp": "3:09–3:57",
+        "evidence_quote": "“we need white chart paper which is 17 because of the event”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    },
+    {
+      "line_id": "S13",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Chart paper, baby pink",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 18,
+      "unit": "sheet",
+      "quantity_normalised": {
+        "value": 18,
+        "unit": "sheet"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "3:35–3:40",
+        "frame_timestamp": "3:09–3:57",
+        "evidence_quote": "“we need baby pink colour which is 18”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "Said in the chart-paper part of the walkthrough; “chart paper” not repeated."
+    },
+    {
+      "line_id": "S14",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Chart paper, grey",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 6,
+      "unit": "sheet",
+      "quantity_normalised": {
+        "value": 6,
+        "unit": "sheet"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "3:40–3:44",
+        "frame_timestamp": "3:09–3:57",
+        "evidence_quote": "“we need grey colour which is 6”"
+      },
+      "verification_status": "Inferred",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": "As S13."
+    },
+    {
+      "line_id": "S15",
+      "record_type": "requested",
+      "category": "Stationery",
+      "product_name": "Chart paper, black",
+      "brand_variant": "Not specified",
+      "specification": null,
+      "requested_quantity": 12,
+      "unit": "sheet",
+      "quantity_normalised": {
+        "value": 12,
+        "unit": "sheet"
+      },
+      "on_hand_observed": "Not stated",
+      "unit_price": null,
+      "line_total": null,
+      "price_status": "Awaiting quotation",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "audio_timestamp": "3:44–3:49",
+        "frame_timestamp": "3:09–3:57",
+        "evidence_quote": "“We need black chart paper which should be at least 12.”"
+      },
+      "verification_status": "Confirmed",
+      "catalogue_match_hint": null,
+      "duplicate_group": null,
+      "notes": null
+    }
+  ],
+  "observed_stock": [
+    {
+      "line_id": "OG01",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Muesli (loose, in jar)",
+      "brand_detail": null,
+      "on_hand_observed": "1 packet poured into jar",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "0:00–0:06",
+        "evidence": "“we don’t need more, we are going to refill this”"
+      }
+    },
+    {
+      "line_id": "OG02",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Baking soda / baking powder",
+      "brand_detail": "Weikfield Baking Powder on label",
+      "on_hand_observed": "2 bottles",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "0:34–0:40",
+        "evidence": "Audio says “baking soda”; the jar label reads Baking Powder."
+      }
+    },
+    {
+      "line_id": "OG03",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Honey",
+      "brand_detail": "Dabur Honey",
+      "on_hand_observed": "1 full sealed bottle",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "0:39–0:44",
+        "evidence": "“full bottle which is packed, so we don’t need it”"
+      }
+    },
+    {
+      "line_id": "OG04",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Jeera powder",
+      "brand_detail": null,
+      "on_hand_observed": "Large amount",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "0:44–0:49",
+        "evidence": "“huge amount, so we are not going to procure this month”"
+      }
+    },
+    {
+      "line_id": "OG05",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Cocoa powder",
+      "brand_detail": "Hershey’s Cocoa, 100% natural unsweetened",
+      "on_hand_observed": "2 tubs",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "1:18–1:23",
+        "evidence": "“we have 2 but we don’t need it anymore now”"
+      }
+    },
+    {
+      "line_id": "OG06",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Powdered sugar",
+      "brand_detail": null,
+      "on_hand_observed": "About ¼ container",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "1:29–1:49",
+        "evidence": "First called rice flour, then corrected: “this is powdered sugar … we don’t need more”"
+      }
+    },
+    {
+      "line_id": "OG07",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Oats",
+      "brand_detail": null,
+      "on_hand_observed": "Part jar",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "1:48–2:19",
+        "evidence": "“we don’t want more”"
+      }
+    },
+    {
+      "line_id": "OG08",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Turmeric powder",
+      "brand_detail": null,
+      "on_hand_observed": "Part jar",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "2:20–2:24",
+        "evidence": "“we don’t want more”"
+      }
+    },
+    {
+      "line_id": "OG09",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Red chilli (mirchi) powder",
+      "brand_detail": null,
+      "on_hand_observed": "Part jar",
+      "source": {
+        "video_id": "V2",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.02.mp4",
+        "timestamp": "2:24–2:27",
+        "evidence": "“we don’t want more” (one pass heard “milk powder”)"
+      }
+    },
+    {
+      "line_id": "OG10",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Rajgira ladoo",
+      "brand_detail": null,
+      "on_hand_observed": "4 packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:06–0:11",
+        "evidence": "“We do not need any more of this”"
+      }
+    },
+    {
+      "line_id": "OG11",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Murmura (puffed rice)",
+      "brand_detail": null,
+      "on_hand_observed": "Packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:06–0:11",
+        "evidence": "As above"
+      }
+    },
+    {
+      "line_id": "OG12",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Makhana (fox nuts)",
+      "brand_detail": null,
+      "on_hand_observed": "Packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:06–0:18",
+        "evidence": "As above"
+      }
+    },
+    {
+      "line_id": "OG13",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Sev / sevai (“shave”)",
+      "brand_detail": null,
+      "on_hand_observed": "Packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:11–0:18",
+        "evidence": "As above"
+      }
+    },
+    {
+      "line_id": "OG14",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Muesli",
+      "brand_detail": "Kellogg’s Muesli; Kellogg’s Muesli Nuts & Delights Crunch",
+      "on_hand_observed": "Several packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:11–0:19",
+        "evidence": "As above"
+      }
+    },
+    {
+      "line_id": "OG15",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Rice flour",
+      "brand_detail": null,
+      "on_hand_observed": "Packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:19–0:28",
+        "evidence": "As above"
+      }
+    },
+    {
+      "line_id": "OG16",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Jowar flour",
+      "brand_detail": null,
+      "on_hand_observed": "Packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:19–0:28",
+        "evidence": "As above"
+      }
+    },
+    {
+      "line_id": "OG17",
+      "record_type": "observed_not_requested",
+      "category": "Groceries",
+      "product_name": "Jaggery powder",
+      "brand_detail": "Jeet Jaggery Powder",
+      "on_hand_observed": "Packets",
+      "source": {
+        "video_id": "V3",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.19.mp4",
+        "timestamp": "0:28–0:34",
+        "evidence": "As above"
+      }
+    },
+    {
+      "line_id": "OT01",
+      "record_type": "observed_not_requested",
+      "category": "Toiletries",
+      "product_name": "Antiseptic liquid",
+      "brand_detail": "Dettol",
+      "on_hand_observed": "1 bottle",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "timestamp": "0:06–0:51",
+        "evidence": "On shelf; see T01"
+      }
+    },
+    {
+      "line_id": "OT02",
+      "record_type": "observed_not_requested",
+      "category": "Toiletries",
+      "product_name": "Glass-cleaner spray bottles",
+      "brand_detail": "Brand not legible",
+      "on_hand_observed": "Several",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "timestamp": "0:00–0:51",
+        "evidence": "On shelf; no request"
+      }
+    },
+    {
+      "line_id": "OT03",
+      "record_type": "observed_not_requested",
+      "category": "Toiletries",
+      "product_name": "Dustbin bags",
+      "brand_detail": "Golden City Bin Bag",
+      "on_hand_observed": "Some",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "timestamp": "0:18–0:27",
+        "evidence": "On shelf; see T05"
+      }
+    },
+    {
+      "line_id": "OT04",
+      "record_type": "observed_not_requested",
+      "category": "Toiletries",
+      "product_name": "Mosquito-repellent pack",
+      "brand_detail": "Pack reads “Dengue / Malaria”, brand not legible",
+      "on_hand_observed": "1",
+      "source": {
+        "video_id": "V5",
+        "file": "WhatsApp_Video_2026-10-30_at_15.00.54.mp4",
+        "timestamp": "0:39",
+        "evidence": "In under-shelf bin; no request"
+      }
+    },
+    {
+      "line_id": "OS01",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Chalk",
+      "brand_detail": "Kores Dustless White Chalk and Dustless Coloured Chalk, 100 per box",
+      "on_hand_observed": "5 boxes",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "1:39–1:43, 2:57–3:03",
+        "evidence": "“Five boxes of chalks … it is enough right now”"
+      }
+    },
+    {
+      "line_id": "OS02",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Jumbo crayons",
+      "brand_detail": null,
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "1:43–1:52",
+        "evidence": "“We do not need any more.”"
+      }
+    },
+    {
+      "line_id": "OS03",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Marker ink refills",
+      "brand_detail": "Camlin whiteboard and permanent marker ink",
+      "on_hand_observed": "About 12",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "1:01–1:25",
+        "evidence": "“we have refills approximately twelve”"
+      }
+    },
+    {
+      "line_id": "OS04",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Sketch pens",
+      "brand_detail": "Faber-Castell 10 Connector Pens",
+      "on_hand_observed": "1 packet",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "1:00–1:18",
+        "evidence": "“Sketch pen packets is one.”"
+      }
+    },
+    {
+      "line_id": "OS05",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Colour pencils, red and blue pens",
+      "brand_detail": "Faber-Castell",
+      "on_hand_observed": "4 bundles; about 12–15 bundles of pens",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "1:03–1:26",
+        "evidence": "Counted on camera; “I have enough stationery writing material”"
+      }
+    },
+    {
+      "line_id": "OS06",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Cello tapes, decorative tapes, Nano tape",
+      "brand_detail": "Wonder Tape; Nano tape",
+      "on_hand_observed": "3 large + about 12 small",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "0:36–0:52",
+        "evidence": "Counted on camera; see S03"
+      }
+    },
+    {
+      "line_id": "OS07",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Mirrors and reusable activity items",
+      "brand_detail": null,
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "1:52–1:58",
+        "evidence": "“Items are enough.”"
+      }
+    },
+    {
+      "line_id": "OS08",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Office materials (pins etc.)",
+      "brand_detail": "Box 13 Office Materials",
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "1:58–2:08",
+        "evidence": "“We do not need anything else here.”"
+      }
+    },
+    {
+      "line_id": "OS09",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Painting tools",
+      "brand_detail": "Box: Painting Tools (PTO)",
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "2:33–2:38",
+        "evidence": "“We have enough.”"
+      }
+    },
+    {
+      "line_id": "OS10",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Box, thread, ribbons",
+      "brand_detail": null,
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "2:38–2:43",
+        "evidence": "“Yes.”"
+      }
+    },
+    {
+      "line_id": "OS11",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Decorating and birthday-box items",
+      "brand_detail": "Box: Decorating Items",
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "2:43–2:49",
+        "evidence": "“Yes.”"
+      }
+    },
+    {
+      "line_id": "OS12",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Cutting and punching tools, bags",
+      "brand_detail": "Box 3 Cutting & Punching Tools (KR-STA-B03-CUT)",
+      "on_hand_observed": "More than enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "2:49–2:53",
+        "evidence": "“We have too much.”"
+      }
+    },
+    {
+      "line_id": "OS13",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Beads",
+      "brand_detail": null,
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "2:53–2:56",
+        "evidence": "“Yes.”"
+      }
+    },
+    {
+      "line_id": "OS14",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Cutlery",
+      "brand_detail": "Box 15 Cutlery Material (KR-STA-B15)",
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "2:56–2:59",
+        "evidence": "“Yeah.”"
+      }
+    },
+    {
+      "line_id": "OS15",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "German (foam) sheets",
+      "brand_detail": null,
+      "on_hand_observed": "Some of 50 used",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "3:26–3:35",
+        "evidence": "“we doesn’t need any of them now”"
+      }
+    },
+    {
+      "line_id": "OS16",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Crepe paper",
+      "brand_detail": null,
+      "on_hand_observed": "Enough",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "3:56–4:01",
+        "evidence": "“we don’t need anything”"
+      }
+    },
+    {
+      "line_id": "OS17",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Kite paper",
+      "brand_detail": null,
+      "on_hand_observed": "Large amount",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "4:01–4:05",
+        "evidence": "“we have huge amount”"
+      }
+    },
+    {
+      "line_id": "OS18",
+      "record_type": "observed_not_requested",
+      "category": "Stationery",
+      "product_name": "Extra event materials",
+      "brand_detail": "Box 18 Extra Event Materials (KR-EVT-B18)",
+      "on_hand_observed": "Box",
+      "source": {
+        "video_id": "V1",
+        "file": "WhatsApp_Video_2026-10-30_at_14.59.14.mp4",
+        "timestamp": "0:06–0:09",
+        "evidence": "Shown, not discussed"
+      }
+    }
+  ]
+}
